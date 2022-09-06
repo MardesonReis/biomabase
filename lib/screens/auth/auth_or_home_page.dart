@@ -1,0 +1,154 @@
+import 'dart:async';
+
+import 'package:biomaapp/constants.dart';
+import 'package:biomaapp/models/data_list.dart';
+import 'package:biomaapp/screens/auth/auth_page.dart';
+import 'package:biomaapp/screens/auth/auth_page_fi.dart';
+import 'package:brasil_fields/brasil_fields.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:biomaapp/models/auth.dart';
+import 'package:biomaapp/models/fidelimax.dart';
+
+//import 'package:biomaapp/pages/products_overview_page.dart';
+//import 'package:biomaapp/pages/procedimentos_overview_page';
+import 'package:biomaapp/screens/main/main_screen.dart';
+import 'package:uni_links/uni_links.dart';
+
+bool _initialUriIsHandled = false;
+
+class AuthOrHomePage extends StatefulWidget {
+  const AuthOrHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<AuthOrHomePage> createState() => _AuthOrHomePageState();
+}
+
+class _AuthOrHomePageState extends State<AuthOrHomePage> {
+  Uri? _initialUri;
+  Uri? _latestUri;
+  Object? _err;
+  bool _isLoading = false;
+  bool _isLogin = true;
+
+  StreamSubscription? _sub;
+
+  final _scaffoldKey = GlobalKey();
+
+  final _cmdStyle = const TextStyle(
+      fontFamily: 'Courier', fontSize: 12.0, fontWeight: FontWeight.w700);
+
+  @override
+  void initState() {
+    super.initState();
+
+    var auth = Provider.of<Auth>(
+      context,
+      listen: false,
+    );
+    var dados = Provider.of<DataList>(
+      context,
+      listen: false,
+    );
+
+    auth.tryAutoLogin().then((value) {
+      setState(() {
+        _isLogin = false;
+      });
+    });
+    dados.items.isEmpty
+        ? dados.loadDados('').then((value) => setState(() {
+              _isLoading = false;
+            }))
+        : setState(() {
+            _isLoading = false;
+          });
+    _handleIncomingLinks();
+    _handleInitialUri();
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  /// Manipula os links de entrada - aqueles que o aplicativo receberá do SO
+  /// /// enquanto já iniciado.
+  void _handleIncomingLinks() async {
+    if (!kIsWeb) {
+      // Ele lidará com links de aplicativos enquanto o aplicativo já estiver iniciado - seja em
+      // o primeiro plano ou em segundo plano.
+      _sub = uriLinkStream.listen((Uri? uri) {
+        if (!mounted) return;
+        print('got uri: $uri');
+        setState(() {
+          _latestUri = uri;
+          _err = null;
+        });
+      }, onError: (Object err) {
+        if (!mounted) return;
+        print('got err: $err');
+        setState(() {
+          _latestUri = null;
+          if (err is FormatException) {
+            _err = err;
+          } else {
+            _err = null;
+          }
+        });
+      });
+    }
+  }
+
+  /// Manipula o Uri inicial - aquele com o qual o aplicativo foi iniciado
+  ///
+  /// **ATENÇÃO**: `getInitialLink`/`getInitialUri` deve ser tratado
+  /// SOMENTE UMA VEZ durante a vida útil do seu aplicativo, pois ele não deve ser alterado
+  /// ao longo da vida do seu aplicativo.
+  ///
+  /// Tratamos todas as exceções, pois é chamado de initState.
+  Future<void> _handleInitialUri() async {
+// Neste aplicativo de exemplo, este é um guarda quase inútil, mas está aqui para
+    // mostra que não vamos chamar getInitialUri várias vezes, mesmo que isso
+    // foi um weidget que será descartado (por exemplo, uma mudança de rota de navegação).
+    if (!_initialUriIsHandled) {
+      _initialUriIsHandled = true;
+      //     showSnackBar('_handleInitialUri called', context);
+      try {
+        final uri = await getInitialUri();
+        if (uri == null) {
+          print('no initial uri');
+        } else {
+          print('got initial uri: $uri');
+        }
+        if (!mounted) return;
+        setState(() => _initialUri = uri);
+      } on PlatformException {
+        // As mensagens da plataforma podem falhar, mas ignoramos a exceção
+        print('falied to get initial uri');
+      } on FormatException catch (err) {
+        if (!mounted) return;
+        print('malformed initial uri');
+        setState(() => _err = err);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    @override
+    Auth auth = Provider.of(context);
+    if (auth.isAuth && auth.fidelimax.cpf == '') {
+      return auth.isAuth ? AuthPageFi() : AuthPage();
+    } else {
+      return auth.isAuth && auth.fidelimax.cpf != ''
+          //UtilBrasilFields.isCPFValido(auth.fidelimax.cpf) ||
+          //      UtilBrasilFields.isCPFValido(auth.fidelimax.cpf)
+          ? MainScreen()
+          : AuthPage();
+    }
+  }
+}
