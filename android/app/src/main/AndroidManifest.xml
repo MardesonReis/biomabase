@@ -36,8 +36,8 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <!-- Accepts URIs that begin with YOUR_SCHEME://YOUR_HOST -->
         <data
-          android:scheme="https"
-           android:host="biotvindoor.com" />
+          android:scheme="http"
+           android:host="bioma.app.br" />
       </intent-filter>
 
       <!-- App Links -->
@@ -47,8 +47,8 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <!-- Accepts URIs that begin with https://YOUR_HOST -->
         <data
-          android:scheme="https"
-          android:host="biotvindoor.com" />
+          android:scheme="http"
+          android:host="bioma.app.br" />
       </intent-filter>
 
 

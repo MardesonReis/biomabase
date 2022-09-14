@@ -4,6 +4,7 @@ import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/screens/auth/auth_page.dart';
 import 'package:biomaapp/screens/auth/auth_page_fi.dart';
+import 'package:biomaapp/screens/pedidos/navaIndicacao.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +28,8 @@ class AuthOrHomePage extends StatefulWidget {
 }
 
 class _AuthOrHomePageState extends State<AuthOrHomePage> {
-  Uri? _initialUri;
   Uri? _latestUri;
   Object? _err;
-  bool _isLoading = false;
   bool _isLogin = true;
 
   StreamSubscription? _sub;
@@ -43,7 +42,7 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
   @override
   void initState() {
     super.initState();
-
+    if (!mounted) return;
     var auth = Provider.of<Auth>(
       context,
       listen: false,
@@ -53,20 +52,14 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
       listen: false,
     );
 
+    _handleIncomingLinks();
+    _handleInitialUri();
+
     auth.tryAutoLogin().then((value) {
       setState(() {
         _isLogin = false;
       });
     });
-    dados.items.isEmpty
-        ? dados.loadDados('').then((value) => setState(() {
-              _isLoading = false;
-            }))
-        : setState(() {
-            _isLoading = false;
-          });
-    _handleIncomingLinks();
-    _handleInitialUri();
   }
 
   @override
@@ -85,7 +78,9 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
         if (!mounted) return;
         print('got uri: $uri');
         setState(() {
-          _latestUri = uri;
+          if (uri != null) {
+            _latestUri = uri;
+          }
           _err = null;
         });
       }, onError: (Object err) {
@@ -123,9 +118,9 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
           print('no initial uri');
         } else {
           print('got initial uri: $uri');
+          if (!mounted) return;
+          setState(() => _latestUri = uri);
         }
-        if (!mounted) return;
-        setState(() => _initialUri = uri);
       } on PlatformException {
         // As mensagens da plataforma podem falhar, mas ignoramos a exceção
         print('falied to get initial uri');
@@ -141,14 +136,25 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
   Widget build(BuildContext context) {
     @override
     Auth auth = Provider.of(context);
-    if (auth.isAuth && auth.fidelimax.cpf == '') {
-      return auth.isAuth ? AuthPageFi() : AuthPage();
+    var body;
+    print(_latestUri.toString());
+    var acaos = [];
+    if (_latestUri != null && _latestUri.toString().contains('?')) {
+      acaos = _latestUri.toString().split('?')[1].split('=');
+      auth.acoes.addAll({acaos[0]: acaos[1]});
+      if (acaos[0] == 'id_indicacao') {
+        body = NovaIndicacao(IdIndicacao: acaos[1]);
+      }
+    } else if (auth.isAuth && auth.fidelimax.cpf == '') {
+      body = auth.isAuth ? AuthPageFi() : AuthPage();
     } else {
-      return auth.isAuth && auth.fidelimax.cpf != ''
+      body = auth.isAuth && auth.fidelimax.cpf != ''
           //UtilBrasilFields.isCPFValido(auth.fidelimax.cpf) ||
           //      UtilBrasilFields.isCPFValido(auth.fidelimax.cpf)
           ? MainScreen()
           : AuthPage();
     }
+
+    return body;
   }
 }

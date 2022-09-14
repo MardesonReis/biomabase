@@ -6,6 +6,7 @@ import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:http/retry.dart';
 import 'Clips.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,6 +20,8 @@ class Auth with ChangeNotifier {
   String? _token;
   String? _email;
   String? _userId;
+  Map<String, String> acoes = {};
+
   Fidelimax? _fidelimax = new Fidelimax();
   filtrosAtivos? _filtros = new filtrosAtivos();
   Paginas? _pgs = new Paginas();
@@ -122,39 +125,20 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<void> recoverEmail(String email, String urlFragment) async {
+  Future<dynamic> recoverEmail(String email) async {
     Map<String, String> headers = {'Access-Control-Allow-Origin': '*'};
-
     final url =
-        'https://identitytoolkit.googleapis.com/v1/accounts:$urlFragment?key=AIzaSyBWag_wpHlbf4um3QxdMO9UFLX6i0-Ha0s';
-    print(url);
+        'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=' +
+            Constants.KAY;
     final response = await http.post(
       Uri.parse(url),
       //   headers: headers,
-      body: jsonEncode({
-        'email': email,
-        'returnSecureToken': true,
-      }),
+      body: jsonEncode({'requestType': 'PASSWORD_RESET', 'email': email}),
     );
 
     final body = jsonDecode(response.body);
-
-    if (body['error'] != null) {
-      throw AuthException(body['error']['message']);
-    } else {
-      _token = body['idToken'];
-      _email = body['email'];
-      _userId = body['localId'];
-
-      _expiryDate = DateTime.now().add(
-        Duration(
-          seconds: int.parse(body['expiresIn']),
-        ),
-      );
-
-      _autoLogout();
-      notifyListeners();
-    }
+    print(response.body);
+    return body;
   }
 
   Future<void> signup(String email, String password) async {

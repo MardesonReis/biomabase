@@ -36,17 +36,17 @@ class _ExtratoPageState extends State<ExtratoPage> {
     //final es = provider.ExtratoConsumidor();
     final List<Extrato> loadedExtrato = provider.extrato;
 
-    return _isLoading
-        ? Center(child: CircularProgressIndicator())
-        : Scaffold(
-            appBar: AppBar(
-              title: Text('Meu Extrato'),
-            ),
-            //drawer: AppDrawer(),
-            body: ListView.builder(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Meu Extrato'),
+      ),
+      //drawer: AppDrawer(),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
               itemCount: loadedExtrato.length,
               itemBuilder: (ctx, i) => ExtratoWidget(extrato: loadedExtrato[i]),
             ),
-          );
+    );
   }
 }

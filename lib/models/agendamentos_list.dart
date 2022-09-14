@@ -34,7 +34,10 @@ class AgendamentosList with ChangeNotifier {
     //debugPrint(cpf);
 
     _items.clear();
-
+    var link = '${Constants.PROCEDIMENTOS}procedimentosAgendados/' +
+        cpf_parceiro +
+        Constants.AUT_BASE;
+    print(link);
     final response = await http.get(
       Uri.parse('${Constants.PROCEDIMENTOS}procedimentosAgendados/' +
           cpf_parceiro +

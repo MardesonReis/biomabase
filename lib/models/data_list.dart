@@ -33,9 +33,10 @@ class DataList with ChangeNotifier {
     //debugPrint(cpf);
 
     _items.clear();
-
+    var link = '${Constants.DATA_BASE_URL}/0/' + medico + Constants.AUT_BASE;
+    print(link);
     final response = await http.get(
-      Uri.parse('${Constants.DATA_BASE_URL}/0/' + medico + Constants.AUT_BASE),
+      Uri.parse(link),
     );
     if (response.body == 'null') return;
     //debugPrint(response.body);
@@ -72,6 +73,6 @@ class DataList with ChangeNotifier {
 
     items.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
 
-    notifyListeners();
+    // notifyListeners();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
+import 'package:biomaapp/screens/pedidos/navaIndicacao.dart';
 import 'package:biomaapp/screens/user/components/user_screen.dart';
 import 'package:biomaapp/screens/user/user_page.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     );
                   },
                 ),
+
                 // Divider(),
 
                 Divider(),

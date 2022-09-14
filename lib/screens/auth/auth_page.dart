@@ -1,13 +1,17 @@
 import 'dart:math';
 
+import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/screens/auth/components/auth_form.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Auth auth = Provider.of(context);
+
     return Container(
       child: Scaffold(
         body: SingleChildScrollView(

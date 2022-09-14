@@ -276,9 +276,11 @@ class Fidelimax with ChangeNotifier {
 
   Future<Fidelimax> ExtratoConsumidor() async {
     final url =
-        Constants.FIDELIMAX_API + 'ExtratoConsumidor' + '' + Constants.AUT_BASE;
+        Constants.FIDELIMAX_API + 'ExtratoConsumidor' + Constants.AUT_BASE;
 
-    Map parans = {"cpf": this._cpf, "skip": 0, "take": 50};
+    print(url);
+
+    Map parans = {"cpf": this._cpf, "skip": "0", "take": "50"};
 
     final response = await http.post(
       Uri.parse(url),
@@ -329,7 +331,7 @@ class Fidelimax with ChangeNotifier {
 
     //    _autoLogout();
 
-    notifyListeners();
+    //   notifyListeners();
     return this;
   }
 

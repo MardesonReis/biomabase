@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:biomaapp/exceptions/auth_exception.dart';
 import 'package:biomaapp/models/auth.dart';
 
-enum AuthMode { Signup, Login }
+enum AuthMode { Signup, Login, Recuver }
 
 class AuthForm extends StatefulWidget {
   const AuthForm({Key? key}) : super(key: key);
@@ -20,6 +20,7 @@ class _AuthFormState extends State<AuthForm> {
   final _passwordController = TextEditingController();
   final _EmailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _formKeyRecuver = GlobalKey<FormState>();
   bool _isLoading = false;
 
   AuthMode _authMode = AuthMode.Login;
@@ -28,9 +29,13 @@ class _AuthFormState extends State<AuthForm> {
     'password': '',
     'cpf': '',
   };
+  Map<String, String> _authDataRecuver = {
+    'email': '',
+  };
 
   bool _isLogin() => _authMode == AuthMode.Login;
   bool _isSignup() => _authMode == AuthMode.Signup;
+  bool _isReceuver() => _authMode == AuthMode.Recuver;
 
   void _switchAuthMode() {
     setState(() {
@@ -52,6 +57,75 @@ class _AuthFormState extends State<AuthForm> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text('Fechar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  recuperaSenha() {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Recuperar Sneha'),
+        content: Column(
+          children: [
+            Title(color: Colors.blue, child: Text('Informe um email')),
+            Form(
+              key: _formKeyRecuver,
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'E-mail'),
+                    keyboardType: TextInputType.emailAddress,
+                    onSaved: (email) => _authDataRecuver['email'] = email ?? '',
+                    controller: _EmailController,
+                    validator: (_email) {
+                      final email = _email ?? '';
+                      if (email.trim().isEmpty || !email.contains('@')) {
+                        return 'Informe um e-mail válido.';
+                      }
+                      return null;
+                    },
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Auth auth = Provider.of(context, listen: false);
+              final isValid = _formKeyRecuver.currentState?.validate() ?? false;
+
+              if (!isValid) {
+                return;
+              }
+
+              _formKeyRecuver.currentState?.save();
+
+              var body =
+                  await auth.recoverEmail(_authDataRecuver['email'].toString());
+
+              if (body['email'] != null) {
+                Navigator.of(context).pop(true);
+                AlertShowDialog(
+                    'Sucesso',
+                    'Um email de redefinição de senha foi enviado para ' +
+                        body['email'].toString() +
+                        '\nVerifique o SPAN',
+                    context);
+              } else {
+                Navigator.of(context).pop(true);
+                AlertShowDialog('Erro', 'Email não encontrado', context);
+              }
+            },
+            child: Text('Confirmar'),
           ),
         ],
       ),
@@ -207,7 +281,7 @@ class _AuthFormState extends State<AuthForm> {
                   ),
                   TextButton(
                     onPressed: () {
-                      auth.recoverEmail('email', 'recoverEmail');
+                      recuperaSenha();
                     },
                     child: Text(
                       'Recuperar Senha?',
