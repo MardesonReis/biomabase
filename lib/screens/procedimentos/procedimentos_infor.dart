@@ -48,21 +48,14 @@ class _ProcedimentosInforState extends State<ProcedimentosInfor> {
               //   foregroundColor: Colors.black,
               radius: 25.0,
               child: Text(widget.procedimento.des_procedimentos[0])),
-          title: Text(
-            widget.procedimento.des_procedimentos.capitalize(),
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-          ),
+          title: textResp(widget.procedimento.des_procedimentos),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                widget.procedimento.especialidade.descricao.capitalize(),
-                style: TextStyle(
-                  fontSize: 10,
-                ),
-              ),
+              textResp(
+                  widget.procedimento.especialidade.descricao.capitalize()),
+              textResp(widget.procedimento.orientacoes.toString()),
               Text(
                 detalhe,
                 style: TextStyle(
@@ -72,7 +65,7 @@ class _ProcedimentosInforState extends State<ProcedimentosInfor> {
             ],
           ),
           trailing: Column(children: [
-            Text('R\$' + widget.procedimento.valor.toString()),
+            Text('R\$' + widget.procedimento.valor_sugerido.toString()),
           ]),
         ),
       ),

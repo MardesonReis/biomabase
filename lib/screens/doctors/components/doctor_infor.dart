@@ -40,19 +40,13 @@ class _DoctorInforState extends State<DoctorInfor> {
             });
           },
           child: isError == true
-              ? Text(widget.doctor.des_profissional[0])
+              ? Text(widget.doctor.des_profissional.isNotEmpty
+                  ? widget.doctor.des_profissional[0]
+                  : '')
               : SizedBox(),
         ),
-        title: Text(
-          'Dr(a) ' + widget.doctor.des_profissional.capitalize(),
-          style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-        subtitle: Text(
-          widget.doctor.subespecialidade.capitalize(),
-          style: TextStyle(
-              fontSize: 12, fontWeight: FontWeight.normal, color: Colors.black),
-        ),
+        title: textResp('Dr(a) ' + widget.doctor.des_profissional),
+        subtitle: textResp(widget.doctor.subespecialidade),
       ),
     );
   }

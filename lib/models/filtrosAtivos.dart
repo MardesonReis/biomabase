@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:biomaapp/models/Fila.dart';
 import 'package:biomaapp/models/convenios.dart';
 import 'package:biomaapp/models/especialidade.dart';
+import 'package:biomaapp/models/formapagamento.dart';
 import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/pacientes.dart';
@@ -30,15 +31,18 @@ class filtrosAtivos with ChangeNotifier {
   List<Clips> dias = [];
   List<Clips> horarios = [];
   List<Clips> olho = [];
+  List<FormaPagamento> FormaPg = [];
   List<Map<String, Object>> servicos_page = [];
   late GoogleMapController googleMapController;
   int FiltrosAtivos = 0;
   List<Map<String, Object>> tipoFila = [];
   List<String> passo = [];
+  BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
 
   Future<void> BuscarFiltrosAtivos() async {
     FiltrosAtivos = unidades.length +
         convenios.length +
+        medicos.length +
         especialidades.length +
         subespecialidades.length +
         grupos.length;
@@ -47,7 +51,7 @@ class filtrosAtivos with ChangeNotifier {
 
   Future<void> LimparTodosFiltros() async {
     unidades.clear();
-    convenios.clear();
+    // convenios.clear();
     especialidades.clear();
     subespecialidades.clear();
     grupos.clear();
@@ -76,6 +80,25 @@ class filtrosAtivos with ChangeNotifier {
   Future<void> LimparUsuarios() async {
     usuarios.clear();
     usuarios = [];
+
+    notifyListeners();
+  }
+
+  Future<void> addFormaPg(FormaPagamento pg) async {
+    FormaPg.add(pg);
+
+    notifyListeners();
+  }
+
+  Future<void> RemoverFormaPg(FormaPagamento pg) async {
+    await FormaPg.remove(pg);
+
+    notifyListeners();
+  }
+
+  Future<void> LimparFormaPg() async {
+    FormaPg.clear();
+    FormaPg = [];
 
     notifyListeners();
   }

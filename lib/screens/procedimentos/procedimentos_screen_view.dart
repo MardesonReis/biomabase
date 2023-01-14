@@ -14,6 +14,7 @@ import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/appointment/appointment_screen.dart';
@@ -42,7 +43,7 @@ class _ProcedimentosScrennViwerState extends State<ProcedimentosScrennViwer> {
   TextEditingController txtQuery = new TextEditingController();
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context, listen: false);
     Paginas pages = auth.paginas;
 
@@ -52,16 +53,35 @@ class _ProcedimentosScrennViwerState extends State<ProcedimentosScrennViwer> {
     mockResults = auth.filtrosativos.medicos;
     List<Data> m = [];
     List<Medicos> medicos = [];
+
     var filtrarUnidade = filtros.unidades.isNotEmpty;
     var filtrarConvenio = filtros.convenios.isNotEmpty;
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    var filtrarMedicos = filtros.medicos.isNotEmpty;
+    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
+
+    final dados = dt.dados;
     dados.retainWhere((element) {
-      return element.cod_procedimentos ==
-          widget.procedimentos.cod_procedimentos;
+      return filtrarProcedimento
+          ? element.cod_procedimentos == widget.procedimentos.cod_procedimentos
+          : true;
     });
+    dados.retainWhere((element) {
+      return filtrarProcedimento
+          ? double.parse(element.valor_sugerido) ==
+              widget.procedimentos.valor_sugerido
+          : true;
+    });
+    if (filtrarMedicos) {
+      dados.retainWhere((element) {
+        return filtros.medicos
+            .where((m) => m.cod_profissional == element.cod_profissional)
+            .isNotEmpty;
+      });
+    }
+
     dados.retainWhere((element) {
       return filtrarUnidade
           ? filtros.unidades.contains(Unidade(

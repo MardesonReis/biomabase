@@ -7,6 +7,7 @@ import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/especialidade.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/screens/home/components/acordionExemplo.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
     var verifprocedimento = false;
     Auth auth = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
 
     Set<String> conveniosInclusas = Set();
     Set<String> SubEspecialidadesInclusas = Set();
@@ -41,7 +42,23 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
     var filtrarConvenios = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    var filtrarProcedimentos = filtros.procedimentos.isNotEmpty;
+    var filtrarMedicos = filtros.medicos.isNotEmpty;
+    final dados = dt.dados;
+    if (filtrarProcedimentos) {
+      dados.retainWhere((element) {
+        return filtros.procedimentos
+            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
+            .isNotEmpty;
+      });
+    }
+    if (filtrarProcedimentos) {
+      dados.retainWhere((element) {
+        return filtros.medicos
+            .where((m) => m.cod_profissional == element.cod_profissional)
+            .isNotEmpty;
+      });
+    }
     dados.retainWhere((element) {
       return filtrarEspecialidade
           ? filtros.especialidades.contains(Especialidade(
@@ -65,68 +82,55 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
       }
     }).toList();
     convenios.sort((a, b) => a.desc_convenio.compareTo(b.desc_convenio));
+    var c = Convenios(cod_convenio: '', desc_convenio: 'Convênios');
 
-    filtros.convenios.isEmpty
-        ? () {
-            setState(() {
-              ConvenioSelecionado = convenios
-                  .where((element) => element.cod_convenio == '40')
-                  .toList()
-                  .first;
-              filtros.LimparConvenios();
-              filtros.addConvenios(ConvenioSelecionado);
-            });
-            // widget.press.call();
-          }.call()
-        : () {
-            setState(() {
-              ConvenioSelecionado = filtros.convenios.first;
-            });
-          }.call();
+    if (ConvenioSelecionado.cod_convenio.isEmpty) {
+      ConvenioSelecionado = c;
+    }
+    if (!convenios.contains(c)) {
+      convenios.add(c);
+    }
+    return PopupMenuButton<Convenios>(
+      initialValue: ConvenioSelecionado,
+      child: Card(
+        elevation: 5,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(ConvenioSelecionado.desc_convenio),
+              Icon(
+                Icons.expand_more_outlined,
+                color: primaryColor,
+              )
+            ],
+          ),
+        ),
+      ),
+      onSelected: (value) {
+        setState(() {
+          filtros.LimparConvenios();
+          if (value.cod_convenio != '') {
+            filtros.addConvenios(value);
+          }
+          ConvenioSelecionado = value;
 
-    return convenios.isEmpty
-        ? CircularProgressIndicator()
-        : PopupMenuButton<Convenios>(
-            initialValue: ConvenioSelecionado,
-            child: Card(
-              elevation: 5,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(ConvenioSelecionado.desc_convenio),
-                    Icon(
-                      Icons.expand_more_outlined,
-                      color: primaryColor,
-                    )
-                  ],
-                ),
-              ),
+          widget.press.call();
+        });
+      },
+      itemBuilder: (BuildContext context) {
+        return convenios.map((Convenios choice) {
+          return PopupMenuItem<Convenios>(
+            value: choice,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(choice.desc_convenio),
             ),
-            onSelected: (value) {
-              setState(() {
-                filtros.LimparConvenios();
-                if (value.cod_convenio != '') {
-                  filtros.addConvenios(value);
-                }
-                ConvenioSelecionado = value;
-
-                widget.press.call();
-              });
-            },
-            itemBuilder: (BuildContext context) {
-              return convenios.map((Convenios choice) {
-                return PopupMenuItem<Convenios>(
-                  value: choice,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(choice.desc_convenio),
-                  ),
-                );
-              }).toList();
-            },
           );
+        }).toList();
+      },
+    );
   }
 }

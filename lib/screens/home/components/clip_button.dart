@@ -60,7 +60,7 @@ class _myclip extends State<myclip> {
               },
             ),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text("Report"),
                 onPressed: () => Navigator.of(context).pop(),
               )
@@ -76,7 +76,7 @@ class _myclip extends State<myclip> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          RaisedButton(
+          TextButton(
             child: Text("Multi Select Chip Click"),
             onPressed: () => _showDialog(),
           ),

@@ -3,6 +3,7 @@ import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
 import 'package:biomaapp/utils/constants.dart';
@@ -28,7 +29,7 @@ class AvailableDoctorCard extends StatefulWidget {
 class _AvailableDoctorCardState extends State<AvailableDoctorCard> {
   @override
   Widget build(BuildContext context) {
-    DataList Data = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     //  final ImageLoadingBuilder? loadingBuilder;
 
     Auth auth = Provider.of(context);
@@ -37,9 +38,8 @@ class _AvailableDoctorCardState extends State<AvailableDoctorCard> {
 
     Set<String> unidadesInclusoIncluso = Set();
 
-    var ulist = Data.items
-        .where((element) => element.crm == widget.medico.crm)
-        .toList();
+    var ulist =
+        dt.dados.where((element) => element.crm == widget.medico.crm).toList();
     List<Unidade> unidadeslist = [];
     ulist.map((e) {
       if (!unidadesInclusoIncluso.contains(e.cod_unidade)) {

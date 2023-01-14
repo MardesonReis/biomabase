@@ -35,7 +35,7 @@ class MedicosList with ChangeNotifier {
     return items.length;
   }
 
-  Future<void> loadMedicos(String medico) async {
+  Future<void> loadMedicosId(String medico) async {
     //debugPrint(cpf);
 
     _items.clear();
@@ -44,6 +44,37 @@ class MedicosList with ChangeNotifier {
     final response = await http.get(
       Uri.parse(
           '${Constants.MEDICOS_BASE_URL}/0/' + medico + Constants.AUT_BASE),
+    );
+    if (response.body == 'null') return;
+    //debugPrint(response.body);
+    List listmedicos = jsonDecode(response.body)['dados'];
+    Set<String> medicosInclusoIncluso = Set();
+    Set<String> unidadesInclusoIncluso = Set();
+    Set<String> conveniosInclusoIncluso = Set();
+    Set<String> procedimentosInclusoIncluso = Set();
+
+    listmedicos.map(
+      (item) {
+        _items.add(Medicos()
+            .BuscarMedicoPorId(item['cod_profissional'].toString()) as Medicos);
+      },
+    ).toList();
+
+    // debugPrint(unidades.length.toString());
+    // debugPrint(convenios.length.toString());
+
+    notifyListeners();
+  }
+
+  Future<void> loadMedicosCPF(String cpf) async {
+    //debugPrint(cpf);
+
+    _items.clear();
+    unidades.clear();
+    convenios.clear();
+    final response = await http.get(
+      Uri.parse(
+          '${Constants.MEDICOS_BASE_URL}/0/0/' + cpf + Constants.AUT_BASE),
     );
     if (response.body == 'null') return;
     //debugPrint(response.body);

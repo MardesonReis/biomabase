@@ -6,7 +6,10 @@ import 'package:http/http.dart' as http;
 import 'package:biomaapp/utils/constants.dart';
 
 class Data with ChangeNotifier {
+  final String id_regra;
   final String crm;
+  final String valor_sugerido;
+  final String orientacoes;
   final String cpf;
   final String cod_profissional;
   final String des_profissional;
@@ -44,6 +47,9 @@ class Data with ChangeNotifier {
       this.des_procedimentos;
 
   Data({
+    required this.id_regra,
+    required this.valor_sugerido,
+    required this.orientacoes,
     required this.crm,
     required this.cpf,
     required this.cod_profissional,
@@ -66,4 +72,19 @@ class Data with ChangeNotifier {
     required this.valor,
     required this.frequencia,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Data &&
+          runtimeType == other.runtimeType &&
+          textBusca == other.textBusca;
+
+  @override
+  int get hashCode => textBusca.hashCode;
+
+  @override
+  String toString() {
+    return textBusca;
+  }
 }

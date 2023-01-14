@@ -28,7 +28,7 @@ class UsuariosList with ChangeNotifier {
 
   Future<void> loadPacientes(String query) async {
     //debugPrint(cpf);
-
+    _items.clear();
     String cpf = UtilBrasilFields.isCPFValido(query) ||
             UtilBrasilFields.isCNPJValido(query)
         ? query
@@ -38,7 +38,6 @@ class UsuariosList with ChangeNotifier {
         ? '0'
         : query;
 
-    _items.clear();
     var link = Uri.parse('${Constants.PACIENTE_BASE_URL}/' +
         cpf +
         '/' +
@@ -48,7 +47,6 @@ class UsuariosList with ChangeNotifier {
 
     final response = await http.get(link);
     if (response.body == 'null') return;
-    debugPrint(response.body);
     final data = jsonDecode(response.body);
     List paciente = jsonDecode(response.body)['dados'];
 
@@ -158,7 +156,7 @@ class UsuariosList with ChangeNotifier {
     };
 
     var link = Constants.VerificaOuCriaPaciente + '' + Constants.AUT_BASE;
-    print(link);
+    //print(link);
 
     final response = await http.post(Uri.parse(link),
         headers: {
@@ -169,8 +167,7 @@ class UsuariosList with ChangeNotifier {
         encoding: Encoding.getByName("utf-8"));
 
     if (response.body == 'null') return Usuario();
-//    print(response.body);
-    var agendamentolist = await jsonDecode(response.body)['dados'];
+    List agendamentolist = await jsonDecode(response.body)['dados'];
     Usuario NewUser = Usuario();
     await agendamentolist.map(
       (item) {

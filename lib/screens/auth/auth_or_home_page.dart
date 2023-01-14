@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/data_list.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/screens/auth/auth_page.dart';
 import 'package:biomaapp/screens/auth/auth_page_fi.dart';
 import 'package:biomaapp/screens/pedidos/navaIndicacao.dart';
@@ -30,7 +31,8 @@ class AuthOrHomePage extends StatefulWidget {
 class _AuthOrHomePageState extends State<AuthOrHomePage> {
   Uri? _latestUri;
   Object? _err;
-  bool _isLogin = true;
+  bool _isLogin = false;
+  bool _isLoadingRegras = false;
 
   StreamSubscription? _sub;
 
@@ -47,19 +49,45 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
       context,
       listen: false,
     );
-    var dados = Provider.of<DataList>(
+
+    var regraList = Provider.of<RegrasList>(
       context,
       listen: false,
     );
+    //13978829304
 
-    _handleIncomingLinks();
-    _handleInitialUri();
-
-    auth.tryAutoLogin().then((value) {
+    auth.tryAutoLogin().then((value) async {
+      if (auth.isAuth && !await auth.isAuthFidelimax) {
+        auth.fidelimax
+            .ListCpfFidelimax(auth.userId ?? '', auth.token ?? '')
+            .then((value) async {
+          if (await auth.isAuthFidelimax) {
+            auth.fidelimax.RetornaDadosCliente().then((value) {
+              setState(() {
+                _isLogin = false;
+              });
+            });
+          } else {
+            setState(() {
+              auth.fidelimax.cpf = '';
+              _isLogin = false;
+            });
+          }
+        });
+      } else {
+        setState(() {
+          //auth.fidelimax.cpf = '';
+          _isLogin = false;
+        });
+      }
+    });
+    regraList.carrgardados(context, Onpress: () {
       setState(() {
-        _isLogin = false;
+        _isLoadingRegras = false;
       });
     });
+    _handleIncomingLinks();
+    _handleInitialUri();
   }
 
   @override
@@ -115,18 +143,18 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
       try {
         final uri = await getInitialUri();
         if (uri == null) {
-          print('no initial uri');
+          //   print('no initial uri');
         } else {
-          print('got initial uri: $uri');
+          //  print('got initial uri: $uri');
           if (!mounted) return;
           setState(() => _latestUri = uri);
         }
       } on PlatformException {
         // As mensagens da plataforma podem falhar, mas ignoramos a exceção
-        print('falied to get initial uri');
+        //  print('falied to get initial uri');
       } on FormatException catch (err) {
         if (!mounted) return;
-        print('malformed initial uri');
+        // print('malformed initial uri');
         setState(() => _err = err);
       }
     }
@@ -137,7 +165,6 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
     @override
     Auth auth = Provider.of(context);
     var body;
-    print(_latestUri.toString());
     var acaos = [];
     if (_latestUri != null && _latestUri.toString().contains('?')) {
       acaos = _latestUri.toString().split('?')[1].split('=');
@@ -145,16 +172,23 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
       if (acaos[0] == 'id_indicacao') {
         body = NovaIndicacao(IdIndicacao: acaos[1]);
       }
-    } else if (auth.isAuth && auth.fidelimax.cpf == '') {
-      body = auth.isAuth ? AuthPageFi() : AuthPage();
+      // } else if (auth.isAuth && auth.fidelimax.cpf == '') {
+      //    body = auth.isAuth ? AuthPageFi() : AuthPage();
     } else {
-      body = auth.isAuth && auth.fidelimax.cpf != ''
-          //UtilBrasilFields.isCPFValido(auth.fidelimax.cpf) ||
-          //      UtilBrasilFields.isCPFValido(auth.fidelimax.cpf)
-          ? MainScreen()
-          : AuthPage();
+      //   body = auth.isAuth && auth.fidelimax.cpf != ''
+      //UtilBrasilFields.isCPFValido(auth.fidelimax.cpf) ||
+      //      UtilBrasilFields.isCPFValido(auth.fidelimax.cpf)
+
+      body = MainScreen();
+      //  ? MainScreen()
+      //   : AuthPage();
+    }
+    if (auth.isAuth && auth.fidelimax.cpf.isEmpty) {
+      body = AuthPageFi();
     }
 
-    return body;
+    return _isLogin && _isLoadingRegras
+        ? Scaffold(body: Center(child: CircularProgressIndicator()))
+        : body;
   }
 }

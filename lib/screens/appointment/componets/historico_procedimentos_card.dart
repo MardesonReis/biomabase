@@ -2,7 +2,11 @@ import 'package:badges/badges.dart';
 import 'package:biomaapp/components/agendamentos.dart';
 import 'package:biomaapp/models/agedaMedicoList.dart';
 import 'package:biomaapp/models/data_list.dart';
+import 'package:biomaapp/models/especialidade.dart';
+import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
+import 'package:biomaapp/models/usuarios.list.dart';
 import 'package:biomaapp/screens/appointment/agendamentos_page.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +36,7 @@ class _HistoricoProcedimentosCardState
 
   @override
   Widget build(BuildContext coagendamentosntext) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     final data = _TimelineStatus.values;
 
     return Container(
@@ -75,7 +79,7 @@ class _HistoricoProcedimentosCardState
                 _,
                 index,
               ) {
-                switch (widget.agendamentos[index].status) {
+                switch (widget.agendamentos[index].des_status_agenda) {
                   case 'R':
                     return OutlinedDotIndicator(
                       color: Colors.white,
@@ -119,14 +123,35 @@ class _EmptyContentsState extends State<_EmptyContents> {
     return ListTile(
       isThreeLine: true,
       trailing: IconButton(
-          onPressed: () => Navigator.push(
+          onPressed: () async {
+            Medicos medico = await Medicos()
+                .BuscarMedicoPorId(widget.agendamento.cod_profissional);
+            Procedimento procedimento = await Procedimento();
+            procedimento
+                .loadProcedimentosID(
+                    widget.agendamento.cod_unidade,
+                    '0',
+                    '0',
+                    widget.agendamento.cod_unidade,
+                    widget.agendamento.cod_procedimento,
+                    widget.agendamento.cod_convenio)
+                .then((procedimento) {
+              procedimento.especialidade = Especialidade(
+                  codespecialidade: widget.agendamento.cod_especialidade,
+                  descricao: widget.agendamento.des_especialidade,
+                  ativo: 'S');
+              procedimento.EscolherOlho(widget.agendamento.olho);
+
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => AgendamentosPage(
                         agendamento: widget.agendamento, press: () {})),
               ).then((value) => {
-                    //   setState(() {}),
-                  }),
+                    setState(() {}),
+                  });
+            });
+          },
           icon: Icon(
             Icons.info,
             color: primaryColor,

@@ -13,6 +13,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
@@ -73,14 +74,21 @@ class _ServicosScreenState extends State<ServicosScreen> {
       listen: false,
     );
 
-    DataList dados = Provider.of<DataList>(
-      context,
-      listen: false,
-    );
     UnidadesList ListUnidade = Provider.of<UnidadesList>(
       context,
       listen: false,
     );
+
+    var RegraList = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+    //13978829304
+    RegraList.carrgardados(context, Onpress: () {}).then((value) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
 
     GetpageScreen(filtros, context).then((value) {
       setState(() {
@@ -88,17 +96,9 @@ class _ServicosScreenState extends State<ServicosScreen> {
       });
     });
 
-    dados.items.isEmpty
-        ? dados.loadDados('').then((value) => setState(() {
-              _isLoading = false;
-            }))
-        : setState(() {
-            _isLoading = false;
-          });
-
     agenda.items.isEmpty
         ? agenda
-            .loadAgendamentos(auth.fidelimax.cpf.toString())
+            .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '0')
             .then((value) => setState(() {
                   _isLoadingAgendamento = false;
                 }))
@@ -119,7 +119,7 @@ class _ServicosScreenState extends State<ServicosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     Paginas pages = auth.paginas;
     filtrosAtivos filtros = auth.filtrosativos;
@@ -134,7 +134,7 @@ class _ServicosScreenState extends State<ServicosScreen> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    final dados = dt.dados;
     if (dados.isEmpty ||
         widget.pageScreen.isEmpty ||
         _isLoading ||

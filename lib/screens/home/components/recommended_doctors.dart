@@ -9,6 +9,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/main/main_screen.dart';
@@ -29,7 +30,7 @@ class RecommendedDoctors extends StatefulWidget {
 class _RecommendedDoctorsState extends State<RecommendedDoctors> {
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     Paginas pages = auth.paginas;
 

@@ -6,6 +6,7 @@ import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/especialidade.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
 import 'package:biomaapp/screens/home/components/acordionExemplo.dart';
@@ -52,7 +53,7 @@ class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
     var verifprocedimento = false;
     Auth auth = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     UnidadesList DataUnidades = Provider.of(context);
     Set<String> UnidadesIncluso = Set();
 
@@ -67,7 +68,7 @@ class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    final dados = dt.dados;
     List<Unidade> unidades = [];
 
     dados

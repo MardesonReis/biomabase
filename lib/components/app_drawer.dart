@@ -1,6 +1,19 @@
+import 'package:biomaapp/constants.dart';
+import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
+import 'package:biomaapp/screens/appointment/appointment_screen.dart';
+import 'package:biomaapp/screens/appointment/meusAgendamentos.dart';
+import 'package:biomaapp/screens/appointment/minhasIndicacoes.dart';
+import 'package:biomaapp/screens/atendimento/AgendaMedicoScren.dart';
 import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
+import 'package:biomaapp/screens/auth/auth_page.dart';
+import 'package:biomaapp/screens/auth/logar.dart';
+import 'package:biomaapp/screens/pedidos/indicacoes_screen.dart';
 import 'package:biomaapp/screens/pedidos/navaIndicacao.dart';
+import 'package:biomaapp/screens/profile/profile_screen.dart';
+import 'package:biomaapp/screens/servicos/ServicosScreen.dart';
+import 'package:biomaapp/screens/servicos/componets/localizacaoScreen.dart';
 import 'package:biomaapp/screens/user/components/user_screen.dart';
 import 'package:biomaapp/screens/user/user_page.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +33,21 @@ class _AppDrawerState extends State<AppDrawer> {
   void initState() {
     super.initState();
 
-    Provider.of<Auth>(
+    var auth = Provider.of<Auth>(
       context,
       listen: false,
-    ).fidelimax.ConsultaConsumidor().then((value) {
+    );
+    if (auth.fidelimax.cpf.isEmpty && auth.isAuth) {
+      auth.fidelimax.ConsultaConsumidor().then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } else {
       setState(() {
         _isLoading = false;
       });
-    });
+    }
   }
 
   @override
@@ -36,17 +56,46 @@ class _AppDrawerState extends State<AppDrawer> {
 
     Paginas pages = auth.paginas;
 
+    var logar = Logar(fun: () {
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AuthOrHomePage(),
+        ),
+      ).whenComplete(() {
+        // setState(() {});
+      });
+    });
+
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : Drawer(
+            // backgroundColor: primaryColor,
             child: Column(
               children: [
                 AppBar(
-                  title: Text(
-                      'Olá, ${auth.fidelimax.nome.toString().split(' ')[0]}'),
+                  title: Column(
+                    children: [
+                      if (!auth.isAuth)
+                        ListTile(
+                          leading: Icon(Icons.person),
+                          title: Text('Entrar'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            callbackLogin(context, () {
+                              //setState(() {});
+                            });
+                          },
+                        ),
+                      if (auth.isAuth)
+                        Text(
+                            'Olá, ${auth.fidelimax.nome.toString().split(' ')[0]}'),
+                    ],
+                  ),
                   automaticallyImplyLeading: false,
                 ),
-                Divider(),
                 ListTile(
                   leading: Icon(Icons.search),
                   title: Text('Buscar'),
@@ -56,23 +105,76 @@ class _AppDrawerState extends State<AppDrawer> {
                       MaterialPageRoute(
                         builder: (context) => AuthOrHomePage(),
                       ),
-                    );
+                    ).whenComplete(() {
+                      setState(() {});
+                    });
+                    ;
                   },
                 ),
+                if (false)
+                  ListTile(
+                    leading: Icon(Icons.search),
+                    title: Text('Atendimento'),
+                    onTap: () {
+                      auth.isAuth
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AgendaMedicoScreen(
+                                    press: () {}, refreshPage: () {}),
+                              ),
+                            ).whenComplete(() {
+                              setState(() {});
+                            })
+                          : showSnackBar(logar, context);
+                      ;
+                    },
+                  ),
 
                 // Divider(),
 
-                Divider(),
                 ListTile(
                   leading: Icon(Icons.person),
                   title: Text('Meus Amigos'),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UsersPage(),
-                      ),
-                    );
+                    auth.isAuth
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UsersPage(press: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AppointmentScreen(
+                                      press: () {},
+                                    ),
+                                  ),
+                                ).whenComplete(() {
+                                  setState(() {});
+                                });
+                              }),
+                            ),
+                          ).whenComplete(() {
+                            setState(() {});
+                          })
+                        : showSnackBar(logar, context);
+                  },
+                ),
+
+                ListTile(
+                  leading: Icon(Icons.share),
+                  title: Text('Links de Indicações'),
+                  onTap: () {
+                    auth.isAuth
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => IndicacoesScreen(),
+                            ),
+                          ).whenComplete(() {
+                            setState(() {});
+                          })
+                        : showSnackBar(logar, context);
                   },
                 ),
                 // Divider(),
@@ -95,26 +197,55 @@ class _AppDrawerState extends State<AppDrawer> {
                 //     );
                 //   },
                 // ),
-                Divider(),
                 ListTile(
-                  leading: Icon(Icons.payment),
-                  title: Text('Agendamentos'),
+                  leading: Icon(Icons.calendar_month),
+                  title: Text('Meus Agendamentos'),
                   onTap: () {
-                    Navigator.of(context).pushReplacementNamed(
-                      AppRoutes.ORDERS,
-                    );
+                    auth.isAuth
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MeusAgendamentos(),
+                            ),
+                          ).whenComplete(() {
+                            setState(() {});
+                          })
+                        : showSnackBar(logar, context);
                   },
                 ),
-                Divider(),
                 ListTile(
-                  leading: Icon(Icons.payment),
-                  title: Text('Shere'),
+                  leading: Icon(Icons.calendar_month),
+                  title: Text('Minhas Indicações'),
                   onTap: () {
-                    Navigator.of(context).pushReplacementNamed(
-                      AppRoutes.Shere,
-                    );
+                    auth.isAuth
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MinhasIndicacoes(),
+                            ),
+                          ).whenComplete(() {
+                            setState(() {});
+                          })
+                        : showSnackBar(logar, context);
                   },
                 ),
+                ListTile(
+                  leading: Icon(Icons.person),
+                  title: Text('Meu Perfil'),
+                  onTap: () {
+                    auth.isAuth
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileScreen(),
+                            ),
+                          ).whenComplete(() {
+                            setState(() {});
+                          })
+                        : showSnackBar(logar, context);
+                  },
+                ),
+
                 // Divider(),
                 // ListTile(
                 //   leading: Icon(Icons.edit),
@@ -125,22 +256,33 @@ class _AppDrawerState extends State<AppDrawer> {
                 //     );
                 //   },
                 // ),
+                if (auth.isAuth)
+                  ListTile(
+                    leading: Icon(Icons.exit_to_app),
+                    title: Text('Sair'),
+                    onTap: () async {
+                      var au = Provider.of<Auth>(
+                        context,
+                        listen: false,
+                      );
+                      au.logout().then((value) async {
+                        await auth.filtrosativos.LimparTodosFiltros();
 
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.exit_to_app),
-                  title: Text('Sair'),
-                  onTap: () {
-                    Provider.of<Auth>(
-                      context,
-                      listen: false,
-                    ).logout();
+                        var regraList = await Provider.of<RegrasList>(
+                          context,
+                          listen: false,
+                        ).limparDados();
+                        var dados = await Provider.of<RegrasList>(
+                          context,
+                          listen: false,
+                        ).limparDados();
 
-                    Navigator.of(context).pushReplacementNamed(
-                      AppRoutes.AUTH_OR_HOME,
-                    );
-                  },
-                ),
+                        await isLogin(context, () {
+                          setState(() {});
+                        });
+                      });
+                    },
+                  ),
               ],
             ),
           );

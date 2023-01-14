@@ -7,8 +7,9 @@
         android:usesCleartextTraffic="true">
 
            <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyBZlHqTyJoOFGZoZocYUc_94Y3VyK0ARZE"/>
-
+               android:value="AIzaSyBAi1plCLTk70RFlCkp6jcdA6CJreS2wHA"/>
+<!--AIzaSyBZlHqTyJoOFGZoZocYUc_94Y3VyK0ARZE-->
+<!--AIzaSyBAi1plCLTk70RFlCkp6jcdA6CJreS2wHA-->
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -89,6 +89,24 @@ class _CustomAppBarState extends State<CustomAppBar> {
     };
 
     return AppBar(
+      // flexibleSpace: Container(
+      //   decoration: BoxDecoration(
+      //     gradient: LinearGradient(
+      //       colors: [
+      //         Color.fromRGBO(149, 111, 253, 0.9),
+      //         Color.fromRGBO(21, 219, 226, 0.9),
+      //       ],
+      //       begin: Alignment.topLeft,
+      //       end: Alignment.bottomRight,
+      //     ),
+      //   ),
+      // ),
+      iconTheme: const IconThemeData(
+        //size: 40, //change size on your need
+        color: destColor, //change color on your need
+      ),
+      backgroundColor: Colors.transparent,
+      elevation: 0.0,
       title: Text.rich(
         TextSpan(
           text: widget.text,
@@ -107,30 +125,48 @@ class _CustomAppBarState extends State<CustomAppBar> {
       actions: <Widget>[
             Badge(
               child: CircleAvatar(
-                  backgroundColor: primaryColor,
+                  backgroundColor: Colors.transparent,
                   radius: 25,
                   child: IconButton(
-                      tooltip: 'Filtros Ativos',
+                      tooltip: 'Bions',
                       onPressed: () {
                         setState(() {
-                          show.call();
+                          Navigator.of(context).pushNamed(
+                            AppRoutes.EXTRATO_FIDELIMAX,
+                            //    arguments: auth.fidelimax,
+                          );
+                          //   show.call();
                         });
                       },
                       icon: Icon(
-                        Icons.search,
+                        Icons.monetization_on,
                         size: 25,
-                        color: Colors.black,
+                        color: destColor,
                       ))),
-              showBadge: filtros.FiltrosAtivos > 0,
+              // showBadge: filtros.FiltrosAtivos > 0,
               toAnimate: true,
               shape: BadgeShape.square,
               //   ignorePointer: true,
-              badgeColor: redColor,
+              badgeColor: Colors.yellow,
               borderRadius: BorderRadius.circular(100),
-              position: BadgePosition.topEnd(top: 2, end: -10),
-              badgeContent: Padding(
-                padding: const EdgeInsets.all(1),
-                child: Text(filtros.FiltrosAtivos.toString()),
+              position: BadgePosition.topEnd(top: 10, end: -17),
+              badgeContent: InkWell(
+                onTap: () {
+                  setState(() {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.EXTRATO_FIDELIMAX,
+                      //    arguments: auth.fidelimax,
+                    );
+                    //   show.call();
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(1),
+                  child: Text(
+                    auth.fidelimax.saldo.toString(),
+                    style: TextStyle(fontSize: 8),
+                  ),
+                ),
               ),
             ),
             SizedBox(
@@ -138,7 +174,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             ),
             Badge(
               child: CircleAvatar(
-                  backgroundColor: primaryColor,
+                  backgroundColor: Colors.transparent,
                   radius: 25,
                   child: IconButton(
                       tooltip: 'Fila de desejos',
@@ -150,7 +186,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                       icon: Icon(
                         Icons.list,
                         size: 25,
-                        color: Colors.black,
+                        color: destColor,
                       ))),
               showBadge: filtros.fila.isNotEmpty,
               toAnimate: true,

@@ -14,6 +14,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
@@ -97,7 +98,7 @@ class _AgendarState extends State<Agendar> {
     Set<String> HorasIncluso = Set();
     Set<String> UnidadesIncluso = Set();
 
-    DataList Data = Provider.of(context);
+    RegrasList dt = Provider.of(context, listen: false);
     UnidadesList BaseUnidades = Provider.of(context);
 
     Auth auth = Provider.of(context);
@@ -113,7 +114,7 @@ class _AgendarState extends State<Agendar> {
     ).items;
     filtrosAtivos filtros = auth.filtrosativos;
 
-    final dados = Data.items;
+    final dados = dt.dados;
     dados
         .map((e) => BaseUnidades.items.where((element) {
               if (element.cod_unidade.contains(e.cod_unidade)) {
@@ -131,7 +132,7 @@ class _AgendarState extends State<Agendar> {
             }).toList())
         .toList();
 
-    Data.items.map((e) {
+    dt.dados.map((e) {
       if (!ConveniosInclusoIncluso.contains(e.cod_convenio) &&
           e.cod_profissional == widget.doctor.cod_profissional) {
         ConveniosInclusoIncluso.add(e.cod_convenio);

@@ -9,7 +9,7 @@ import firebase_auth
 import firebase_core
 import geolocator_apple
 import path_provider_macos
-import share_plus_macos
+import share_plus
 import shared_preferences_macos
 import sqflite
 import url_launcher_macos

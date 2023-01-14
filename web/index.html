@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
+<!DOCTYPE html><html><head>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -14,7 +12,7 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="$FLUTTER_BASE_HREF">
+   <!--  <base href="$FLUTTER_BASE_HREF">-->
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -27,12 +25,27 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png">
 
-  <title>biomaapp</title>
+  <title>Biomaapp</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" type="text/css" href="splash/style.css">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+  <script src="splash/splash.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAi1plCLTk70RFlCkp6jcdA6CJreS2wHA"></script>
+<!--AIzaSyBAi1plCLTk70RFlCkp6jcdA6CJreS2wHA-->
+<!--AIzaSyBZlHqTyJoOFGZoZocYUc_94Y3VyK0ARZE-->
 </head>
-<body>
+<body>  <picture id="splash">
+      <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
+      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
+      <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
+  </picture>
+  
+  
+  
+  
+
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
@@ -100,5 +113,6 @@
       loadMainDartJs();
     }
   </script>
-</body>
-</html>
+
+
+</body></html>

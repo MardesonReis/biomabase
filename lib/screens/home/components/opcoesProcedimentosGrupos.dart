@@ -59,7 +59,7 @@ class _OpcoesProcedimentosGrupos extends State<OpcoesProcedimentosGrupos> {
                       ],
                     ),
                     actions: <Widget>[
-                      FlatButton(
+                      TextButton(
                           child: Text("Voltar"),
                           onPressed: () => {
                                 setState(() {
@@ -82,7 +82,7 @@ class _OpcoesProcedimentosGrupos extends State<OpcoesProcedimentosGrupos> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
+                TextButton(
                   child: Text(
                     "Grupos de Procedimentos",
                     style: Theme.of(context)

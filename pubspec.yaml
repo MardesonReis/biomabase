@@ -32,12 +32,12 @@ dependencies:
   form_field_validator: ^1.1.0
   google_nav_bar: ^5.0.5
  # flutter_chips_input: ^1.10.0
-  brasil_fields: 1.4.5
+  brasil_fields: ^1.9.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  scroll_to_index: ^2.1.1
-  user_profile_avatar: 0.1.1
+  scroll_to_index: ^3.0.1
+  user_profile_avatar: ^0.1.2
   cached_network_image: ^3.2.1
   
   dependencies:
@@ -51,12 +51,14 @@ dependencies:
   uni_links: ^0.5.1
   google_maps_flutter: ^2.1.9
   geolocator: ^9.0.1  
-  flutter_launcher_icons: ^0.9.3
+  flutter_launcher_icons: ^0.11.0
   grouped_list: ^5.1.2
-  firebase_core: ^1.21.0
-  firebase_auth: ^3.6.4
-  share_plus: ^4.1.0
+  firebase_core: ^2.4.1
+  firebase_auth: ^4.2.5
+  share_plus: ^6.3.0
   qr_flutter: ^4.0.0
+  flutter_native_splash: ^2.2.16
+  google_maps_flutter_web: ^0.4.0+3
   
 
 dev_dependencies:

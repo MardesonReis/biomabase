@@ -8,6 +8,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/screens/fidelimax/card_fidelimax.dart';
 import 'package:biomaapp/screens/home/components/meu_bioma.dart';
 import 'package:biomaapp/screens/profile/componets/dadosPerfil.dart';
+import 'package:biomaapp/screens/profile/permicoes_screen.dart';
 import 'package:biomaapp/screens/settings/settings_screen.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
@@ -29,6 +30,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   initState() {
+    isLogin(context, () {
+      setState(() {});
+    });
+
     var dados = Provider.of<Auth>(
       context,
       listen: false,
@@ -116,10 +121,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Spacer(),
                       Column(
                         children: [
-                          ElevatedButton(
-                              onPressed: () {}, child: Text('Editar')),
-                          ElevatedButton(
-                              onPressed: () {}, child: Text('Indicar ')),
+                          IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PermicoesScreen(),
+                                  ),
+                                );
+                              },
+                              icon: Icon(Icons.more_vert)),
                         ],
                       )
                     ],

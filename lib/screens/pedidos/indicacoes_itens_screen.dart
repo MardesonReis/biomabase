@@ -15,6 +15,7 @@ import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/appointment/appointment_screen.dart';
@@ -60,18 +61,17 @@ class _IndicacoesItensScrenState extends State<IndicacoesItensScren> {
       listen: false,
     );
 
-    var dados = Provider.of<DataList>(
+    var RegraList = Provider.of<RegrasList>(
       context,
       listen: false,
     );
+    //13978829304
 
-    dados.items.isEmpty
-        ? dados.loadDados('').then((value) => setState(() {
-              _isLoadingDados = false;
-            }))
-        : setState(() {
-            _isLoadingDados = false;
-          });
+    await RegraList.carrgardados(context, Onpress: () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
 
     await indicacoes.loadIndicacoes(auth.fidelimax.cpf, '0', '0').then((value) {
       setState(() {
@@ -88,7 +88,7 @@ class _IndicacoesItensScrenState extends State<IndicacoesItensScren> {
   @override
   Widget build(BuildContext context) {
     IndicacoesList dt_indcacao = Provider.of(context, listen: false);
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
 
     Auth auth = Provider.of(context);
     Paginas pages = auth.paginas;

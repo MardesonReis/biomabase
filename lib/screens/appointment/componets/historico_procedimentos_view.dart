@@ -42,7 +42,7 @@ class _HistoricoProcedimentosViewState
     );
     dados.items.isEmpty
         ? dados
-            .loadAgendamentos(auth.fidelimax.cpf.toString())
+            .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '0')
             .then((value) => setState(() {
                   _isLoading = false;
                 }))
@@ -61,9 +61,10 @@ class _HistoricoProcedimentosViewState
     AgendamentosInclusos.clear();
     Filtrados.clear();
     dados.map((e) {
-      if (!AgendamentosInclusos.contains(e.status.trim().toUpperCase())) {
+      if (!AgendamentosInclusos.contains(
+          e.des_status_agenda.trim().toUpperCase())) {
         // debugPrint(e.status.trim());
-        AgendamentosInclusos.add(e.status.trim().toUpperCase());
+        AgendamentosInclusos.add(e.des_status_agenda.trim().toUpperCase());
         Filtrados.add(e);
       }
       ;
@@ -82,8 +83,7 @@ class _HistoricoProcedimentosViewState
                   children: [
                     SectionTitle(
                       title: ('Procedimentos ' +
-                              StatusProcedimentosAgendados[
-                                      Filtrados[_curr].status]
+                              StatusAgenda[Filtrados[_curr].des_status_agenda]
                                   .toString() +
                               's')
                           .capitalize(),
@@ -108,7 +108,8 @@ class _HistoricoProcedimentosViewState
                           return HistoricoProcedimentosCard(
                               agendamentos: dados
                                   .where((element) =>
-                                      element.status == Filtrados[index].status)
+                                      element.des_status_agenda ==
+                                      Filtrados[index].des_status_agenda)
                                   .toList());
                         },
                       ),

@@ -30,11 +30,16 @@ class UnidadesList with ChangeNotifier {
   Future<void> loadUnidades(String unidadeId) async {
     //debugPrint(cpf);
     _items.clear();
-    var link =
-        '${Constants.UNIDADES_BASE_URL}/' + unidadeId + '' + Constants.AUT_BASE;
+    var link = '${Constants.UNIDADES_BASE_URL}/' +
+        unidadeId +
+        '/0' +
+        Constants.AUT_BASE;
+
     final response = await http.get(
       Uri.parse(link),
     );
+    debugPrint(link);
+
     if (response.body == 'null') return;
 
     var data = jsonDecode(response.body);
@@ -85,7 +90,7 @@ class UnidadesList with ChangeNotifier {
       }
     }).toList();
 
-    notifyListeners();
+    //notifyListeners();
     return;
   }
 }

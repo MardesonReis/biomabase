@@ -70,7 +70,6 @@ class _FormIndicaUserState extends State<FormIndicaUser> {
         .replaceAll(' ', '')
         .replaceAll(')', '')
         .replaceAll('-', '');
-
     Usuario user = Usuario();
     user.pacientes_cpf = cpf;
     user.pacientes_nomepaciente = _authData['nome'].toString();
@@ -86,29 +85,25 @@ class _FormIndicaUserState extends State<FormIndicaUser> {
         await userlist.VerificaOuCriaPaciente(user, auth.fidelimax)
             .then((NewUser) async {
           filtros.LimparUsuarios();
-
+          if (NewUser.pacientes_email.isEmpty) {
+            NewUser.pacientes_email = user.pacientes_email;
+          }
           filtros.addUsuarios(NewUser);
           resposta = await auth.fidelimax.IndicarAmigoFidelimax(NewUser);
-          if (resposta == 'false') {
-            str =
-                'O amigo indicado já está cadastrado no programa de fidelidade';
+          if (resposta != 'null') {
+            str = resposta;
           }
-          if (resposta == 'true') {
-            str = 'Indicação Realizada com sucesso';
+          if (resposta == 'null') {
+            str = 'Cadastro Realizada com sucesso';
           }
           var indicaAmigo =
               await userlist.IndicacaoAmigosBioma(NewUser, auth.fidelimax);
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UsersPage(),
-            ),
-          );
-          showSnackBar(
-              //     'Sucesso',
-              NewUser.pacientes_nomepaciente + " \n" + str,
-              context);
+          bool a = await AlertShowDialog('', str, context);
+
+          if (a) {
+            Navigator.of(context).pop();
+          }
         });
       } on AuthException catch (error) {
         AlertShowDialog('Erro', error.toString(), context);
@@ -209,39 +204,37 @@ class _FormIndicaUserState extends State<FormIndicaUser> {
                   return null;
                 },
               ),
-              Row(
+              SizedBox(
+                height: 20,
+              ),
+              Column(
                 children: [
-                  if (_isLoading)
-                    CircularProgressIndicator()
-                  else
-                    SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _submit,
-                    child: Text('Indicar'
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _submit,
+                        child: Text('Cadastrar'
 
-                        //       _authMode == AuthMode.Login ? 'ENTRAR' : 'REGISTRAR',
-                        ),
-                  ),
-                  Spacer(),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('Cancelar')
-
-                      //       _authMode == AuthMode.Login ? 'ENTRAR' : 'REGISTRAR',
+                            //       _authMode == AuthMode.Login ? 'ENTRAR' : 'REGISTRAR',
+                            ),
                       ),
+                      Spacer(),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Cancelar')
+
+                          //       _authMode == AuthMode.Login ? 'ENTRAR' : 'REGISTRAR',
+                          ),
+                    ],
+                  ),
                 ],
               ),
-              str != ''
-                  ? Container(
-                      color: resposta == '100' ? primaryColor : redColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(str),
-                      ),
-                    )
-                  : Text(''),
+              if (_isLoading)
+                CircularProgressIndicator()
+              else
+                SizedBox(height: 20),
             ],
           ),
         ),

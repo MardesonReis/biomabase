@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/auth.dart';
@@ -68,14 +69,13 @@ class _BuildEspecialistasState extends State<BuildEspecialistas> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => Scaffold(
+                                  //  drawer: AppDrawer(),
+                                  extendBodyBehindAppBar: true,
                                   appBar: PreferredSize(
                                       preferredSize: Size.fromHeight(40),
-                                      child: CustomAppBar(
-                                          'Busque\n',
-                                          'Locais de Especialistas',
-                                          () {}, [])),
-                                  //   drawer: AppDrawer(),
-                                  body: EspecialistasScreen(
+                                      child: CustomAppBar('Buscar\n',
+                                          'Especialistas', () {}, [])),
+                                  body: EspecialistasScreenn(
                                     refreshPage: () {
                                       widget.refreshPage.call();
                                     },
@@ -103,23 +103,24 @@ class _BuildEspecialistasState extends State<BuildEspecialistas> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Scaffold(
-                                  appBar: PreferredSize(
-                                      preferredSize: Size.fromHeight(40),
-                                      child: CustomAppBar('Busque\n',
-                                          'Locais de Atendimento', () {}, [])),
-                                  //   drawer: AppDrawer(),
-                                  body: EspecialistasScreen(refreshPage: () {
-                                    setState(() {
-                                      widget.refreshPage.call();
-                                    });
-                                  }, press: () {
-                                    setState(() {
-                                      //  _refreshPage();
-                                      Navigator.pop(context);
-                                    });
-                                  })),
-                            ),
+                                builder: (context) => Scaffold(
+                                      extendBodyBehindAppBar: true,
+                                      appBar: PreferredSize(
+                                          preferredSize: Size.fromHeight(40),
+                                          child: CustomAppBar('Buscar\n',
+                                              'Especialistas', () {}, [])),
+                                      body:
+                                          EspecialistasScreenn(refreshPage: () {
+                                        setState(() {
+                                          widget.refreshPage.call();
+                                        });
+                                      }, press: () {
+                                        setState(() {
+                                          //  _refreshPage();
+                                          Navigator.pop(context);
+                                        });
+                                      }),
+                                    )),
                           ).then((value) => {
                                 setState(() {
                                   widget.refreshPage.call();

@@ -1,5 +1,8 @@
 import 'package:biomaapp/constants.dart';
+import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/fidelimax.dart';
+import 'package:biomaapp/models/regras_list.dart';
+import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/screens/main/main_screen.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/material.dart';
@@ -57,62 +60,12 @@ class _AuthFormState extends State<AuthFormFi> {
     );
   }
 
-  Future<void> _submit() async {
-    final isValid = _formKey.currentState?.validate() ?? false;
-
-    if (!isValid) {
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    _formKey.currentState?.save();
-    Auth auth = Provider.of(context, listen: false);
-    var cpf = _authData['cpf']
-        .toString()
-        .replaceAll('.', '')
-        .replaceAll('-', '')
-        .replaceAll('/', '');
-    var telefone = _authData['telefone']
-        .toString()
-        .toString()
-        .replaceAll('(', '')
-        .replaceAll(' ', '')
-        .replaceAll(')', '')
-        .replaceAll('-', '');
-    auth.fidelimax.nome = _authData['nome'] ?? '';
-    auth.fidelimax.cpf = cpf;
-    auth.fidelimax.sexo = _authData['sexo'] ?? '';
-    auth.fidelimax.email = auth.email ?? '';
-    auth.fidelimax.dataNascimento = _authData['dataNascimento'] ?? '';
-    auth.fidelimax.telefone = telefone;
-
-    try {
-      auth.fidelimax.createFidelimax().then((value) async {
-        auth.fidelimax = value;
-        await auth.addCpfFidelimax();
-        await auth.ParceiroExisteOuCria();
-        setState(() {});
-      });
-    } on AuthException catch (error) {
-      _showErrorDialog(error.toString());
-    } catch (error) {
-      _showErrorDialog('Ocorreu um erro inesperado! ${error}');
-    }
-
-    setState(() => _isLoading = false);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MainScreen(),
-      ),
-    );
-  }
+  Future<void> _submit(Auth auth) async {}
 
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    Auth auth = Provider.of(context, listen: false);
+    Auth auth = Provider.of(context);
 
     return Card(
       elevation: 8,
@@ -282,7 +235,86 @@ class _AuthFormState extends State<AuthFormFi> {
               else
                 SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submit,
+                onPressed: () async {
+                  final isValid = _formKey.currentState?.validate() ?? false;
+
+                  if (!isValid) {
+                    return;
+                  }
+
+                  setState(() => _isLoading = true);
+
+                  _formKey.currentState?.save();
+                  var cpf = _authData['cpf']
+                      .toString()
+                      .replaceAll('.', '')
+                      .replaceAll('-', '')
+                      .replaceAll('/', '');
+                  var telefone = _authData['telefone']
+                      .toString()
+                      .toString()
+                      .replaceAll('(', '')
+                      .replaceAll(' ', '')
+                      .replaceAll(')', '')
+                      .replaceAll('-', '');
+
+                  auth.fidelimax.cpf = cpf;
+
+                  if (!await auth.isAuthFidelimax) {
+                    try {
+                      auth.fidelimax.cpf = cpf;
+
+                      auth.fidelimax.nome = _authData['nome'] ?? '';
+
+                      auth.fidelimax.sexo = _authData['sexo'] ?? '';
+                      auth.fidelimax.email = auth.email ?? '';
+                      auth.fidelimax.dataNascimento =
+                          _authData['dataNascimento'] ?? '';
+                      auth.fidelimax.telefone = telefone;
+                      var a = await auth.fidelimax
+                          .createFidelimax()
+                          .then((value) async {
+                        // f = value;
+                        var CpfFidelimax = await auth.addCpfFidelimax();
+                        var ParceiroExisteOuCria =
+                            await auth.ParceiroExisteOuCria();
+                        if (CpfFidelimax != '') {
+                          print('Cpf Adicionado no BDG');
+                        }
+                        if (ParceiroExisteOuCria != '') {
+                          print('Parceiro Existe');
+                        }
+
+                        if (auth.fidelimax.cpf != '')
+                          setState(() {
+                            var dados = Provider.of<RegrasList>(
+                              context,
+                              listen: false,
+                            ).limparDados();
+
+                            var regraList = Provider.of<RegrasList>(
+                              context,
+                              listen: false,
+                            ).limparDados();
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AuthOrHomePage(),
+                              ),
+                            ).whenComplete(() {
+                              setState(() => _isLoading = false);
+                            });
+                          });
+                      });
+                    } on AuthException catch (error) {
+                      _showErrorDialog(error.toString());
+                    } catch (error) {
+                      _showErrorDialog('Ocorreu um erro inesperado! ${error}');
+                    }
+                  }
+                  ;
+                },
                 child: Text('REGISTRAR'
 
                     //       _authMode == AuthMode.Login ? 'ENTRAR' : 'REGISTRAR',

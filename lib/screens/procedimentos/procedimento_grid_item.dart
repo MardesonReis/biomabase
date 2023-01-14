@@ -88,17 +88,14 @@ class _ProcedimentoGridItemState extends State<ProcedimentoGridItem> {
                   child: GridTileBar(
                     backgroundColor: Colors.white,
                     leading: Text(
-                      'R\$ ' + widget.procedimentos.valor.toString(),
+                      'R\$ ' + widget.procedimentos.valor_sugerido.toString(),
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.black),
                     ),
                     title: SizedBox(),
-                    trailing: Text(
-                      '*valores sujeito a alteração ',
-                      style: TextStyle(fontSize: 10),
-                    ),
+                    trailing: textResp(widget.procedimentos.orientacoes),
                   )),
             ),
           ),

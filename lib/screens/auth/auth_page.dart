@@ -1,19 +1,35 @@
 import 'dart:math';
 
+import 'package:biomaapp/components/app_drawer.dart';
+import 'package:biomaapp/components/custom_app_bar.dart';
+import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/screens/auth/components/auth_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class AuthPage extends StatelessWidget {
-  const AuthPage({Key? key}) : super(key: key);
+class AuthPage extends StatefulWidget {
+  VoidCallback func;
+  AuthPage({Key? key, required this.func}) : super(key: key);
 
+  @override
+  State<AuthPage> createState() => _AuthPageState();
+}
+
+class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of(context);
 
     return Container(
       child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: PreferredSize(
+            preferredSize: Size.fromHeight(40),
+            child: CustomAppBar('Informações\n', 'de acesso', () {}, []),
+          ),
+        ),
         body: SingleChildScrollView(
           child: Container(
             height: MediaQuery.of(context).size.height,
@@ -62,7 +78,9 @@ class AuthPage extends StatelessWidget {
                           width: 150,
                         ),
                       ),
-                      AuthForm(),
+                      AuthForm(func: () {
+                        widget.func.call();
+                      }),
                     ],
                   ),
                 ),
@@ -74,6 +92,8 @@ class AuthPage extends StatelessWidget {
     );
   }
 }
+
+
 
 // Exemplo usado para explicar o cascade operator
 // void main() {

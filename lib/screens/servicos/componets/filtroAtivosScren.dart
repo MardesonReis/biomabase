@@ -60,6 +60,7 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                               widget.press.call();
                             });
                           }
+                          widget.press.call();
                         },
                       );
                     }).toList()),
@@ -84,6 +85,7 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                               widget.press.call();
                             });
                           }
+                          widget.press.call();
                         },
                       );
                     }).toList()),
@@ -112,6 +114,7 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                               widget.press.call();
                             });
                           }
+                          widget.press.call();
                         },
                       );
                     }).toList()),
@@ -136,6 +139,7 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                               widget.press.call();
                             });
                           }
+                          widget.press.call();
                         },
                       );
                     }).toList()),
@@ -160,6 +164,7 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                               widget.press.call();
                             });
                           }
+                          widget.press.call();
                         },
                       );
                     }).toList()),
@@ -184,6 +189,7 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                               widget.press.call();
                             });
                           }
+                          widget.press.call();
                         },
                       );
                     }).toList()),
@@ -208,6 +214,7 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                               widget.press.call();
                             });
                           }
+                          widget.press.call();
                         },
                       );
                     }).toList()),

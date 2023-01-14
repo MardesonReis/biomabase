@@ -59,6 +59,7 @@ class _UserScreenState extends State<UserScreen> {
 
       if (query.isNotEmpty) {
         setState(() {
+          filtros.LimparUsuarios();
           mockResults.clear();
           _isLoading = true;
         });
@@ -91,7 +92,7 @@ class _UserScreenState extends State<UserScreen> {
           }
         });
       } else {
-        showSnackBar('Informe termos para busca', context);
+        showSnackBar(Text('Informe termos para busca'), context);
       }
     }
 

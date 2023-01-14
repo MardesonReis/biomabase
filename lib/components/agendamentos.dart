@@ -7,12 +7,16 @@ class Agendamentos with ChangeNotifier {
   String cod_paciente = '';
   String cod_procedimento = '';
   String des_procedimento = '';
+  String des_paciente = '';
+  String des_parceiro = '';
   String des_uni_procedimentos = '';
-  String status = '';
+  String des_status_procedimento = '';
+  String des_status_agenda = '';
   String olho = '';
   String dataatendimento = '';
   String cod_profissional = '';
   String des_profissional = '';
+  String cpf_profissional = '';
   String cod_unidade = '';
   String des_unidade = '';
   String cod_especialidade = '';

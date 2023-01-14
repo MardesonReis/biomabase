@@ -14,6 +14,7 @@ import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/procedimento_list.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidade.dart';
@@ -95,7 +96,7 @@ class _FiltrosProcedimentosState extends State<FiltrosProcedimentos> {
 
   @override
   Widget build(BuildContext context) {
-    DataList Data = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     UnidadesList unidadesDados = Provider.of(context);
 
@@ -105,7 +106,7 @@ class _FiltrosProcedimentosState extends State<FiltrosProcedimentos> {
 
     // print(Data.items.length);
     //unidadeslist = unidadesDados.items;
-    Data.items
+    dt.dados
         .map((e) => unidadesDados.items.where((element) {
               if (element.cod_unidade.contains(e.cod_unidade)) {
                 if (!UnidadesInclusoIncluso.contains(element.cod_unidade)) {
@@ -121,7 +122,7 @@ class _FiltrosProcedimentosState extends State<FiltrosProcedimentos> {
               }
             }).toList())
         .toList();
-    Data.items.map((e) async {
+    dt.dados.map((e) async {
       if (!ConveniosInclusoIncluso.contains(e.cod_convenio)) {
         ConveniosInclusoIncluso.add(e.cod_convenio);
 

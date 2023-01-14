@@ -1,6 +1,11 @@
 import 'package:biomaapp/constants.dart';
+import 'package:biomaapp/models/data_list.dart';
+import 'package:biomaapp/models/regras_list.dart';
+import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
+import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:biomaapp/exceptions/auth_exception.dart';
 import 'package:biomaapp/models/auth.dart';
@@ -8,15 +13,16 @@ import 'package:biomaapp/models/auth.dart';
 enum AuthMode { Signup, Login, Recuver }
 
 class AuthForm extends StatefulWidget {
-  const AuthForm({Key? key}) : super(key: key);
+  VoidCallback func;
+  AuthForm({Key? key, required this.func}) : super(key: key);
 
   @override
   _AuthFormState createState() => _AuthFormState();
 }
 
 class _AuthFormState extends State<AuthForm> {
-  // final _passwordController = TextEditingController(text: '12101993');
-  // final _EmailController = TextEditingController(text: 'mardeson18@gmail.com');
+  //final _passwordController = TextEditingController(text: '12101993');
+  //final _EmailController = TextEditingController(text: 'mardeson18@gmail.com');
   final _passwordController = TextEditingController();
   final _EmailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -151,16 +157,50 @@ class _AuthFormState extends State<AuthForm> {
           _authData['email']!,
           _authData['password']!,
         );
-        setState(() => _isLoading = false);
+        //  setState(() => _isLoading = false);
       } else {
         // Registrar
         await auth.signup(
           _authData['email']!,
           _authData['password']!,
         );
-
-        setState(() => _isLoading = false);
       }
+
+      if (auth.isAuth) {
+        auth.tryAutoLogin().then((value) async {
+          if (auth.isAuth && !await auth.isAuthFidelimax) {
+            auth.fidelimax
+                .ListCpfFidelimax(auth.userId ?? '', auth.token ?? '')
+                .then((value) async {
+              if (await auth.isAuthFidelimax) {
+                auth.fidelimax.RetornaDadosCliente().then((value) {
+                  setState(() {
+                    // _isLogin = false;
+                  });
+                });
+              } else {
+                setState(() {
+                  auth.fidelimax.cpf = '';
+                  // _isLogin = false;
+                });
+              }
+            });
+          } else {
+            setState(() {
+              //auth.fidelimax.cpf = '';
+              //   _isLogin = false;
+            });
+          }
+          RegrasList regrasList = Provider.of(context, listen: false);
+          await regrasList
+              .carrgardados(context, Onpress: () {}, all: true)
+              .then((value) {
+            widget.func.call();
+            setState(() => _isLoading = false);
+          });
+        });
+      }
+      //     setState(() => _isLoading = false);
     } on AuthException catch (error) {
       _showErrorDialog(error.toString());
       setState(() => _isLoading = false);

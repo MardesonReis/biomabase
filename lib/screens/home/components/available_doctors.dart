@@ -10,6 +10,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/main/main_screen.dart';
@@ -30,7 +31,7 @@ class AvailableDoctors extends StatefulWidget {
 class _AvailableDoctorsState extends State<AvailableDoctors> {
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     Paginas pages = auth.paginas;
 
@@ -45,7 +46,7 @@ class _AvailableDoctorsState extends State<AvailableDoctors> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    final dados = dt.dados;
 
     dados.retainWhere((element) {
       return filtrarUnidade

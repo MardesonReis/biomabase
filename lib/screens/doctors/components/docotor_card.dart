@@ -5,6 +5,7 @@ import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,8 @@ class DoctorCard extends StatefulWidget {
 class _DoctorCardState extends State<DoctorCard> {
   @override
   Widget build(BuildContext context) {
-    DataList Data = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
+
     final AutoScrollController controllerUnidades = AutoScrollController();
     //  final ImageLoadingBuilder? loadingBuilder;
 
@@ -40,9 +42,8 @@ class _DoctorCardState extends State<DoctorCard> {
 
     Set<String> unidadesInclusoIncluso = Set();
 
-    var ulist = Data.items
-        .where((element) => element.crm == widget.doctor.crm)
-        .toList();
+    var ulist =
+        dt.dados.where((element) => element.crm == widget.doctor.crm).toList();
 
     List<Unidade> unidadeslist = [];
     ulist.map((e) {

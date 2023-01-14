@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/monoBino.dart';
 import 'package:biomaapp/constants.dart';
@@ -73,18 +74,20 @@ class _BuildProcedimentosState extends State<BuildProcedimentos> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Scaffold(
-                            appBar: PreferredSize(
-                                preferredSize: Size.fromHeight(40),
-                                child: CustomAppBar(
-                                    'Busque\n', 'Procedimentos', () {}, [])),
-                            //   drawer: AppDrawer(),
-                            body: ProcedimentosScreen(press: () {
-                              setState(() {
-                                widget.press.call();
-                              });
-                            })),
-                      ),
+                          builder: (context) => Scaffold(
+                                //  drawer: AppDrawer(),
+                                extendBodyBehindAppBar: true,
+                                appBar: PreferredSize(
+                                    preferredSize: Size.fromHeight(40),
+                                    child: CustomAppBar('Buscar\n',
+                                        'Procedimentos', () {}, [])),
+                                body: ProcedimentosScreen(
+                                  press: () {
+                                    Navigator.pop(context);
+                                    // widget.press.call();
+                                  },
+                                ),
+                              )),
                     ).then((value) => {
                           setState(() {
                             widget.refreshPage.call();
@@ -122,20 +125,21 @@ class _BuildProcedimentosState extends State<BuildProcedimentos> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Scaffold(
-                                      appBar: PreferredSize(
-                                          preferredSize: Size.fromHeight(40),
-                                          child: CustomAppBar('Busque\n',
-                                              'Procedimentos', () {}, [])),
-                                      //   drawer: AppDrawer(),
-                                      body: ProcedimentosScreen(
-                                        press: () {
-                                          setState(() {
-                                            Navigator.pop(context);
-                                          });
-                                        },
-                                      )),
-                                ),
+                                    builder: (context) => Scaffold(
+                                          //  drawer: AppDrawer(),
+                                          extendBodyBehindAppBar: true,
+                                          appBar: PreferredSize(
+                                              preferredSize:
+                                                  Size.fromHeight(40),
+                                              child: CustomAppBar('Buscar\n',
+                                                  'Procedimentos', () {}, [])),
+                                          body: ProcedimentosScreen(
+                                            press: () {
+                                              Navigator.pop(context);
+                                              widget.press.call();
+                                            },
+                                          ),
+                                        )),
                               ).then((value) => {
                                     setState(() {
                                       widget.refreshPage.call();

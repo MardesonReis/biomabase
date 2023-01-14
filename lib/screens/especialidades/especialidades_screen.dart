@@ -12,6 +12,7 @@ import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/appointment/appointment_screen.dart';
@@ -35,7 +36,7 @@ class _EspecialidadesScreenState extends State<EspecialidadesScreen> {
   TextEditingController txtQuery = new TextEditingController();
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
 
     Auth auth = Provider.of(context);
     Paginas pages = auth.paginas;
@@ -53,7 +54,7 @@ class _EspecialidadesScreenState extends State<EspecialidadesScreen> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    final dados = dt.dados;
 
     dados.retainWhere((element) {
       return filtrarUnidade

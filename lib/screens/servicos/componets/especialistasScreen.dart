@@ -1,3 +1,5 @@
+import 'package:biomaapp/components/app_drawer.dart';
+import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/agendamentos_list.dart';
@@ -10,6 +12,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
@@ -33,20 +36,20 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
-class EspecialistasScreen extends StatefulWidget {
+class EspecialistasScreenn extends StatefulWidget {
   VoidCallback press;
   VoidCallback refreshPage;
 
-  EspecialistasScreen(
+  EspecialistasScreenn(
       {Key? key, required this.press, required this.refreshPage})
       : super(key: key);
 
   @override
-  State<EspecialistasScreen> createState() => _EspecialistasScreenState();
+  State<EspecialistasScreenn> createState() => _EspecialistasScreenState();
 }
 
-class _EspecialistasScreenState extends State<EspecialistasScreen> {
-  bool _isLoading = false;
+class _EspecialistasScreenState extends State<EspecialistasScreenn> {
+  bool _isLoading = true;
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
   final ScrollController controller = ScrollController();
@@ -58,24 +61,35 @@ class _EspecialistasScreenState extends State<EspecialistasScreen> {
       context,
       listen: false,
     );
+
     AgendamentosList dados = Provider.of<AgendamentosList>(
       context,
       listen: false,
     );
-    dados.items.isEmpty
-        ? dados
-            .loadAgendamentos(auth.fidelimax.cpf.toString())
-            .then((value) => setState(() {
-                  _isLoading = false;
-                }))
-        : setState(() {
-            _isLoading = false;
-          });
+    var RegraList = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+    //13978829304
+
+    RegraList.carrgardados(context, Onpress: () {
+      dados.items.isEmpty
+          ? dados
+              .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '')
+              .then((value) => setState(() {
+                    _isLoading = false;
+                  }))
+          : setState(() {
+              _isLoading = false;
+            });
+    }).then((value) => setState(() {
+          _isLoading = false;
+        }));
   }
 
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     AgendamentosList historico = Provider.of(context);
 
     Auth auth = Provider.of(context);
@@ -96,8 +110,24 @@ class _EspecialistasScreenState extends State<EspecialistasScreen> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    var filtrarMedicos = filtros.medicos.isNotEmpty;
+    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
 
+    final dados = dt.dados;
+    if (filtrarProcedimento) {
+      dados.retainWhere((element) {
+        return filtros.procedimentos
+            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
+            .isNotEmpty;
+      });
+    }
+    if (filtrarMedicos) {
+      dados.retainWhere((element) {
+        return filtros.medicos
+            .where((m) => m.cod_profissional == element.cod_profissional)
+            .isNotEmpty;
+      });
+    }
     dados.retainWhere((element) {
       return filtrarUnidade
           ? filtros.unidades.contains(Unidade(
@@ -176,144 +206,162 @@ class _EspecialistasScreenState extends State<EspecialistasScreen> {
 
     return _isLoading
         ? Center(child: CircularProgressIndicator())
-        : Container(
-            //  height: MediaQuery.of(context).size.height - 200,
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        PopMenuConvenios(() {
-                          setState(() {});
-                        }),
-                        PopMenuEspecialidade(() {
-                          setState(() {});
-                        }),
-                        PopMenuSubEspecialidades(() {
-                          setState(() {});
-                        }),
-                        PopMenuGrupo(() {
-                          setState(() {});
-                        }),
-                        PopoMenuUnidades(() {
-                          setState(() {});
-                        })
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.text,
-                      controller: txtQuery,
-                      onChanged: (String) {
-                        setState(() {});
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Buscar",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.0)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black)),
-                        prefixIcon: Icon(Icons.search),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            txtQuery.text = '';
-                            setState(() {
-                              mockResults.clear();
-                              //buscarQuery(txtQuery.text);
-                            });
-                          },
+        : Padding(
+            padding:
+                const EdgeInsets.only(top: 100, bottom: 1, left: 1, right: 1),
+            child: Container(
+              //  height: MediaQuery.of(context).size.height - 200,
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  var regraList = Provider.of<RegrasList>(
+                    context,
+                    listen: false,
+                  );
+                  //13978829304
+                  await regraList.carrgardados(context, all: true, Onpress: () {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  });
+                },
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            PopMenuConvenios(() {
+                              setState(() {});
+                            }),
+                            PopMenuEspecialidade(() {
+                              setState(() {});
+                            }),
+                            PopMenuSubEspecialidades(() {
+                              setState(() {});
+                            }),
+                            PopMenuGrupo(() {
+                              setState(() {});
+                            }),
+                            PopoMenuUnidades(() {
+                              setState(() {});
+                            })
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                  FiltroAtivosScren(press: () {
-                    setState(() {
-                      widget.refreshPage.call();
-                    });
-                  }),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SectionTitle(
-                      title: "Últimos Especialistas",
-                      pressOnSeeAll: () {},
-                      OnSeeAll: false,
-                    ),
-                  ),
-                  if (ultimosMedicos.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: BouncingScrollPhysics(),
-                        child: Row(
-                          children: List.generate(
-                            ultimosMedicos.length,
-                            (index) => DoctorInforCicle(
-                                doctor: ultimosMedicos[index],
-                                press: () {
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          keyboardType: TextInputType.text,
+                          controller: txtQuery,
+                          onChanged: (String) {
+                            setState(() {});
+                          },
+                          decoration: InputDecoration(
+                            hintText: "Buscar",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4.0)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black)),
+                            prefixIcon: Icon(Icons.search),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                txtQuery.text = '';
+                                setState(() {
+                                  mockResults.clear();
+                                  //buscarQuery(txtQuery.text);
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      FiltroAtivosScren(press: () {
+                        setState(() {
+                          widget.refreshPage.call();
+                        });
+                      }),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SectionTitle(
+                          title: "Últimos Especialistas",
+                          pressOnSeeAll: () {},
+                          OnSeeAll: false,
+                        ),
+                      ),
+                      if (ultimosMedicos.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            child: Row(
+                              children: List.generate(
+                                ultimosMedicos.length,
+                                (i) => DoctorInforCicle(
+                                    doctor: ultimosMedicos[i],
+                                    press: () {
+                                      setState(() {
+                                        filtros.LimparMedicos();
+                                        filtros.addMedicos(ultimosMedicos[i]);
+
+                                        widget.press.call();
+                                      });
+                                    }),
+                              ),
+                            ),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SectionTitle(
+                          title: "Todos os Especialistas",
+                          pressOnSeeAll: () {
+                            setState(() {
+                              pages.selecionarPaginaHome('Especialistas');
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DoctorsScreen(),
+                              ),
+                            );
+                          },
+                          OnSeeAll: false,
+                        ),
+                      ),
+                      if (medicos.isNotEmpty)
+                        SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          physics: BouncingScrollPhysics(),
+                          child: Column(
+                            children: List.generate(
+                              medicos.length,
+                              (i) => DoctorInfor(
+                                doctor: medicos[i],
+                                press: () async {
                                   setState(() {
                                     filtros.LimparMedicos();
-                                    filtros.addMedicos(ultimosMedicos[index]);
-
+                                    filtros.addMedicos(medicos[i]);
                                     widget.press.call();
                                   });
-                                }),
+                                },
+                              ),
+                            ),
                           ),
                         ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.3,
                       ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SectionTitle(
-                      title: "Todos os Especialistas",
-                      pressOnSeeAll: () {
-                        setState(() {
-                          pages.selecionarPaginaHome('Especialistas');
-                        });
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DoctorsScreen(),
-                          ),
-                        );
-                      },
-                      OnSeeAll: false,
-                    ),
+                    ],
                   ),
-                  if (medicos.isNotEmpty)
-                    SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      physics: BouncingScrollPhysics(),
-                      child: Column(
-                        children: List.generate(
-                          medicos.length,
-                          (index) => DoctorInfor(
-                            doctor: medicos[index],
-                            press: () async {
-                              setState(() {
-                                filtros.LimparMedicos();
-                                filtros.addMedicos(medicos[index]);
-                                widget.press.call();
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.3,
-                  ),
-                ],
+                ),
               ),
             ),
           );

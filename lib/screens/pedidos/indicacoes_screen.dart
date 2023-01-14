@@ -42,6 +42,10 @@ class _IndicacoesScreenState extends State<IndicacoesScreen> {
   List<Indicacao> indicacoes = [];
   @override
   void initState() {
+    isLogin(context, () {
+      setState(() {});
+    });
+
     Auth auth = Provider.of<Auth>(
       context,
       listen: false,

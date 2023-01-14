@@ -29,23 +29,42 @@ class DataList with ChangeNotifier {
     return items.length;
   }
 
-  Future<void> loadDados(String medico) async {
+  limparDados() {
+    this._items.clear();
+    notifyListeners();
+  }
+
+  Future<void> loadDados(String codprofissional, String medicoLike,
+      String cpf_profissional, String cod_unidade, String procedimento) async {
     //debugPrint(cpf);
 
-    _items.clear();
-    var link = '${Constants.DATA_BASE_URL}/0/' + medico + Constants.AUT_BASE;
-    print(link);
+    //_items.clear();
+    var link = '${Constants.DATA_BASE_URL}' +
+        codprofissional +
+        '/' +
+        medicoLike +
+        '/' +
+        cpf_profissional +
+        '/' +
+        cod_unidade +
+        '/' +
+        procedimento +
+        Constants.AUT_BASE;
+    debugPrint(link);
+
     final response = await http.get(
       Uri.parse(link),
     );
     if (response.body == 'null') return;
-    //debugPrint(response.body);
     List listmedicos = jsonDecode(response.body)['dados'];
     //Set<String> medicosInclusoIncluso = Set();
 
-    listmedicos.map(
+    await listmedicos.map(
       (item) {
-        _items.add(Data(
+        var data = Data(
+          id_regra: '',
+          orientacoes: '',
+          valor_sugerido: '',
           crm: item['crm'].toString(),
           cpf: item['cpf'].toString(),
           cod_profissional: item['cod_profissional'].toString(),
@@ -67,12 +86,15 @@ class DataList with ChangeNotifier {
           tabop_quantidade: item['tabop_quantidade'].toString(),
           valor: item['valor'].toString(),
           frequencia: item['frequencia'].toString(),
-        ));
+        );
+        if (!_items.contains(data)) {
+          _items.add(data);
+        }
       },
     ).toList();
 
     items.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
 
-    // notifyListeners();
+    notifyListeners();
   }
 }

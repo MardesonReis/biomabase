@@ -8,7 +8,9 @@ import 'package:biomaapp/utils/constants.dart';
 class Procedimento with ChangeNotifier {
   String cod_procedimentos = '';
   String des_procedimentos = '';
+  String orientacoes = '';
   double valor = 0;
+  double valor_sugerido = 0;
   String des_tratamento = '';
   String cod_tratamento = '';
   Especialidade especialidade =
@@ -41,22 +43,33 @@ class Procedimento with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Procedimento> loadProcedimentosID(String unidade, String convenios,
-      String procedimentos, String especialidade) async {
-    String link = '${Constants.PROCEDIMENTO_BASE_URL}/' +
-        unidade +
+  Future<Procedimento> loadProcedimentosID(
+      String codprofissional,
+      String medicoLike,
+      String cpf_profissional,
+      String cod_unidade,
+      String procedimento,
+      String convenio) async {
+    var pr = Procedimento();
+
+    String link = '${Constants.DATA_BASE_URL}' +
+        codprofissional +
         '/' +
-        convenios +
+        medicoLike +
         '/' +
-        procedimentos +
+        cpf_profissional +
         '/' +
-        especialidade +
+        cod_unidade +
+        '/' +
+        procedimento +
+        '/' +
+        convenio +
         Constants.AUT_BASE;
     debugPrint(link);
     final response = await http.get(
       Uri.parse(link),
     );
-    if (response.body == 'null') return this;
+    if (response.body == 'null') return pr;
 
     final data = jsonDecode(response.body);
     List proced = jsonDecode(response.body)['dados'];
@@ -65,27 +78,27 @@ class Procedimento with ChangeNotifier {
       (item) {
         //   debugPrint('Carregando procedimento: ${item['descricao']}');
         // debugPrint(double.parse(item['frequencia']).toString());
+        pr.valor_sugerido = double.parse(item['valor'].toString());
+        pr.orientacoes = item['orientacoes'].toString();
+        pr.cod_procedimentos = item['cod_procedimentos'].toString();
+        pr.des_procedimentos = item['des_procedimentos'].toString();
 
-        this.cod_procedimentos = item['cod_procedimento'].toString();
-        this.des_procedimentos = item['descricaounificada'].toString().isEmpty
-            ? item['descricao']
-            : item['descricaounificada'].toString();
-
-        this.valor = double.parse(item['valor']);
-        this.grupo = item['grupo'].toString() +
+        pr.valor = double.parse(item['valor']);
+        pr.grupo = item['grupo'].toString() +
             ' - ' +
             item['tipo_tratamento'].toString();
-        this.especialidade = Especialidade(
+        pr.especialidade = Especialidade(
             codespecialidade: item['cod_especialidade'].toString(),
             descricao: item['des_especialidade'].toString(),
             ativo: 'S');
-        this.frequencia = item['frequencia'].toString();
-        this.quantidade = item['tabop_quantidade'].toString();
-        this.cod_tratamento = item['cod_tratamento'].toString();
+        pr.frequencia = item['frequencia'].toString();
+        pr.quantidade = item['tabop_quantidade'].toString();
+        pr.cod_tratamento = item['cod_tratamento'].toString();
       },
     ).toList();
-    debugPrint(this.des_procedimentos);
+    debugPrint(pr.des_procedimentos);
     notifyListeners();
-    return this;
+
+    return pr;
   }
 }

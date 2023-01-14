@@ -8,6 +8,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
@@ -46,18 +47,17 @@ class _HomePageState extends State<HomePage> {
     filtrosAtivos filtros = auth.filtrosativos;
     filtros.LimparUnidade();
 
-    var dados = Provider.of<DataList>(
+    var RegraList = Provider.of<RegrasList>(
       context,
       listen: false,
     );
+    //13978829304
 
-    dados.items.isEmpty
-        ? dados.loadDados('').then((value) => setState(() {
-              _isLoading = false;
-            }))
-        : setState(() {
-            _isLoading = false;
-          });
+    RegraList.carrgardados(context, Onpress: () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
 
     UnidadesList ListUnidade = Provider.of<UnidadesList>(
       context,
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     Paginas pages = auth.paginas;
 
@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    final dados = dt.dados;
 
     dados.retainWhere((element) {
       return filtrarUnidade
@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> {
     medicos.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
     especialidades.sort((a, b) => a.descricao.compareTo(b.descricao));
 
-    return _isLoading
+    return _isLoading && _isLoadingAgendamento && _isLoadingUnidade
         ? Center(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -191,73 +191,79 @@ class _HomePageState extends State<HomePage> {
             drawer: AppDrawer(),
             body: SafeArea(
               child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Divider(),
-                    MeuBioma(),
-                    Divider(),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: InkWell(
-                        focusColor: redColor,
-                        onTap: () {
-                          setState(() {
-                            pages.selecionarPaginaHome('Especialistas');
-                          });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MainScreen(),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          elevation: 8,
-                          color: primaryColor,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height * 0.1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Nova Indicação',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge!
-                                        .copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                  ),
-                                  SizedBox(
-                                    width: defaultPadding,
-                                  ),
-                                  Icon(
-                                    Icons.calendar_month,
-                                    color: Colors.white,
-                                  )
-                                ],
+                physics: BouncingScrollPhysics(),
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    AlertShowDialog('title', 'msg', context);
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Divider(),
+                      MeuBioma(),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          focusColor: redColor,
+                          onTap: () {
+                            setState(() {
+                              pages.selecionarPaginaHome('Especialistas');
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainScreen(),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            elevation: 8,
+                            color: primaryColor,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Nova Indicação',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white),
+                                    ),
+                                    SizedBox(
+                                      width: defaultPadding,
+                                    ),
+                                    Icon(
+                                      Icons.calendar_month,
+                                      color: Colors.white,
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    // cardIndicacao(),
-                    EspecialidadesView(especialidade: especialidades),
-                    RecommendedDoctors(medicos: medicos),
+                      // cardIndicacao(),
+                      EspecialidadesView(especialidade: especialidades),
+                      RecommendedDoctors(medicos: medicos),
 
-                    // AvailableDoctors(),
-                    SizedBox(
-                      height: defaultPadding,
-                    ),
-                    HistoricoProcedimentosView(),
-                  ],
+                      // AvailableDoctors(),
+                      SizedBox(
+                        height: defaultPadding,
+                      ),
+                      HistoricoProcedimentosView(),
+                    ],
+                  ),
                 ),
               ),
             ),

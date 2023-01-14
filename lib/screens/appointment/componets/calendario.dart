@@ -14,6 +14,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
@@ -53,16 +54,21 @@ class _CalendarioViewState extends State<CalendarioView> {
   @override
   void initState() {
     super.initState();
+    carregarAgehda();
+  }
 
+  carregarAgehda() async {
     filtrosAtivos filtro = Provider.of<Auth>(
       context,
       listen: false,
     ).filtrosativos;
+    _isLoadingAgenda = true;
 
-    Provider.of<agendaMedicoList>(
+    var agenda = await Provider.of<agendaMedicoList>(
       context,
       listen: false,
-    )
+    );
+    agenda
         .loadAgendaMedico(filtro.medicos.first.cod_profissional, 'N')
         .then((value) {
       setState(() {
@@ -80,7 +86,7 @@ class _CalendarioViewState extends State<CalendarioView> {
     Set<String> HorasIncluso = Set();
     Set<String> UnidadesIncluso = Set();
 
-    DataList Data = Provider.of(context);
+    RegrasList dt = Provider.of(context, listen: false);
     UnidadesList BaseUnidades = Provider.of(context);
 
     Auth auth = Provider.of(context);
@@ -92,29 +98,31 @@ class _CalendarioViewState extends State<CalendarioView> {
     ).items;
     filtrosAtivos filtros = auth.filtrosativos;
 
-    final dados = Data.items;
+    final dados = dt.dados;
 
     meses.clear();
     dias.clear();
     horarios.clear();
+    if (auth.filtrosativos.unidades.isNotEmpty &&
+        auth.filtrosativos.medicos.isNotEmpty) {
+      agenda.map(
+        (e) {
+          var dt = DateTime.parse(e.data);
+          var m = Clips(
+              titulo: dt.month.toString(),
+              subtitulo: dt.month.toString(),
+              keyId: e.data);
 
-    agenda.map(
-      (e) {
-        var dt = DateTime.parse(e.data);
-        var m = Clips(
-            titulo: dt.month.toString(),
-            subtitulo: dt.month.toString(),
-            keyId: e.data);
-
-        if (e.medico == auth.filtrosativos.medicos.first.cod_profissional &&
-            e.unidade == auth.filtrosativos.unidades.first.cod_unidade) {
-          if (!MesIncluso.contains(dt.month.toString())) {
-            MesIncluso.add(dt.month.toString());
-            meses.add(m);
+          if (e.medico == auth.filtrosativos.medicos.first.cod_profissional &&
+              e.unidade == auth.filtrosativos.unidades.first.cod_unidade) {
+            if (!MesIncluso.contains(dt.month.toString())) {
+              MesIncluso.add(dt.month.toString());
+              meses.add(m);
+            }
           }
-        }
-      },
-    ).toList();
+        },
+      ).toList();
+    }
     meses.sort((a, b) => a.titulo.compareTo(b.titulo));
 
     if (auth.filtrosativos.unidades.isNotEmpty) {
@@ -238,13 +246,30 @@ class _CalendarioViewState extends State<CalendarioView> {
                   meses.isNotEmpty
                       ? MenuBarMeses(meses, () {
                           setState(() {
+                            //  filtros.LimparTodosFiltros();
                             widget.press.call();
                           });
                         })
-                      : Card(
-                          color: redColor,
-                          child: Text(
-                              'Não há Mês disponível para o(s) filtro(s) selecionado(s)'),
+                      : Center(
+                          child: Container(
+                            color: destColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                      'Não há datas diponíves para os filtro(s) selecionado(s)'),
+                                  auth.filtrosativos.medicos.isEmpty
+                                      ? Text('Informe um especialista')
+                                      : SizedBox(),
+                                  auth.filtrosativos.unidades.isEmpty
+                                      ? Text(
+                                          'Informe primeiro um local de atendimento')
+                                      : SizedBox(),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                   Padding(
                     padding: const EdgeInsets.all(defaultPadding),
@@ -262,10 +287,14 @@ class _CalendarioViewState extends State<CalendarioView> {
                             widget.press.call();
                           });
                         })
-                      : Card(
-                          color: redColor,
-                          child: Text(
-                              'Não há dias disponível para o(s) filtro(s) selecionado(s)'),
+                      : Center(
+                          child: Container(
+                            color: destColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Selecione o Mês'),
+                            ),
+                          ),
                         ),
                   Padding(
                     padding: const EdgeInsets.all(defaultPadding),
@@ -277,19 +306,49 @@ class _CalendarioViewState extends State<CalendarioView> {
                           color: Colors.black),
                     ),
                   ),
-                  dias.isNotEmpty
+                  horarios.isNotEmpty
                       ? MenuBarHorarios(horarios, () {
                           setState(() {
                             widget.press.call();
                           });
                         })
-                      : Card(
-                          color: redColor,
-                          child: Text(
-                              'Não há horários disponível para o(s) filtro(s) selecionado(s)'),
+                      : Center(
+                          child: Container(
+                            color: destColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Selecione o Dia'),
+                            ),
+                          ),
                         ),
                   SizedBox(
                     height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              filtros.LimparCalendario();
+                              carregarAgehda();
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Text('Limpar Seleção'),
+                              Icon(
+                                Icons.clear,
+                                color: destColor,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 ],
               ),

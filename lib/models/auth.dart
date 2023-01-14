@@ -1,20 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui';
 
-import 'package:biomaapp/constants.dart';
+import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
-import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/paginas.dart';
-import 'package:http/retry.dart';
-import 'Clips.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:biomaapp/data/store.dart';
 import 'package:biomaapp/exceptions/auth_exception.dart';
 import 'package:biomaapp/models/fidelimax.dart';
 import 'package:biomaapp/utils/constants.dart';
-import 'package:biomaapp/models/Clips.dart';
 
 class Auth with ChangeNotifier {
   String? _token;
@@ -22,7 +18,7 @@ class Auth with ChangeNotifier {
   String? _userId;
   Map<String, String> acoes = {};
 
-  Fidelimax? _fidelimax = new Fidelimax();
+  Fidelimax fidelimax = new Fidelimax();
   filtrosAtivos? _filtros = new filtrosAtivos();
   Paginas? _pgs = new Paginas();
   DateTime? _expiryDate;
@@ -30,14 +26,6 @@ class Auth with ChangeNotifier {
 
   Paginas get paginas {
     return this._pgs ?? Paginas();
-  }
-
-  Fidelimax get fidelimax {
-    return this._fidelimax ?? Fidelimax();
-  }
-
-  set fidelimax(Fidelimax fidelimax) {
-    this._fidelimax = fidelimax;
   }
 
   filtrosAtivos get filtrosativos {
@@ -102,21 +90,12 @@ class Auth with ChangeNotifier {
         ),
       );
 
-      await this.fidelimax.ListCpfFidelimax(this._userId!, this._token!);
-      //   await this.ParceiroExisteOuCria();
-
-      if (await this.fidelimax.authenticateFidelimax() != '') {
-        await this.fidelimax.ConsultaConsumidor();
-        await this.ParceiroExisteOuCria();
-      } else {
-        this.fidelimax.cpf = '';
-      }
       Store.saveMap('userData', {
         'token': _token,
         'email': _email,
         'userId': _userId,
-        'cpf': this.fidelimax.cpf.toString(),
-        'fidelimax': this.fidelimax.cpf.toString(),
+        'cpf':
+            await this.fidelimax.ListCpfFidelimax(_userId ?? '', _token ?? ''),
         'expiryDate': _expiryDate!.toIso8601String(),
       });
 
@@ -161,34 +140,24 @@ class Auth with ChangeNotifier {
     _token = userData['token'].toString();
     _email = userData['email'].toString();
     _userId = userData['userId'].toString();
-    //_fidelimax = userData['fidelimax'];
+    fidelimax.cpf = userData['cpf'];
     _expiryDate = expiryDate;
-
-    await this.fidelimax.ListCpfFidelimax(this._userId!, this._token!);
-    if (await this.fidelimax.authenticateFidelimax() != '') {
-      await this.fidelimax.ConsultaConsumidor();
-      await this.ParceiroExisteOuCria();
-      if (this.fidelimax.parceiro.pacientes_id != '') {
-        await this.ParceiroExisteOuCria();
-      }
-    } else {
-      this.fidelimax.cpf = '';
-    }
 
     _autoLogout();
     notifyListeners();
     //await this.ParceiroExisteOuCria();
   }
 
-  void logout() {
+  Future<void> logout() async {
     _token = null;
     _email = null;
     _userId = null;
     _expiryDate = null;
+    fidelimax = Fidelimax();
+    fidelimax.dispose();
 
-    this.fidelimax.cpf = '';
     _clearLogoutTimer();
-    Store.remove('userData').then((_) {
+    await Store.remove('userData').then((_) {
       notifyListeners();
     });
   }
@@ -208,11 +177,12 @@ class Auth with ChangeNotifier {
     );
   }
 
-  Future<void> addCpfFidelimax() async {
+  Future<String> addCpfFidelimax() async {
     Map<String, String> headers = {'Access-Control-Allow-Origin': '*'};
-
+    var link = '${Constants.CPF_BASE_URL}/$_userId.json?auth=$_token';
+    //print(link);
     final response = await http.post(
-      Uri.parse('${Constants.CPF_BASE_URL}/$_userId.json?auth=$_token'),
+      Uri.parse(link),
       //    headers: headers,
       body: jsonEncode(
         {
@@ -220,14 +190,15 @@ class Auth with ChangeNotifier {
         },
       ),
     );
-    debugPrint(response.body);
+    // print(response.body.toString());
     final id = jsonDecode(response.body);
 
     notifyListeners();
+
+    return id['name'].toString();
   }
 
-  Future<void> ParceiroExisteOuCria() async {
-    //   debugPrint(this.fidelimax.cpf);
+  Future<String> ParceiroExisteOuCria() async {
     var get = '' +
         '&pa_tipo_parceiro=BiomaApp' +
         '&pa_descricao_parceiro=' +
@@ -253,12 +224,12 @@ class Auth with ChangeNotifier {
       Uri.parse(link),
     );
 
-    // debugPrint(response.body);
-    if (response.body == 'null') return;
+    debugPrint(response.body);
+    if (response.body == 'null') return '';
 
     List listmedicos = jsonDecode(response.body)['dados'];
     //Set<String> medicosInclusoIncluso = Set();
-    if (listmedicos.isEmpty) return;
+    if (listmedicos.isEmpty) return '';
 
     listmedicos.map(
       (item) {
@@ -269,7 +240,8 @@ class Auth with ChangeNotifier {
     ).toList();
 
     //  items.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
-
     notifyListeners();
+
+    return this.fidelimax.parceiro.pacientes_id;
   }
 }

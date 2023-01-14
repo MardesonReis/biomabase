@@ -2,8 +2,16 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:biomaapp/models/Clips.dart';
+import 'package:biomaapp/models/auth.dart';
+import 'package:biomaapp/models/data_list.dart';
+import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
+import 'package:biomaapp/screens/appointment/appointment_screen.dart';
+import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
+import 'package:biomaapp/screens/auth/auth_page.dart';
+import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/material.dart';
@@ -13,22 +21,60 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'dart:ui' as ui;
 import 'package:vector_math/vector_math.dart' as vector;
 import 'dart:math' show sin, cos, sqrt, atan2;
 
+const BiosTaxa = 0.10;
 const primaryColor = Colors.cyan;
 const secudaryColor = Color.fromRGBO(224, 247, 250, 1);
 const textColor = Color(0xFF35364F);
 const backgroundColor = Color(0xFFE6EFF9);
 const redColor = Color.fromARGB(255, 230, 151, 151);
+const destColor = Color.fromRGBO(251, 192, 45, 1);
+String MarterDoctor = '13978829304';
+List<String> Master = ['60465112323', MarterDoctor];
 
 const defaultPadding = 8.0;
 
 const emailError = 'Enter a valid email address';
 const requiredField = "This field is required";
+
+callbackLogin(BuildContext context, VoidCallback fun) {
+  RegrasList regrasList = Provider.of<RegrasList>(
+    context,
+    listen: false,
+  );
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => AuthPage(
+        func: () {
+          fun.call();
+          Navigator.pop(context);
+        },
+      ),
+    ),
+  ).whenComplete(() {
+    fun.call();
+  });
+}
+
+textResp(String text) {
+  return RichText(
+    overflow: TextOverflow.ellipsis,
+    maxLines: 1,
+    strutStyle: StrutStyle(fontSize: 11.0),
+    text: TextSpan(
+      style: TextStyle(color: Colors.black, fontSize: 11),
+      text: text.isEmpty ? '' : text.capitalize(),
+    ),
+  );
+}
 
 List<Medicos> mockResults = <Medicos>[];
 List<String> listOfMonths = [
@@ -47,11 +93,10 @@ List<String> listOfMonths = [
 ];
 List<String> listOfDays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"];
 
-Map<String, String> StatusProcedimentosAgendados = {
+Map<String, String> StatusProcedimentosAgendadosSSS = {
   "A": "AGENDADO",
   "R": "REALIZADO",
   "S": "SOLICITADO",
-  "P": "RESERVADO",
   "P": "RESERVADO",
   "X": "CANCELADO",
 };
@@ -63,16 +108,17 @@ Map<String, String> StatusProximaConsulta = {
 };
 
 Map<String, String> StatusAgenda = {
-  "P": "RESERVADO",
-  "D": "DESISTIU",
-  "V": "CONFIRMADO",
-  "C": "CHEGOU",
-  "T": "EM ATENDIMENTO",
   "A": "ATENDIDO",
-  "L": "LIBERADO",
-  "O": "DILATANDO",
-  "I": "DILATADO",
-  "X": "SUSPENDE"
+  "T": "EM ATENDIMENTO",
+  "P": "RESERVADO",
+  "V": "CONFIRMADO",
+  //"C": "CHEGOU",
+
+//  "L": "LIBERADO",
+  // "O": "DILATANDO",
+  //"I": "DILATADO",
+  "X": "SUSPENSO",
+  "D": "DESISTIU",
 };
 Map<String, String> olhoDescritivo = {
   "A": "Em Dois Olhos" as String,
@@ -84,6 +130,22 @@ Map<String, String> ManoBino = {
   "1": "Em 2 Olhos" as String,
   " ": "" as String,
 };
+isLogin(BuildContext context, VoidCallback press) async {
+  Auth auth = Provider.of<Auth>(
+    context,
+    listen: false,
+  );
+
+  if (!auth.isAuth) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      press.call();
+
+      await Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+        return AuthOrHomePage();
+      }));
+    });
+  }
+}
 
 final passwordValidator = MultiValidator(
   [
@@ -147,9 +209,10 @@ especialidadeDetalhe(Procedimento p) {
   }
 }
 
-Future<Position> determinePosition() async {
+Future<LatLng> determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
+  LatLng latLng = LatLng(-3.613425981453625, -38.53529385675654);
 
   // Test if location services are enabled.
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -157,7 +220,9 @@ Future<Position> determinePosition() async {
     // Location services are not enabled don't continue
     // accessing the position and request users of the
     // App to enable the location services.
-    return Future.error('Os serviços de localização estão desativados.');
+
+    //return Future.error('Os serviços de localização estão desativados.');
+    return latLng;
   }
 
   permission = await Geolocator.checkPermission();
@@ -169,19 +234,22 @@ Future<Position> determinePosition() async {
       // Android's shouldShowRequestPermissionRationale
       // returned true. According to Android guidelines
       // your App should show an explanatory UI now.
-      return Future.error('As permissões de localização foram negadas');
+      // return Future.error('As permissões de localização foram negadas');
+      return latLng;
     }
   }
 
   if (permission == LocationPermission.deniedForever) {
     // Permissions are denied forever, handle appropriately.
-    return Future.error(
-        'As permissões de localização são negadas permanentemente, não podemos solicitar permissões.');
+    // return Future.error(        'As permissões de localização são negadas permanentemente, não podemos solicitar permissões.');
+    return latLng;
   }
 
   // When we reach here, permissions are granted and we can
   // continue accessing the position of the device.
-  return await Geolocator.getCurrentPosition();
+  var local = await Geolocator.getCurrentPosition();
+  latLng = LatLng(local.latitude, local.longitude);
+  return latLng;
 }
 
 distanciaValida(double d) {
@@ -435,7 +503,21 @@ fazerLigacao() async {
   }
 }
 
-showSnackBar(String msg, BuildContext context) {
+Future<BitmapDescriptor> getico(
+    String path, VoidCallback pess, filtrosAtivos filtros) async {
+  // 'assets/icons/bioma_maps.png'
+
+  if (filtros.markerIcon == BitmapDescriptor.defaultMarker) {
+    var ico = await getBytesFromAsset(path, 100);
+    filtros.markerIcon =
+        await BitmapDescriptor.fromBytes(ico, size: ui.Size(100, 100));
+  }
+
+  // pess.call();
+  return filtros.markerIcon;
+}
+
+showSnackBar(Widget content, BuildContext context) {
   // final _scaffoldKey = GlobalKey();
 
   WidgetsBinding.instance.addPostFrameCallback(
@@ -443,10 +525,10 @@ showSnackBar(String msg, BuildContext context) {
       //  final context = _scaffoldKey.currentContext;
       if (context != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(msg),
+          content: content,
           backgroundColor: primaryColor,
           dismissDirection: DismissDirection.down,
-          duration: const Duration(seconds: 10),
+          duration: const Duration(seconds: 5),
         ));
       }
     },

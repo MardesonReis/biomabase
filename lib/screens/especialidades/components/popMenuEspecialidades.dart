@@ -7,6 +7,7 @@ import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/especialidade.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/screens/home/components/acordionExemplo.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
     var verifprocedimento = false;
     Auth auth = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
 
     Set<String> MedicosInclusos = Set();
     Set<String> EspecialidadesInclusas = Set();
@@ -44,7 +45,7 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
     var filtrarConvenios = filtros.convenios.isNotEmpty;
-    final dados = dt.items;
+    final dados = dt.dados;
     dados.retainWhere((element) {
       return filtrarConvenios
           ? filtros.convenios.contains(Convenios(

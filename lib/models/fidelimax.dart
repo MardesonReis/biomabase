@@ -121,12 +121,12 @@ class Fidelimax with ChangeNotifier {
         'CredenciaisConsumidor/' +
         '' +
         Constants.AUT_BASE;
-    print(url);
+    print(this.cpf);
     Map parans = {
-      "cpf": this._cpf,
+      "cpf": this.cpf,
       "senha": this.cpf.toString(),
     };
-
+    print(parans.toString());
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -141,7 +141,7 @@ class Fidelimax with ChangeNotifier {
 
       if (body['CodigoResposta'] == 100) {
         //    this._cpf = this._cpf;
-        // print("Cadastro Fidelimax Encontrado");
+        print("Cadastro Fidelimax Encontrado");
         //this._cpf = await this.ConsultaConsumidor();
         //  await this.ExtratoConsumidor();
 
@@ -156,7 +156,7 @@ class Fidelimax with ChangeNotifier {
 
     //    _autoLogout();
 
-    notifyListeners();
+    // notifyListeners();
     return this._cpf;
   }
 
@@ -168,23 +168,26 @@ class Fidelimax with ChangeNotifier {
       "amigo_celular": usuario.pacientes_telefone,
       "cartao": usuario.pacientes_id
     };
+    print(parans.toString());
+    var link =
+        Constants.FIDELIMAX_API + 'IndicacaoAmigos' + '' + Constants.AUT_BASE;
 
     final response = await http.post(
-      Uri.parse(Constants.INDICAR_AMIGO_FIDEMIMAX),
+      Uri.parse(link),
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         'Charset': 'utf-8'
       },
       body: parans,
     );
+    print(response.body.toString());
     final body = jsonDecode(response.body)['dados'];
 
-    notifyListeners();
-    return body['amigo_participa_programa'].toString();
+    // notifyListeners();
+    return body['MensagemErro'].toString();
   }
 
   Future<String> ConsultaConsumidor() async {
-    print('Teste Cpf: ' + this._cpf);
     final url = Constants.FIDELIMAX_API +
         'ConsultaConsumidor' +
         '' +
@@ -203,6 +206,7 @@ class Fidelimax with ChangeNotifier {
       },
       body: parans,
     );
+    print(parans.toString());
     final body = jsonDecode(response.body)['dados'];
 
     //  if (body['CodigoResposta'] == 103) {
@@ -218,6 +222,7 @@ class Fidelimax with ChangeNotifier {
       this.pontos_expirar = double.parse(body['pontos_expirar'].toString());
       this.cashback = double.parse(body['cashback'].toString());
       this.categoria = body['categoria'].toString();
+      this.cpf = cpf;
     } else {
       this._cpf = '';
       //  print("Cadastro Fidelimax não Encontrado");
@@ -227,7 +232,7 @@ class Fidelimax with ChangeNotifier {
 
     //    _autoLogout();
 
-    notifyListeners();
+    //notifyListeners();
     return this._cpf;
   }
 
@@ -270,7 +275,7 @@ class Fidelimax with ChangeNotifier {
 
     //    _autoLogout();
 
-    notifyListeners();
+    //notifyListeners();
     return this;
   }
 
@@ -278,7 +283,7 @@ class Fidelimax with ChangeNotifier {
     final url =
         Constants.FIDELIMAX_API + 'ExtratoConsumidor' + Constants.AUT_BASE;
 
-    print(url);
+    //  print(url);
 
     Map parans = {"cpf": this._cpf, "skip": "0", "take": "50"};
 
@@ -359,7 +364,7 @@ class Fidelimax with ChangeNotifier {
       },
       body: parans,
     );
-    print('Response: ' + response.body);
+    print('Response: ' + parans.toString());
     final body = jsonDecode(response.body)['dados'];
 
     if (body['CodigoResposta'] == 103) {
@@ -368,11 +373,11 @@ class Fidelimax with ChangeNotifier {
     }
 
     if (body['CodigoResposta'] == 100) {
-      this._cpf = this.cpf;
+      //    this._cpf = this.cpf;
 
       //  print("Cadastro Fidelimax com sucesso");
     } else {
-      this._cpf = '';
+      //this._cpf = '';
       // print("Cadastro Fidelimax deu erro");
 
       // throw AuthException(body['CodigoResposta'].toString());
@@ -380,12 +385,12 @@ class Fidelimax with ChangeNotifier {
 
     //    _autoLogout();
 
-    //notifyListeners();
+    notifyListeners();
     return this;
   }
 
   Future<String> ListCpfFidelimax(String _userId, String _token) async {
-    //debugPrint('${Constants.CPF_BASE_URL}/$_userId.json?auth=$_token');
+    //print('${Constants.CPF_BASE_URL}/$_userId.json?auth=$_token');
     var link = '${Constants.CPF_BASE_URL}/$_userId.json?auth=$_token';
 
     final cpfResponse = await http.get(
@@ -397,10 +402,11 @@ class Fidelimax with ChangeNotifier {
         cpfResponse.body == 'null' ? {} : jsonDecode(cpfResponse.body);
 
     cpfData.forEach((cpftId, cpf) {
-      this._cpf = cpf['cpf'].toString().isNotEmpty ? cpf['cpf'].toString() : '';
+      print(cpf['cpf'].toString() + ' - ' + this.cpf);
+      this.cpf = cpf['cpf'].toString().isNotEmpty ? cpf['cpf'].toString() : '';
     });
-    return this._cpf;
-  }
+    //  notifyListeners();
 
-  notifyListeners();
+    return this.cpf;
+  }
 }

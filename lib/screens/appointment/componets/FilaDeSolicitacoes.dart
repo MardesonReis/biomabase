@@ -40,20 +40,58 @@ class _FilaSolicitacaoesState extends State<FilaSolicitacaoes> {
         children: [
           ListTile(
             title: ListTile(
-              leading: CircleAvatar(
-                radius: 15,
-                onBackgroundImageError: (_, __) {
-                  setState(() {
-                    isError = true;
-                  });
-                },
-                child: isError == true
-                    ? Text(widget.fila.indicado.pacientes_nomepaciente[0])
-                    : SizedBox(),
-                backgroundImage: NetworkImage(
-                  Constants.IMG_USUARIO +
-                      widget.fila.indicado.pacientes_cpf +
-                      '.jpg',
+              leading: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Wrap(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 0.2,
+                      child: CircleAvatar(
+                        radius: 15,
+                        onBackgroundImageError: (_, __) {
+                          setState(() {
+                            isError = true;
+                          });
+                        },
+                        child: isError == true
+                            ? Text(widget.fila.medico.des_profissional[0])
+                            : SizedBox(),
+                        backgroundImage: NetworkImage(
+                          Constants.IMG_USUARIO +
+                              widget.fila.medico.cpf +
+                              '.jpg',
+                        ),
+                        foregroundImage: NetworkImage(
+                          Constants.IMG_BASE_URL +
+                              'medicos/' +
+                              widget.fila.medico.crm +
+                              '.png',
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      widthFactor: 0.2,
+                      child: CircleAvatar(
+                        radius: 15,
+                        onBackgroundImageError: (_, __) {
+                          setState(() {
+                            isError = true;
+                          });
+                        },
+                        child: isError == true
+                            ? Text(
+                                widget.fila.indicado.pacientes_nomepaciente[0])
+                            : SizedBox(),
+                        backgroundImage: NetworkImage(
+                          Constants.IMG_USUARIO +
+                              widget.fila.indicado.pacientes_cpf +
+                              '.jpg',
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
               title: Text(

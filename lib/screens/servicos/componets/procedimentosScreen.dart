@@ -1,3 +1,5 @@
+import 'package:biomaapp/components/app_drawer.dart';
+import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/agendamentos_list.dart';
@@ -9,6 +11,8 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 
@@ -36,6 +40,7 @@ class ProcedimentosScreen extends StatefulWidget {
 
 class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
   bool _isLoading = false;
+  List<Regra> regras = [];
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
   final ScrollController controller = ScrollController();
@@ -46,24 +51,37 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
       context,
       listen: false,
     );
+
     AgendamentosList dados = Provider.of<AgendamentosList>(
       context,
       listen: false,
     );
-    dados.items.isEmpty
-        ? dados
-            .loadAgendamentos(auth.fidelimax.cpf.toString())
-            .then((value) => setState(() {
-                  _isLoading = false;
-                }))
-        : setState(() {
-            _isLoading = false;
-          });
+    var RegraList = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+    //13978829304
+
+    RegraList.carrgardados(context, Onpress: () {
+      dados.items.isEmpty
+          ? dados
+              .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '')
+              .then((value) => setState(() {
+                    _isLoading = false;
+                  }))
+          : setState(() {
+              _isLoading = false;
+            });
+    }).then((value) => setState(() {
+          _isLoading = false;
+        }));
+
+    //13978829304
   }
 
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     AgendamentosList historico = Provider.of(context);
 
     Auth auth = Provider.of(context);
@@ -83,7 +101,24 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
+    var filtrarMedicos = filtros.medicos.isNotEmpty;
+    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
+
+    final dados = dt.dados;
+    if (filtrarProcedimento) {
+      dados.retainWhere((element) {
+        return filtros.procedimentos
+            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
+            .isNotEmpty;
+      });
+    }
+    if (filtrarMedicos) {
+      dados.retainWhere((element) {
+        return filtros.medicos
+            .where((m) => m.cod_profissional == element.cod_profissional)
+            .isNotEmpty;
+      });
+    }
 
     dados.retainWhere((element) {
       return filtrarUnidade
@@ -130,6 +165,8 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
       p.cod_procedimentos = e.cod_procedimentos;
       p.des_procedimentos = e.des_procedimentos;
       p.valor = double.parse(e.valor);
+      p.valor_sugerido = double.parse(e.valor_sugerido);
+      p.orientacoes = e.orientacoes;
       p.grupo = e.grupo;
       p.frequencia = e.frequencia;
       p.quantidade = e.tabop_quantidade;
@@ -138,8 +175,10 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
       p.cod_tratamento = e.cod_tratamento;
       p.des_tratamento = e.tipo_tratamento;
 
-      if (!ProcedimentosInclusoIncluso.contains(e.cod_procedimentos)) {
-        ProcedimentosInclusoIncluso.add(e.cod_procedimentos);
+      if (!ProcedimentosInclusoIncluso.contains(
+          e.cod_procedimentos + '-' + p.valor_sugerido.toString())) {
+        ProcedimentosInclusoIncluso.add(
+            e.cod_procedimentos + '-' + p.valor_sugerido.toString());
 
         procedimentos.add(p);
       }
@@ -158,133 +197,159 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
 
     return _isLoading
         ? Center(child: CircularProgressIndicator())
-        : Container(
-            //  height: MediaQuery.of(context).size.height - 200,
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        PopMenuConvenios(() {
-                          setState(() {});
-                        }),
-                        PopMenuEspecialidade(() {
-                          setState(() {});
-                        }),
-                        PopMenuSubEspecialidades(() {
-                          setState(() {});
-                        }),
-                        PopMenuGrupo(() {
-                          setState(() {});
-                        }),
-                        PopoMenuUnidades(() {
-                          setState(() {});
-                        })
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.text,
-                      controller: txtQuery,
-                      onChanged: (String) {
-                        setState(() {});
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Buscar",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.0)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black)),
-                        prefixIcon: Icon(Icons.search),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            txtQuery.text = '';
-                            setState(() {
-                              mockResults.clear();
-                              //buscarQuery(txtQuery.text);
-                            });
-                            widget.press.call();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  FiltroAtivosScren(press: () {
+        : Padding(
+            padding: const EdgeInsets.only(
+              top: 100,
+              bottom: 1,
+              left: 1,
+              right: 1,
+            ),
+            child: Container(
+              //  height: MediaQuery.of(context).size.height - 200,
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  var regraList = Provider.of<RegrasList>(
+                    context,
+                    listen: false,
+                  );
+                  //13978829304
+
+                  await regraList.carrgardados(context, all: true, Onpress: () {
                     setState(() {
-                      widget.press.call();
+                      _isLoading = false;
                     });
-                  }),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SectionTitle(
-                      title: "Últimos Procedimentos",
-                      pressOnSeeAll: () {},
-                      OnSeeAll: false,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      physics: BouncingScrollPhysics(),
-                      child: Row(
-                        children: List.generate(
-                          HistoricoProcedimentos.length,
-                          (index) => ProcedimentosCircle(
-                              procedimento: HistoricoProcedimentos[index],
-                              press: () {
-                                setState(() {
-                                  filtros.LimparProcedimentos();
-                                  filtros.AddProcedimentos(
-                                      HistoricoProcedimentos[index]);
-                                });
-                                widget.press.call();
-                              }),
+                  });
+                },
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            PopMenuConvenios(() {
+                              setState(() {});
+                            }),
+                            PopMenuEspecialidade(() {
+                              setState(() {});
+                            }),
+                            PopMenuSubEspecialidades(() {
+                              setState(() {});
+                            }),
+                            PopMenuGrupo(() {
+                              setState(() {});
+                            }),
+                            PopoMenuUnidades(() {
+                              setState(() {});
+                            })
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SectionTitle(
-                      title: "Todos os Procedimentos",
-                      pressOnSeeAll: () {},
-                      OnSeeAll: false,
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    physics: BouncingScrollPhysics(),
-                    child: Column(
-                      children: List.generate(
-                        procedimentos.length,
-                        (index) => ProcedimentosInfor(
-                          procedimento: procedimentos[index],
-                          press: () {
-                            setState(() {
-                              filtros.LimparProcedimentos();
-                              filtros.AddProcedimentos(procedimentos[index]);
-                            });
-                            widget.press.call();
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          keyboardType: TextInputType.text,
+                          controller: txtQuery,
+                          onChanged: (String) {
+                            setState(() {});
                           },
+                          decoration: InputDecoration(
+                            hintText: "Buscar Procedimentos",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4.0)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black)),
+                            prefixIcon: Icon(Icons.search),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                txtQuery.text = '';
+                                setState(() {
+                                  mockResults.clear();
+                                  //buscarQuery(txtQuery.text);
+                                });
+                                // widget.press.call();
+                              },
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      FiltroAtivosScren(press: () {
+                        setState(() {
+                          //widget.press.call();
+                        });
+                      }),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SectionTitle(
+                          title: "Últimos Procedimentos",
+                          pressOnSeeAll: () {},
+                          OnSeeAll: false,
+                        ),
+                      ),
+                      if (HistoricoProcedimentos.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            child: Row(
+                              children: List.generate(
+                                HistoricoProcedimentos.length,
+                                (index) => ProcedimentosCircle(
+                                    procedimento: HistoricoProcedimentos[index],
+                                    press: () {
+                                      setState(() {
+                                        filtros.LimparProcedimentos();
+                                        filtros.AddProcedimentos(
+                                            HistoricoProcedimentos[index]);
+                                      });
+                                      widget.press.call();
+                                    }),
+                              ),
+                            ),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SectionTitle(
+                          title: "Todos os Procedimentos",
+                          pressOnSeeAll: () {},
+                          OnSeeAll: false,
+                        ),
+                      ),
+                      if (procedimentos.isNotEmpty)
+                        SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          physics: BouncingScrollPhysics(),
+                          child: Column(
+                            children: List.generate(
+                              procedimentos.length,
+                              (index) => ProcedimentosInfor(
+                                procedimento: procedimentos[index],
+                                press: () {
+                                  setState(() {
+                                    filtros.LimparProcedimentos();
+                                    filtros.AddProcedimentos(
+                                        procedimentos[index]);
+                                  });
+                                  widget.press.call();
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.3,
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.3,
-                  ),
-                ],
+                ),
               ),
             ),
           );

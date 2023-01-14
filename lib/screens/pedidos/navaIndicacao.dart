@@ -14,6 +14,7 @@ import 'package:biomaapp/models/indicacoes_list.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/procedimento.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/appointment/appointment_screen.dart';
@@ -78,9 +79,8 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
     IndicacoesList dt = Provider.of(context, listen: false);
     final dados = dt.items;
     Auth auth = Provider.of(context);
-    Paginas pages = auth.paginas;
-
     filtrosAtivos filtros = auth.filtrosativos;
+    Paginas pages = auth.paginas;
 
     mockResults = auth.filtrosativos.medicos;
 
@@ -375,6 +375,10 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
 
   Widget biuldIndicacaoItens(Indicacao i) {
     IndicacoesList dt = Provider.of(context, listen: false);
+    Auth auth = Provider.of(context);
+    filtrosAtivos filtros = auth.filtrosativos;
+    Medicos medico = Medicos();
+    Procedimento procedimentos = Procedimento();
 
     return Card(
       child: ListTile(
@@ -382,7 +386,39 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
         // leading: Text(i.id_servico),
         title: Text(i.des_procedimento),
         trailing: IconButton(
-            onPressed: () {},
+            onPressed: () async {
+              medico = await medico.BuscarMedicoPorId(i.cod_especialista);
+              procedimentos.loadProcedimentosID(i.cod_especialista, '0', '0',
+                  i.cod_unidade, i.cod_procedimento, i.cod_convenio);
+
+              Convenios convenio = Convenios(
+                  cod_convenio: i.cod_convenio, desc_convenio: i.des_convenio);
+              Especialidade especialidade = Especialidade(
+                  codespecialidade: i.cod_especialidade,
+                  descricao: i.des_especialidade,
+                  ativo: 'S');
+
+              procedimentos.especialidade = especialidade;
+              procedimentos.olho = i.olho;
+              filtros.LimparMedicos();
+              filtros.addMedicos(medico);
+              filtros.LimparProcedimentos();
+              filtros.AddProcedimentos(procedimentos);
+              filtros.LimparConvenios();
+              filtros.addConvenios(convenio);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AppointmentScreen(
+                    press: () {
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ).then((value) => {
+                    setState(() {}),
+                  });
+            },
             icon: Icon(
               Icons.calendar_month,
               color: primaryColor,

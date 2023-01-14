@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:math' show sin, cos, sqrt, atan2;
+
+import 'dart:ui' as ui;
+import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/infor_unidade.dart';
 import 'package:biomaapp/components/section_title.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/screens/doctors/components/Doctor_Circle.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_infor.dart';
 
@@ -45,10 +49,10 @@ class Localizacao extends StatefulWidget {
 class LocalizacaoState extends State<Localizacao> {
   Completer<GoogleMapController> _controller = Completer();
   late Position _currentPosition;
+  late LatLng _position = LatLng(-3.613425981453625, -38.53529385675654);
   Set<Marker> _marker = Set<Marker>();
   bool _isLoadingAgendamento = true;
   bool _isLoadingUnidade = true;
-  bool _isLoadingIcon = true;
   bool _isLoading = true;
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
@@ -56,7 +60,6 @@ class LocalizacaoState extends State<Localizacao> {
   final StreamController _stream = StreamController.broadcast();
 
   int count = 0;
-  Completer<Uint8List> markerIcon = Completer();
 
   @override
   void dispose() {
@@ -83,47 +86,48 @@ class LocalizacaoState extends State<Localizacao> {
       listen: false,
     );
 
-    var dados = Provider.of<DataList>(
+    //13978829304
+
+    AgendamentosList dados = Provider.of<AgendamentosList>(
       context,
       listen: false,
     );
-
-    dados.items.isEmpty
-        ? dados.loadDados('').then((value) => setState(() {
-              _isLoading = false;
-            }))
-        : setState(() {
-            _isLoading = false;
-          });
-
-    agenda.items.isEmpty
-        ? agenda
-            .loadAgendamentos(auth.fidelimax.cpf.toString())
-            .then((value) => setState(() {
-                  _isLoadingAgendamento = false;
-                }))
-        : setState(() {
-            _isLoadingAgendamento = false;
-          });
+    var RegraList = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
 
     UnidadesList ListUnidade = Provider.of<UnidadesList>(
       context,
       listen: false,
     );
-    ListUnidade.items.isEmpty
-        ? ListUnidade.loadUnidades('').then((value) {
-            setState(() {
+    //13978829304
+
+    RegraList.carrgardados(context, Onpress: () {
+      dados.items.isEmpty
+          ? dados
+              .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '')
+              .then((value) => setState(() {
+                    _isLoading = false;
+                  }))
+          : setState(() {
+              _isLoading = false;
+            });
+
+      ListUnidade.items.isEmpty
+          ? ListUnidade.loadUnidades('').then((value) {
+              setState(() {
+                _isLoadingUnidade = false;
+              });
+            })
+          : setState(() {
               _isLoadingUnidade = false;
             });
-          })
-        : setState(() {
-            _isLoadingUnidade = false;
-          });
-    getBytesFromAsset('assets/icons/bioma.png', 100).then((value) async {
+    }).then((value) {
       setState(() {
-        markerIcon.complete(value);
-        _isLoadingIcon = false;
-        determinePosition();
+        _isLoading = false;
+        _isLoadingUnidade = false;
+        _isLoadingAgendamento = false;
       });
     });
   }
@@ -132,7 +136,7 @@ class LocalizacaoState extends State<Localizacao> {
 
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     AgendamentosList historico = Provider.of(context);
     UnidadesList BancoDeUnidades = Provider.of(context);
     Auth auth = Provider.of(context);
@@ -160,27 +164,29 @@ class LocalizacaoState extends State<Localizacao> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    var filtrarMedico = filtros.medicos.isNotEmpty;
-    final dados = dt.items;
+    var filtrarMedicos = filtros.medicos.isNotEmpty;
+    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
 
-    // dados.retainWhere((element) {
-    //   return filtrarUnidade
-    //       ? filtros.unidades.contains(Unidade(
-    //           cod_unidade: element.cod_unidade,
-    //           des_unidade: element.des_unidade))
-    //       : true;
-    // });
-    if (_controller.future == null) {
-      setState(() {
-        _buildGoogleMap();
+    final dados = dt.dados;
+    if (filtrarProcedimento) {
+      dados.retainWhere((element) {
+        return filtros.procedimentos
+            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
+            .isNotEmpty;
+      });
+    }
+    if (filtrarMedicos) {
+      dados.retainWhere((element) {
+        return filtros.medicos
+            .where((m) => m.cod_profissional == element.cod_profissional)
+            .isNotEmpty;
       });
     }
     dados.retainWhere((element) {
-      return filtrarMedico
-          ? filtros.medicos
-              .where((medico) =>
-                  element.cod_profissional == medico.cod_profissional)
-              .isNotEmpty
+      return filtrarUnidade
+          ? filtros.unidades.contains(Unidade(
+              cod_unidade: element.cod_unidade,
+              des_unidade: element.des_unidade))
           : true;
     });
 
@@ -211,6 +217,37 @@ class LocalizacaoState extends State<Localizacao> {
           ? filtros.grupos.contains(Grupo(descricao: element.grupo))
           : true;
     });
+    dados.map((e) async {
+      Unidade unidade = Unidade();
+      var str = '';
+      unidade.cod_unidade = e.cod_unidade;
+      unidade.des_unidade = e.des_unidade;
+
+      if (!UnidadesInclusoIncluso.contains(e.cod_unidade)) {
+        UnidadesInclusoIncluso.add(e.cod_unidade);
+
+        if (BancoDeUnidades.items.isNotEmpty) {
+          var u = BancoDeUnidades.items
+              .where((element) => element.cod_unidade == unidade.cod_unidade)
+              .toList()
+              .first;
+          //  u.distancia = await getDistance(unidade.latitude, unidade.l atitude);
+          str = u.des_unidade +
+              ' - ' +
+              u.municipio +
+              ' - ' +
+              u.bairro +
+              ' - ' +
+              u.logradouro;
+
+          if (str.toUpperCase().contains(txtQuery.text.toUpperCase())) {
+            setState(() {
+              unidades.add(u);
+            });
+          }
+        }
+      }
+    }).toList();
 
     dados.map((e) async {
       Unidade unidade = Unidade();
@@ -244,7 +281,6 @@ class LocalizacaoState extends State<Localizacao> {
       }
     }).toList();
     unidades.map((e) async {
-      var i = await markerIcon.future;
       Marker m = await Marker(
           onTap: () async {
             setState(() {
@@ -255,7 +291,9 @@ class LocalizacaoState extends State<Localizacao> {
           },
           markerId: MarkerId(e.cod_unidade),
           position: LatLng(e.latitude, e.longitude),
-          icon: await BitmapDescriptor.fromBytes(i),
+          icon: await getico('assets/icons/bioma_maps.png', () {
+            setState(() {});
+          }, filtros),
           infoWindow: InfoWindow(
               title: e.des_unidade,
               snippet: e.bairro + '/' + e.municipio + '-' + e.uf));
@@ -318,14 +356,15 @@ class LocalizacaoState extends State<Localizacao> {
       cod_unidade = unidades.first.cod_unidade;
     }
 
-    return _isLoadingAgendamento ||
-            _isLoading ||
-            _isLoadingUnidade ||
-            _isLoadingIcon
+    return _isLoadingAgendamento || _isLoading || _isLoadingUnidade
         ? Center(child: CircularProgressIndicator())
-        : Container(
+        : Scaffold(
+            appBar: PreferredSize(
+                preferredSize: Size.fromHeight(40),
+                child: CustomAppBar(
+                    'Busque\n', 'Locais de Atendimento', () {}, [])),
             // height: MediaQuery.of(context).size.height - 200,
-            child: SingleChildScrollView(
+            body: SingleChildScrollView(
               child: Column(
                 children: [
                   _buildFiltros(),
@@ -335,7 +374,7 @@ class LocalizacaoState extends State<Localizacao> {
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: _buildGoogleMap(),
+                          child: _buildGoogleMap(unidades),
                         ),
 
                         // Padding(
@@ -400,6 +439,7 @@ class LocalizacaoState extends State<Localizacao> {
                         (index) => InforUnidade(unidades[index], () {
                           filtros.LimparUnidade();
                           filtros.addunidades(unidades[index]);
+
                           widget.press.call();
                         }),
                       ),
@@ -528,7 +568,7 @@ class LocalizacaoState extends State<Localizacao> {
         });
   }
 
-  Widget _buildGoogleMap() {
+  Widget _buildGoogleMap(List<Unidade> unidades) {
     Auth auth = Provider.of(context);
     Paginas pages = auth.paginas;
 
@@ -554,26 +594,58 @@ class LocalizacaoState extends State<Localizacao> {
         rotateGesturesEnabled: true,
         mapType: MapType.normal,
         myLocationButtonEnabled: true,
-        initialCameraPosition: CameraPosition(
-            target: LatLng(-3.613425981453625, -38.53529385675654), zoom: 8),
-        onMapCreated: (GoogleMapController controller) async {
-          setState(() async {
-            await determinePosition().then((position) {
-              _currentPosition = position;
-              _controller.complete(controller);
-              filtros.googleMapController = controller;
-              controller
-                  .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-                      target: LatLng(
-                        position.latitude,
-                        position.longitude,
-                      ),
-                      zoom: 10)));
-            });
-          });
-        },
-        markers: _marker,
+        initialCameraPosition: CameraPosition(target: _position, zoom: 8),
+        onMapCreated: OnMapCreated,
+        markers: retornarMakers(unidades, filtros),
       ),
     );
+  }
+
+  Set<Marker> retornarMakers(List<Unidade> unidades, filtrosAtivos filtros) {
+    unidades.map((e) async {
+      Marker m = await Marker(
+          onTap: () async {
+            setState(() {
+              filtros.LimparUnidade();
+              filtros.addunidades(e);
+            });
+            //   widget.press.call();
+          },
+          markerId: MarkerId(e.cod_unidade),
+          position: LatLng(e.latitude, e.longitude),
+          icon: await getico('assets/icons/bioma_maps.png', () {
+            setState(() {});
+          }, filtros),
+          //  icon: kIsWeb ? BitmapDescriptor.defaultMarker : _markerIcon,
+          infoWindow: InfoWindow(
+              title: e.des_unidade,
+              snippet: e.bairro + '/' + e.municipio + '-' + e.uf));
+      setState(() {
+        _marker.add(m);
+      });
+    }).toList();
+    return _marker;
+  }
+
+  void OnMapCreated(GoogleMapController controller) async {
+    if (!mounted) return;
+    if (!_marker.isEmpty) return;
+
+    _controller.complete(controller);
+    try {
+      var position = await determinePosition();
+
+      await controller.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(target: _position, zoom: 10)));
+      setState(() {
+        _position = position;
+      });
+      return;
+    } on FormatException catch (err) {
+      if (!mounted) return;
+      print(err);
+      setState(() {});
+      //setState(() => _err = err);
+    }
   }
 }

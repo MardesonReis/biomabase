@@ -96,7 +96,7 @@ class _opcoesProcedimentos extends State<opcoesProcedimentos> {
                   ],
                 ),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("Voltar"),
                     onPressed: () => {
                       setState(() {
@@ -119,7 +119,7 @@ class _opcoesProcedimentos extends State<opcoesProcedimentos> {
             children: [
               Container(
                 padding: EdgeInsets.all(8),
-                child: RaisedButton(
+                child: TextButton(
                   child: Text(
                     "Locais de Atendimento",
                     style: Theme.of(context)

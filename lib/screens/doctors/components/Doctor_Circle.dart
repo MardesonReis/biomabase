@@ -18,52 +18,54 @@ class _DoctorInforCicleState extends State<DoctorInforCicle> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: () {
-          if (!mounted) return;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: InkWell(
+          onTap: () {
+            if (!mounted) return;
 
-          setState(() {
-            widget.press.call();
-          });
-        },
-        child: Column(
-          children: [
-            CircleAvatar(
-              //   backgroundColor: primaryColor,
-              //   foregroundColor: Colors.black,
-              backgroundImage: NetworkImage(
-                Constants.IMG_BASE_URL +
-                    'medicos/' +
-                    widget.doctor.crm +
-                    '.png',
+            setState(() {
+              widget.press.call();
+            });
+          },
+          child: Column(
+            children: [
+              CircleAvatar(
+                //   backgroundColor: primaryColor,
+                //   foregroundColor: Colors.black,
+                backgroundImage: NetworkImage(
+                  Constants.IMG_BASE_URL +
+                      'medicos/' +
+                      widget.doctor.crm +
+                      '.png',
+                ),
+                radius: 25.0,
+                onBackgroundImageError: (_, __) {
+                  setState(() {
+                    isError = true;
+                  });
+                },
+                child: isError == true
+                    ? Text(widget.doctor.des_profissional[0])
+                    : SizedBox(),
               ),
-              radius: 25.0,
-              onBackgroundImageError: (_, __) {
-                setState(() {
-                  isError = true;
-                });
-              },
-              child: isError == true
-                  ? Text(widget.doctor.des_profissional[0])
-                  : SizedBox(),
-            ),
-            Text(
-              'Dr(a) ' + widget.doctor.des_profissional.capitalize(),
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-            Text(
-              widget.doctor.subespecialidade.capitalize(),
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black),
-            ),
-          ],
+              Text(
+                'Dr(a) ' + widget.doctor.des_profissional.capitalize(),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+              ),
+              Text(
+                widget.doctor.subespecialidade.capitalize(),
+                style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black),
+              ),
+            ],
+          ),
         ),
       ),
     );

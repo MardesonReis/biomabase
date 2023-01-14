@@ -7,6 +7,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/usuarios.list.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/screens/user/add_user.dart';
 import 'package:biomaapp/screens/user/components/user_card.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,11 @@ import 'package:flutter/services.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 
 class UsersPage extends StatefulWidget {
-  UsersPage({Key? key}) : super(key: key);
+  final VoidCallback press;
+  UsersPage({
+    Key? key,
+    required this.press,
+  }) : super(key: key);
 
   @override
   State<UsersPage> createState() => _UsersPageState();
@@ -55,6 +60,8 @@ class _UsersPageState extends State<UsersPage> {
 
     ;
     Future<void> buscarQuery(String query) async {
+      filtros.LimparUsuarios();
+
       FocusScope.of(context).unfocus();
 
       if (query.isNotEmpty) {
@@ -90,7 +97,7 @@ class _UsersPageState extends State<UsersPage> {
           }
         });
       } else {
-        showSnackBar('Informe termos para busca', context);
+        showSnackBar(Text('Informe termos para busca'), context);
       }
     }
 
@@ -99,7 +106,7 @@ class _UsersPageState extends State<UsersPage> {
       await buscarQuery(auth.fidelimax.cpf).then((value) {
         filtros.LimparUsuarios();
         filtros.addUsuarios(mockResults.first);
-        Navigator.of(context).pop();
+        widget.press.call();
       });
     }
 
@@ -160,9 +167,14 @@ class _UsersPageState extends State<UsersPage> {
                   backgroundColor: primaryColor,
                   elevation: 8,
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed(
-                      AppRoutes.AddUser,
-                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddUser(),
+                      ),
+                    ).whenComplete(() {
+                      setState(() {});
+                    });
                   },
                 ),
               ),
@@ -285,7 +297,7 @@ class _UsersPageState extends State<UsersPage> {
                                     press: () {
                                       filtros.LimparUsuarios();
                                       filtros.addUsuarios(mockResults[index]);
-                                      Navigator.of(context).pop();
+                                      widget.press.call();
                                     })),
                           )
                         : buildInfoPage(

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:biomaapp/components/app_drawer.dart';
+import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/AgendaMedico.dart';
@@ -13,8 +15,10 @@ import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/especialidade.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/grupos.dart';
+import 'package:biomaapp/models/listaDatasMedicos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/doctors/components/Doctor_Circle.dart';
@@ -61,7 +65,7 @@ class _CalendarioScrenState extends State<CalendarioScren> {
   final PageController _pageController = PageController();
   final StreamController _stream = StreamController.broadcast();
 
-  late final ValueNotifier<List<AgendaMedico>> _selectedEvents;
+  late final ValueNotifier<List<LDatas>> _selectedEvents;
   CalendarFormat _calendarFormat = CalendarFormat.week;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
       .toggledOff; // Can be toggled on/off by longpressing a date
@@ -90,7 +94,9 @@ class _CalendarioScrenState extends State<CalendarioScren> {
       context,
       listen: false,
     );
-    list.loadAgendaMedico('0', 'N').then((value) {
+    list.listarDatas('0', 'N').then((value) {
+      print(list.itemsDatas.length.toString());
+
       setState(() {
         widget.agenda = list.items;
         _selectedDay = _focusedDay;
@@ -109,7 +115,7 @@ class _CalendarioScrenState extends State<CalendarioScren> {
 
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     AgendamentosList historico = Provider.of(context);
     agendaMedicoList agenda = Provider.of(context);
 
@@ -137,10 +143,34 @@ class _CalendarioScrenState extends State<CalendarioScren> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.items;
     final kToday = DateTime.now();
     final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
     final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
+    var filtrarMedicos = filtros.medicos.isNotEmpty;
+    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
+
+    final dados = dt.dados;
+    if (filtrarProcedimento) {
+      dados.retainWhere((element) {
+        return filtros.procedimentos
+            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
+            .isNotEmpty;
+      });
+    }
+    if (filtrarMedicos) {
+      dados.retainWhere((element) {
+        return filtros.medicos
+            .where((m) => m.cod_profissional == element.cod_profissional)
+            .isNotEmpty;
+      });
+    }
+    dados.retainWhere((element) {
+      return filtrarUnidade
+          ? filtros.unidades.contains(Unidade(
+              cod_unidade: element.cod_unidade,
+              des_unidade: element.des_unidade))
+          : true;
+    });
     dados.retainWhere((element) {
       return filtrarUnidade
           ? filtros.unidades.contains(Unidade(
@@ -220,7 +250,7 @@ class _CalendarioScrenState extends State<CalendarioScren> {
     especialidades.sort((a, b) => a.descricao.compareTo(b.descricao));
 
     setState(() {
-      aFiltros = agenda.items
+      aFiltros = agenda.itemsDatas
           .where((agenda) => medicos
               .where((element) {
                 return element.cod_profissional == agenda.medico;
@@ -248,10 +278,10 @@ class _CalendarioScrenState extends State<CalendarioScren> {
           .toList();
     });
 
-    List<AgendaMedico> _getEventsForDay(DateTime d) {
-      List<AgendaMedico> result = [];
+    List<LDatas> _getEventsForDay(DateTime d) {
+      List<LDatas> result = [];
 
-      var a = agenda.items
+      var a = agenda.itemsDatas
           .where((agenda) => medicos
               .where((element) {
                 return element.cod_profissional == agenda.medico;
@@ -287,7 +317,7 @@ class _CalendarioScrenState extends State<CalendarioScren> {
       );
     }
 
-    List<AgendaMedico> _getEventsForRange(DateTime start, DateTime end) {
+    List<LDatas> _getEventsForRange(DateTime start, DateTime end) {
       // Implementation example
       final days = daysInRange(start, end);
 
@@ -329,227 +359,269 @@ class _CalendarioScrenState extends State<CalendarioScren> {
       }
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  PopMenuConvenios(() {
-                    setState(() {});
-                  }),
-                  PopMenuEspecialidade(() {
-                    setState(() {});
-                  }),
-                  PopMenuSubEspecialidades(() {
-                    setState(() {});
-                  }),
-                  PopMenuGrupo(() {
-                    setState(() {});
-                  }),
-                  PopoMenuUnidades(() {
-                    setState(() {});
-                  })
-                ],
-              ),
-            ),
-          ),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(40),
+          child: CustomAppBar('Buscar\n', 'Agenda', () {}, [])),
+      drawer: AppDrawer(),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 100, bottom: 1, left: 1, right: 1),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            var regraList = Provider.of<RegrasList>(
+              context,
+              listen: false,
+            );
+            //13978829304
 
-          aFiltros.isNotEmpty
-              ? Column(
-                  children: [
-                    TableCalendar<AgendaMedico>(
-                      locale: 'pt_BR',
-                      availableCalendarFormats: const {
-                        CalendarFormat.month: 'Mês',
-                        CalendarFormat.twoWeeks: 'Quinzena',
-                        CalendarFormat.week: 'Semana'
-                      },
-                      firstDay: kFirstDay,
-                      lastDay: kLastDay,
-                      focusedDay: _focusedDay,
-                      selectedDayPredicate: (day) =>
-                          isSameDay(_selectedDay, day),
-                      rangeStartDay: _rangeStart,
-                      rangeEndDay: _rangeEnd,
-                      calendarFormat: _calendarFormat,
-                      rangeSelectionMode: _rangeSelectionMode,
-                      eventLoader: _getEventsForDay,
-                      startingDayOfWeek: StartingDayOfWeek.monday,
-                      calendarBuilders: CalendarBuilders(
-                          markerBuilder: (BuildContext, DateTime, List) {
-                        if (List.isNotEmpty)
-                          return CircleAvatar(
-                            radius: 10,
-                            child: Text(
-                              List.length.toString(),
-                              style: TextStyle(fontSize: 8),
-                            ),
-                          );
-                      }),
-                      calendarStyle: CalendarStyle(
-                        // Use `CalendarStyle` to customize the UI
-                        outsideDaysVisible: true,
-                      ),
-                      onDaySelected: _onDaySelected,
-                      onRangeSelected: _onRangeSelected,
-                      onFormatChanged: (format) {
-                        if (_calendarFormat != format) {
-                          setState(() {
-                            _calendarFormat = format;
-                          });
-                        }
-                      },
-                      onPageChanged: (focusedDay) {
-                        _focusedDay = focusedDay;
-                      },
-                    ),
-                    SizedBox(
-                      height: defaultPadding,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        keyboardType: TextInputType.text,
-                        controller: txtQuery,
-                        onChanged: (String) {
+            var list = Provider.of<agendaMedicoList>(
+              context,
+              listen: false,
+            );
+            list.listarDatas('0', 'N').then((value) {
+              print(list.itemsDatas.length.toString());
+
+              setState(() {
+                widget.agenda = list.items;
+                _selectedDay = _focusedDay;
+                _selectedEvents = ValueNotifier([]);
+
+                _isLoadingAgenda = false;
+              });
+            });
+            await regraList.carrgardados(context, all: false, Onpress: () {
+              setState(() {
+                _isLoading = false;
+              });
+            });
+          },
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        PopMenuConvenios(() {
                           setState(() {});
-                        },
-                        decoration: InputDecoration(
-                          hintText: "Buscar",
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4.0)),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black)),
-                          prefixIcon: Icon(Icons.search),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              txtQuery.text = '';
-                              setState(() {
-                                mockResults.clear();
-                                //buscarQuery(txtQuery.text);
-                              });
+                        }),
+                        PopMenuEspecialidade(() {
+                          setState(() {});
+                        }),
+                        PopMenuSubEspecialidades(() {
+                          setState(() {});
+                        }),
+                        PopMenuGrupo(() {
+                          setState(() {});
+                        }),
+                        PopoMenuUnidades(() {
+                          setState(() {});
+                        })
+                      ],
+                    ),
+                  ),
+                ),
+
+                aFiltros.isNotEmpty
+                    ? Column(
+                        children: [
+                          TableCalendar<LDatas>(
+                            locale: 'pt_BR',
+                            availableCalendarFormats: const {
+                              CalendarFormat.month: 'Mês',
+                              CalendarFormat.twoWeeks: 'Quinzena',
+                              CalendarFormat.week: 'Semana'
+                            },
+                            firstDay: kFirstDay,
+                            lastDay: kLastDay,
+                            focusedDay: _focusedDay,
+                            selectedDayPredicate: (day) =>
+                                isSameDay(_selectedDay, day),
+                            rangeStartDay: _rangeStart,
+                            rangeEndDay: _rangeEnd,
+                            calendarFormat: _calendarFormat,
+                            rangeSelectionMode: _rangeSelectionMode,
+                            eventLoader: _getEventsForDay,
+                            startingDayOfWeek: StartingDayOfWeek.monday,
+                            calendarBuilders: CalendarBuilders(
+                                markerBuilder: (BuildContext, DateTime, List) {
+                              if (List.isNotEmpty)
+                                return CircleAvatar(
+                                  radius: 10,
+                                  child: Text(
+                                    List.length.toString(),
+                                    style: TextStyle(fontSize: 8),
+                                  ),
+                                );
+                            }),
+                            calendarStyle: CalendarStyle(
+                              // Use `CalendarStyle` to customize the UI
+                              outsideDaysVisible: true,
+                            ),
+                            onDaySelected: _onDaySelected,
+                            onRangeSelected: _onRangeSelected,
+                            onFormatChanged: (format) {
+                              if (_calendarFormat != format) {
+                                setState(() {
+                                  _calendarFormat = format;
+                                });
+                              }
+                            },
+                            onPageChanged: (focusedDay) {
+                              _focusedDay = focusedDay;
                             },
                           ),
-                        ),
-                      ),
-                    ),
-                    FiltroAtivosScren(press: () {
-                      setState(() {
-                        widget.refreshPage.call();
-                      });
-                    }),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SectionTitle(
-                        title: "Últimos Especialistas",
-                        pressOnSeeAll: () {},
-                        OnSeeAll: false,
-                      ),
-                    ),
-                    if (medhistory.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: BouncingScrollPhysics(),
-                          child: Row(
-                            children: List.generate(
-                              medhistory.length,
-                              (index) => DoctorInforCicle(
-                                  doctor: medhistory[index],
-                                  press: () {
-                                    setState(() {
-                                      filtros.LimparMedicos();
-                                      filtros.addMedicos(medhistory[index]);
-
-                                      widget.press.call();
-                                    });
-                                  }),
-                            ),
+                          SizedBox(
+                            height: defaultPadding,
                           ),
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SectionTitle(
-                        title: "Todos os Especialistas",
-                        pressOnSeeAll: () {
-                          setState(() {
-                            pages.selecionarPaginaHome('Especialistas');
-                          });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DoctorsScreen(),
-                            ),
-                          );
-                        },
-                        OnSeeAll: false,
-                      ),
-                    ),
-                    if (med.isNotEmpty)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        //  physics: BouncingScrollPhysics(),
-                        child: Column(
-                          children: List.generate(
-                            med.length,
-                            (index) => DoctorInfor(
-                              doctor: med[index],
-                              press: () async {
-                                setState(() {
-                                  filtros.LimparMedicos();
-                                  filtros.addMedicos(med[index]);
-                                  widget.press.call();
-                                });
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              keyboardType: TextInputType.text,
+                              controller: txtQuery,
+                              onChanged: (String) {
+                                setState(() {});
                               },
+                              decoration: InputDecoration(
+                                hintText: "Buscar",
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(4.0)),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.black)),
+                                prefixIcon: Icon(Icons.search),
+                                suffixIcon: IconButton(
+                                  icon: Icon(Icons.clear),
+                                  onPressed: () {
+                                    txtQuery.text = '';
+                                    setState(() {
+                                      mockResults.clear();
+                                      //buscarQuery(txtQuery.text);
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                  ],
-                )
-              : CircularProgressIndicator(),
-          // const SizedBox(height: 8.0),
-          // Expanded(
-          //   child: ValueListenableBuilder<List<Event>>(
-          //     valueListenable: _selectedEvents,
-          //     builder: (context, value, _) {
-          //       return ListView.builder(
-          //         itemCount: value.length,
-          //         itemBuilder: (context, index) {
-          //           return Container(
-          //             margin: const EdgeInsets.symmetric(
-          //               horizontal: 12.0,
-          //               vertical: 4.0,
-          //             ),
-          //             decoration: BoxDecoration(
-          //               border: Border.all(),
-          //               borderRadius: BorderRadius.circular(12.0),
-          //             ),
-          //             child: ListTile(
-          //               onTap: () => print('${value[index]}'),
-          //               title: Text('${value[index]}'),
-          //             ),
-          //           );
-          //         },
-          //       );
-          //     },
-          //   ),
-          // ),
+                          FiltroAtivosScren(press: () {
+                            setState(() {
+                              widget.refreshPage.call();
+                            });
+                          }),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SectionTitle(
+                              title: "Últimos Especialistas",
+                              pressOnSeeAll: () {},
+                              OnSeeAll: false,
+                            ),
+                          ),
+                          if (medhistory.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                physics: BouncingScrollPhysics(),
+                                child: Row(
+                                  children: List.generate(
+                                    medhistory.length,
+                                    (index) => DoctorInforCicle(
+                                        doctor: medhistory[index],
+                                        press: () {
+                                          setState(() {
+                                            filtros.LimparMedicos();
+                                            filtros
+                                                .addMedicos(medhistory[index]);
 
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
+                                            widget.press.call();
+                                          });
+                                        }),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SectionTitle(
+                              title: "Todos os Especialistas",
+                              pressOnSeeAll: () {
+                                setState(() {
+                                  pages.selecionarPaginaHome('Especialistas');
+                                });
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DoctorsScreen(),
+                                  ),
+                                );
+                              },
+                              OnSeeAll: false,
+                            ),
+                          ),
+                          if (med.isNotEmpty)
+                            SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              //  physics: BouncingScrollPhysics(),
+                              child: Column(
+                                children: List.generate(
+                                  med.length,
+                                  (index) => DoctorInfor(
+                                    doctor: med[index],
+                                    press: () async {
+                                      setState(() {
+                                        filtros.LimparMedicos();
+                                        filtros.addMedicos(med[index]);
+                                        widget.press.call();
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      )
+                    : CircularProgressIndicator(),
+                // const SizedBox(height: 8.0),
+                // Expanded(
+                //   child: ValueListenableBuilder<List<Event>>(
+                //     valueListenable: _selectedEvents,
+                //     builder: (context, value, _) {
+                //       return ListView.builder(
+                //         itemCount: value.length,
+                //         itemBuilder: (context, index) {
+                //           return Container(
+                //             margin: const EdgeInsets.symmetric(
+                //               horizontal: 12.0,
+                //               vertical: 4.0,
+                //             ),
+                //             decoration: BoxDecoration(
+                //               border: Border.all(),
+                //               borderRadius: BorderRadius.circular(12.0),
+                //             ),
+                //             child: ListTile(
+                //               onTap: () => print('${value[index]}'),
+                //               title: Text('${value[index]}'),
+                //             ),
+                //           );
+                //         },
+                //       );
+                //     },
+                //   ),
+                // ),
+
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.3,
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }

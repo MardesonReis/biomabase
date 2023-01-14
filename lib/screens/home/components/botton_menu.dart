@@ -27,19 +27,20 @@ class _BottonMenuState extends State<BottonMenu> {
 
     return Container(
       padding: EdgeInsets.all(defaultPadding),
-      color: Colors.white,
+      color: primaryColor,
       child: SafeArea(
         child: GNav(
+          backgroundColor: Colors.transparent,
           selectedIndex: auth.paginas.selectedPage,
           haptic: true,
           tabBorderRadius: 15,
           curve: Curves.ease,
           duration: Duration(milliseconds: 350),
           gap: 8,
-          color: Colors.grey[800],
-          activeColor: Colors.white,
+          color: Colors.white,
+          activeColor: primaryColor,
           iconSize: 24,
-          tabBackgroundColor: primaryColor,
+          tabBackgroundColor: Colors.white,
           padding: EdgeInsets.symmetric(
             horizontal: defaultPadding,
             vertical: defaultPadding / 2,

@@ -67,19 +67,13 @@ class _BuildLocalizacaoState extends State<BuildLocalizacao> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Scaffold(
-                                  appBar: PreferredSize(
-                                      preferredSize: Size.fromHeight(40),
-                                      child: CustomAppBar('Busque\n',
-                                          'Locais de Atendimento', () {}, [])),
-                                  //   drawer: AppDrawer(),
-                                  body: Localizacao(
-                                    press: () {
-                                      setState(() {
-                                        Navigator.pop(context);
-                                      });
-                                    },
-                                  )),
+                              builder: (context) => Localizacao(
+                                press: () {
+                                  setState(() {
+                                    Navigator.pop(context);
+                                  });
+                                },
+                              ),
                             ),
                           ).then((value) => {
                                 setState(() {
@@ -87,8 +81,6 @@ class _BuildLocalizacaoState extends State<BuildLocalizacao> {
                                 }),
                               });
                         });
-
-                        widget.press.call();
                       },
                       label: Text('Clique para informar'),
                       backgroundColor: primaryColor,
@@ -139,22 +131,13 @@ class _BuildLocalizacaoState extends State<BuildLocalizacao> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => Scaffold(
-                                            appBar: PreferredSize(
-                                                preferredSize:
-                                                    Size.fromHeight(40),
-                                                child: CustomAppBar(
-                                                    'Busque\n',
-                                                    'Locais de Atendimento',
-                                                    () {}, [])),
-                                            //   drawer: AppDrawer(),
-                                            body: Localizacao(
-                                              press: () {
-                                                setState(() {
-                                                  Navigator.pop(context);
-                                                });
-                                              },
-                                            )),
+                                        builder: (context) => Localizacao(
+                                          press: () {
+                                            setState(() {
+                                              Navigator.pop(context);
+                                            });
+                                          },
+                                        ),
                                       ),
                                     ).then((value) => {
                                           setState(() {

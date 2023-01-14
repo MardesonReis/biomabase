@@ -6,7 +6,7 @@ import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/fila_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/paginas.dart';
-import 'package:biomaapp/screens/appointment/my_appointment_screen.dart';
+import 'package:biomaapp/screens/appointment/meusAgendamentos.dart';
 import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,6 +30,7 @@ class _AgendarListState extends State<AgendarList> {
 
   void initState() {
     super.initState();
+
     widget.fila.map((e) async {
       await agendar(e);
     }).toList();
@@ -46,7 +47,12 @@ class _AgendarListState extends State<AgendarList> {
       context,
       listen: false,
     );
+    if (auth.fidelimax.parceiro.pacientes_id.isEmpty ||
+        auth.fidelimax.parceiro.pacientes_id == "") {
+      await auth.ParceiroExisteOuCria();
+    }
     e.indicando = auth.fidelimax.parceiro;
+
     await listfila.Agendar(e).then((value) async {
       if (value != '') {
         e.sequencial = value;

@@ -106,7 +106,7 @@ class _opcoesEspecialidades extends State<opcoesEspecialidades> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        FlatButton(
+                        TextButton(
                           child: Row(
                             children: [
                               Icon(Icons.arrow_left),
@@ -137,7 +137,7 @@ class _opcoesEspecialidades extends State<opcoesEspecialidades> {
             children: [
               Container(
                 padding: EdgeInsets.all(8),
-                child: RaisedButton(
+                child: TextButton(
                   child: Text(
                     "Estecialidades",
                     style: Theme.of(context)

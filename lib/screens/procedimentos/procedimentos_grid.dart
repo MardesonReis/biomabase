@@ -8,6 +8,7 @@ import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/procedimento.dart';
 import 'package:biomaapp/models/procedimento_list.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/screens/procedimentos/procedimento_grid_item.dart';
@@ -32,7 +33,7 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
   Widget build(BuildContext context) {
     //  debugPrint(ProcedimentosFiltrado.length.toString());
 
-    DataList Data = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     Set<String> UnidadesInclusoIncluso = Set();
     Set<String> ConveniosInclusoIncluso = Set();
@@ -53,9 +54,13 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
+    var filtrarMedicos = filtros.medicos.isNotEmpty;
 
-    final dados = Data.items;
+    final dados = dt.dados;
 
+    dados.retainWhere((element) {
+      return element.cod_profissional == widget.doctor.cod_profissional;
+    });
     dados.retainWhere((element) {
       return filtrarUnidade
           ? filtros.unidades.contains(Unidade(
@@ -64,9 +69,6 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
           : true;
     });
 
-    dados.retainWhere((element) {
-      return element.cod_profissional.contains(widget.doctor.cod_profissional);
-    });
     dados.retainWhere((element) {
       return filtrarConvenio
           ? filtros.convenios.contains(Convenios(
@@ -105,6 +107,8 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
         Procedimento p = Procedimento();
 
         p.cod_procedimentos = e.cod_procedimentos;
+        p.valor_sugerido = double.parse(e.valor_sugerido);
+        p.orientacoes = e.orientacoes;
         p.des_procedimentos = e.des_procedimentos;
         p.valor = double.parse(e.valor);
         p.grupo = e.grupo;

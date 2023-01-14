@@ -7,7 +7,7 @@ import 'package:biomaapp/models/fila_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/paginas.dart';
-import 'package:biomaapp/screens/appointment/my_appointment_screen.dart';
+import 'package:biomaapp/screens/appointment/meusAgendamentos.dart';
 import 'package:biomaapp/screens/pedidos/indicacoes_screen.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/cupertino.dart';

@@ -55,20 +55,9 @@ class _ProcedimentosCircleState extends State<ProcedimentosCircle> {
                   ? Text(widget.procedimento.des_procedimentos[0])
                   : SizedBox(),
             ),
-            Text(
-              widget.procedimento.des_procedimentos.capitalize(),
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-            Text(
-              widget.procedimento.especialidade.descricao.capitalize(),
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
+            textResp(widget.procedimento.des_procedimentos),
+            textResp(widget.procedimento.especialidade.descricao),
+            textResp(widget.procedimento.orientacoes),
             Text(
               detalhe,
               style: TextStyle(
@@ -76,7 +65,7 @@ class _ProcedimentosCircleState extends State<ProcedimentosCircle> {
               ),
             ),
             Text(
-              'R\$ ' + widget.procedimento.valor.toString(),
+              'R\$ ' + widget.procedimento.valor_sugerido.toString(),
               style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.normal,

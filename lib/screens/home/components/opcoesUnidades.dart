@@ -96,7 +96,7 @@ class _opcoesUnidades extends State<opcoesUnidades> {
                   ],
                 ),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text("Voltar"),
                     onPressed: () => {
                       setState(() {
@@ -120,7 +120,7 @@ class _opcoesUnidades extends State<opcoesUnidades> {
               Container(
                 margin: EdgeInsets.all(8),
                 padding: EdgeInsets.all(8),
-                child: RaisedButton(
+                child: TextButton(
                   child: Text(
                     "Locais de Atendimento",
                     style: Theme.of(context)

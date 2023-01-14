@@ -108,7 +108,7 @@ class _OpcoesConvenios extends State<OpcoesConvenios> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        FlatButton(
+                        TextButton(
                           child: Row(
                             children: [
                               Icon(Icons.arrow_left),
@@ -139,7 +139,7 @@ class _OpcoesConvenios extends State<OpcoesConvenios> {
             children: [
               Container(
                 padding: EdgeInsets.all(8),
-                child: RaisedButton(
+                child: TextButton(
                   child: Text(
                     "Convênios",
                     style: Theme.of(context)

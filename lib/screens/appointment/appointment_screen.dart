@@ -18,6 +18,7 @@ import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
 import 'package:biomaapp/screens/appointment/componets/agenda_indicar.dart';
@@ -31,6 +32,9 @@ import 'package:biomaapp/screens/appointment/componets/calendario.dart';
 import 'package:biomaapp/screens/appointment/componets/confirmaInformacoes.dart';
 import 'package:biomaapp/screens/appointment/componets/indicar.dart';
 import 'package:biomaapp/screens/appointment/componets/agendar.dart';
+import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
+import 'package:biomaapp/screens/auth/auth_page.dart';
+import 'package:biomaapp/screens/auth/logar.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_infor.dart';
 import 'package:biomaapp/screens/especialidades/components/popMenuConvenios.dart';
@@ -137,7 +141,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     Set<String> HorasIncluso = Set();
     Set<String> UnidadesIncluso = Set();
 
-    DataList Data = Provider.of(context);
+    //RegrasList dt = Provider.of(context, listen: false);
     UnidadesList BaseUnidades = Provider.of(context);
 
     Auth auth = Provider.of(context);
@@ -287,22 +291,54 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
             appBar: PreferredSize(
                 preferredSize: Size.fromHeight(40),
                 child: CustomAppBar('Agendado\n', 'Procedimentos', () {}, [])),
-            body: SafeArea(
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      menu(),
-                      corpo(passo),
-                    ],
+            body: !auth.isAuth
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          color: redColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Text('Login Necessário'),
+                                Spacer(),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      callbackLogin(context, () {
+                                        // setState(() {});
+                                      });
+                                    },
+                                    child: Text(
+                                      'Logar',
+                                      style: TextStyle(color: Colors.white),
+                                    ))
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : SafeArea(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            menu(),
+                            corpo(passo),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
           );
   }
 
@@ -410,6 +446,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
         'desc': 'Localização',
         'page': BuildLocalizacao(press: () {
           setState(() {
+            // Navigator.pop(context);
             ProxiPasso();
           });
         }, refreshPage: () {

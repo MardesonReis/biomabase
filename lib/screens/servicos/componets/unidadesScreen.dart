@@ -10,6 +10,7 @@ import 'package:biomaapp/models/grupos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
@@ -53,18 +54,17 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
       context,
       listen: false,
     );
-    var dados = Provider.of<DataList>(
+
+    var RegraList = Provider.of<RegrasList>(
       context,
       listen: false,
     );
-
-    dados.items.isEmpty
-        ? dados.loadDados('').then((value) => setState(() {
-              _isLoading = false;
-            }))
-        : setState(() {
-            _isLoading = false;
-          });
+    //13978829304
+    RegraList.carrgardados(context, Onpress: () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
     unlist.items.isEmpty
         ? unlist.loadUnidades('').then((value) {
             setState(() {
@@ -78,7 +78,7 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    DataList dt = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     AgendamentosList historico = Provider.of(context);
     UnidadesList unidadeslist = Provider.of(context);
     final dadosunidades = unidadeslist.items;
@@ -97,7 +97,7 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
 
     List<Medicos> medicos = [];
     List<Unidade> unidades = [];
-    final dados = dt.items;
+    final dados = dt.dados;
     dados
         .map((e) => dadosunidades.where((element) {
               if (element.cod_unidade.contains(e.cod_unidade)) {
