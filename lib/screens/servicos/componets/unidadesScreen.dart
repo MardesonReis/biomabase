@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/section_title.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/agendamentos_list.dart';
@@ -27,6 +28,7 @@ import 'package:biomaapp/screens/procedimentos/procedimentosCircle.dart';
 import 'package:biomaapp/screens/procedimentos/procedimentos_infor.dart';
 import 'package:biomaapp/screens/procedimentos/procedimentos_screen_view.dart';
 import 'package:biomaapp/screens/search/components/menu_bar_unidades.dart';
+import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,8 +40,7 @@ class UnidadesScreen extends StatefulWidget {
 }
 
 class _UnidadesScreenState extends State<UnidadesScreen> {
-  bool _isLoading = false;
-  bool _isLoadingUnidade = false;
+  bool _isLoading = true;
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
   final ScrollController controller = ScrollController();
@@ -55,25 +56,21 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
       listen: false,
     );
 
-    var RegraList = Provider.of<RegrasList>(
-      context,
-      listen: false,
-    );
-    //13978829304
-    RegraList.carrgardados(context, Onpress: () {
+    auth.atualizaAcesso(context, () {
       setState(() {
-        _isLoading = false;
+        unlist.items.isEmpty
+            ? unlist.loadUnidades('').then((value) {
+                setState(() {
+                  _isLoading = false;
+                });
+              })
+            : setState(() {
+                _isLoading = false;
+              });
       });
+    }).then((value) {
+      setState(() {});
     });
-    unlist.items.isEmpty
-        ? unlist.loadUnidades('').then((value) {
-            setState(() {
-              _isLoading = false;
-            });
-          })
-        : setState(() {
-            _isLoading = false;
-          });
   }
 
   @override
@@ -162,6 +159,8 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
 
     dados.map((e) {
       Procedimento p = Procedimento();
+      p.convenio = Convenios(
+          cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
       p.cod_procedimentos = e.cod_procedimentos;
       p.des_procedimentos = e.des_procedimentos;
@@ -212,11 +211,8 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
       cod_unidade = unidades.first.cod_unidade;
     }
 
-    return _isLoading &&
-            _isLoadingUnidade &&
-            unidades.isEmpty &&
-            cod_unidade == ''
-        ? Center(child: CircularProgressIndicator())
+    return _isLoading
+        ? Center(child: ProgressIndicatorBioma())
         : Scaffold(
             appBar: AppBar(
               title: Text(filtros.unidades.isNotEmpty
@@ -248,27 +244,9 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
                         )),
                         child: Column(
                           children: [
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  PopMenuConvenios(() {
-                                    setState(() {});
-                                  }),
-                                  PopMenuEspecialidade(() {
-                                    setState(() {});
-                                  }),
-                                  PopMenuSubEspecialidades(() {
-                                    setState(() {});
-                                  }),
-                                  PopMenuGrupo(() {
-                                    setState(() {});
-                                  })
-                                ],
-                              ),
-                            ),
+                            filtrosScreen(press: () {
+                              setState(() {});
+                            })
                           ],
                         ),
                       ),

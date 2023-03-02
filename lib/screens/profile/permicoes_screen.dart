@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
@@ -206,11 +207,11 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(40),
-          child: CustomAppBar('Minhas \n', 'Permições', () {}, [])),
+          child: CustomAppBar('Minhas \n', 'Permissões', () {}, [])),
       drawer: AppDrawer(),
       body: _isLoading && _isLoadingPerfil
           ? Center(
-              child: CircularProgressIndicator(),
+              child: ProgressIndicatorBioma(),
             )
           : SingleChildScrollView(
               padding: EdgeInsets.all(defaultPadding),
@@ -352,15 +353,19 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                               ),
                               trailing: IconButton(
                                 onPressed: () async {
-                                  var a = await AlertShowDialog('Atenção: ',
-                                      'Confirma remoção da regra? ', context);
+                                  var a = await AlertShowDialog(
+                                      'Atenção: ',
+                                      Text('Confirma remoção da regra? '),
+                                      context);
 
                                   if (a) {
                                     var id_regra = await regrasList.Remover(
                                         regras[index].id_regra);
                                     if (id_regra != '') {
-                                      AlertShowDialog('Sucesso',
-                                          'Removido com sucesso', context);
+                                      AlertShowDialog(
+                                          'Sucesso',
+                                          Text('Removido com sucesso'),
+                                          context);
 
                                       setState(() {
                                         _isLoading = true;
@@ -391,7 +396,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                     ),
                   SizedBox(height: defaultPadding),
                   if (perfilDeAtendimento.items.isEmpty)
-                    CircularProgressIndicator(),
+                    ProgressIndicatorBioma(),
                   if (menu_select.keyId == 'P')
                     Column(
                       children: List.generate(medicos.length, (index) {

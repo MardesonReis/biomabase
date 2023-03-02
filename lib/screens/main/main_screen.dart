@@ -1,4 +1,6 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
+import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/agendamentos_list.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/data_list.dart';
@@ -26,7 +28,6 @@ class _MainScreenState extends State<MainScreen> {
   bool _expanded = false;
   bool _isLoading = true;
   bool _isLoadingAgendamento = true;
-  bool _isLoadingUnidade = true;
   bool _isLoadingIcon = true;
   List<Regra> regras = [];
   @override
@@ -42,27 +43,24 @@ class _MainScreenState extends State<MainScreen> {
       context,
       listen: false,
     );
-    //13978829304
-
-    regraList.carrgardados(context, Onpress: () {
-      setState(() {
-        _isLoading = false;
-      });
-    });
-
     UnidadesList ListUnidade = Provider.of<UnidadesList>(
       context,
       listen: false,
     );
-    ListUnidade.items.isEmpty
-        ? ListUnidade.loadUnidades('0').then((value) {
-            setState(() {
-              _isLoadingUnidade = false;
-            });
-          })
-        : setState(() {
-            _isLoadingUnidade = false;
+    filtrosAtivos filtros = auth.filtrosativos;
+    auth.atualizaAcesso(context, () {
+      if (ListUnidade.items.isEmpty) {
+        ListUnidade.loadUnidades('0').then((value) {
+          setState(() {
+            _isLoading = false;
           });
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }).then((value) {});
   }
 
   @override
@@ -78,10 +76,8 @@ class _MainScreenState extends State<MainScreen> {
     body = pages.pages[pages.selectedPage]['page'] as Widget;
 
     return Scaffold(
-      body: _isLoading && _isLoadingUnidade
-          ? Center(child: CircularProgressIndicator())
-          : body,
-      bottomNavigationBar: BottonMenu(),
+      body: _isLoading ? Center(child: ProgressIndicatorBioma()) : body,
+      bottomNavigationBar: _isLoading ? SizedBox() : BottonMenu(),
       drawer: AppDrawer(),
     );
   }

@@ -22,6 +22,8 @@ import 'package:biomaapp/screens/especialidades/components/popMenuSubEspecialida
 import 'package:biomaapp/screens/especialidades/components/popMenuUnidades.dart';
 import 'package:biomaapp/screens/home/components/botton_menu.dart';
 import 'package:biomaapp/screens/procedimentos/procedimentos_grid.dart';
+import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
+import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
@@ -161,6 +163,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
             tooltip: 'Todos os Médicos',
             onPressed: () {
               // handle the press
+              filtros.LimparTodosFiltros();
               pages.selecionarPaginaHome('Serviços');
               Navigator.of(context).pushReplacementNamed(
                 AppRoutes.AUTH_OR_HOME,
@@ -178,29 +181,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      PopMenuConvenios(() {
-                        setState(() {});
-                      }),
-                      PopMenuEspecialidade(() {
-                        setState(() {});
-                      }),
-                      PopMenuSubEspecialidades(() {
-                        setState(() {});
-                      }),
-                      PopMenuGrupo(() {
-                        setState(() {});
-                      }),
-                      PopoMenuUnidades(() {
-                        setState(() {});
-                      })
-                    ],
-                  ),
+                filtrosScreen(
+                  press: () => setState(() {}),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -211,7 +193,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                       setState(() {});
                     },
                     decoration: InputDecoration(
-                      hintText: "Buscar",
+                      hintText: "Buscar Procedimentos",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0)),
                       focusedBorder: OutlineInputBorder(
@@ -230,6 +212,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                     ),
                   ),
                 ),
+
+                /// FiltroAtivosScren(press: () => setState(() {})),
                 ProcedimentoGrid(widget.doctor, txtQuery.text, widget.press),
               ],
             ),

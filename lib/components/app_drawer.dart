@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/paginas.dart';
@@ -37,17 +38,18 @@ class _AppDrawerState extends State<AppDrawer> {
       context,
       listen: false,
     );
-    if (auth.fidelimax.cpf.isEmpty && auth.isAuth) {
-      auth.fidelimax.ConsultaConsumidor().then((value) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    } else {
+    var regraList = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+
+    auth.atualizaAcesso(context, () {
+      setState(() {});
+    }).then((value) {
       setState(() {
         _isLoading = false;
       });
-    }
+    });
   }
 
   @override
@@ -56,21 +58,36 @@ class _AppDrawerState extends State<AppDrawer> {
 
     Paginas pages = auth.paginas;
 
-    var logar = Logar(fun: () {
-      Navigator.pop(context);
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AuthOrHomePage(),
-        ),
-      ).whenComplete(() {
-        // setState(() {});
-      });
-    });
+    logar(Widget w) async {
+      var lg = await AlertShowDialog('Login necessário', Text(''), context);
+      if (lg) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AuthPage(
+              func: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      //  setState(() {});
+                      return w;
+                    },
+                  ),
+                ).then((value) {
+                  setState(() {});
+                });
+              },
+            ),
+          ),
+        ).then((value) {
+          setState(() {});
+        });
+      }
+    }
 
     return _isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? Center(child: ProgressIndicatorBioma())
         : Drawer(
             // backgroundColor: primaryColor,
             child: Column(
@@ -79,16 +96,11 @@ class _AppDrawerState extends State<AppDrawer> {
                   title: Column(
                     children: [
                       if (!auth.isAuth)
-                        ListTile(
-                          leading: Icon(Icons.person),
-                          title: Text('Entrar'),
-                          onTap: () {
-                            Navigator.pop(context);
-                            callbackLogin(context, () {
-                              //setState(() {});
-                            });
-                          },
-                        ),
+                        Logar(
+                            fun: () {
+                              setState(() {});
+                            },
+                            widAtual: AuthOrHomePage()),
                       if (auth.isAuth)
                         Text(
                             'Olá, ${auth.fidelimax.nome.toString().split(' ')[0]}'),
@@ -126,7 +138,8 @@ class _AppDrawerState extends State<AppDrawer> {
                             ).whenComplete(() {
                               setState(() {});
                             })
-                          : showSnackBar(logar, context);
+                          : logar(AgendaMedicoScreen(
+                              press: () {}, refreshPage: () {}));
                       ;
                     },
                   ),
@@ -157,7 +170,18 @@ class _AppDrawerState extends State<AppDrawer> {
                           ).whenComplete(() {
                             setState(() {});
                           })
-                        : showSnackBar(logar, context);
+                        : logar(UsersPage(press: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AppointmentScreen(
+                                  press: () {},
+                                ),
+                              ),
+                            ).whenComplete(() {
+                              setState(() {});
+                            });
+                          }));
                   },
                 ),
 
@@ -174,7 +198,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           ).whenComplete(() {
                             setState(() {});
                           })
-                        : showSnackBar(logar, context);
+                        : logar(IndicacoesScreen());
                   },
                 ),
                 // Divider(),
@@ -210,7 +234,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           ).whenComplete(() {
                             setState(() {});
                           })
-                        : showSnackBar(logar, context);
+                        : logar(MeusAgendamentos());
                   },
                 ),
                 ListTile(
@@ -226,7 +250,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           ).whenComplete(() {
                             setState(() {});
                           })
-                        : showSnackBar(logar, context);
+                        : logar(MinhasIndicacoes());
                   },
                 ),
                 ListTile(
@@ -242,7 +266,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           ).whenComplete(() {
                             setState(() {});
                           })
-                        : showSnackBar(logar, context);
+                        : logar(ProfileScreen());
                   },
                 ),
 

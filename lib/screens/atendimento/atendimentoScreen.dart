@@ -46,7 +46,7 @@ class _AtendimentoScreenState extends State<AtendimentoScreen> {
   Widget build(BuildContext context) {
     Auth auth = Provider.of(context);
     Fidelimax fidelimax = auth.fidelimax;
-    fidelimax.ConsultaConsumidor();
+    fidelimax.ConsultaConsumidor(auth.fidelimax.cpf);
     filtrosAtivos filtros = auth.filtrosativos;
     return Scaffold(
       appBar: PreferredSize(

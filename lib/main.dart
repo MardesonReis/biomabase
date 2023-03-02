@@ -257,7 +257,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: [Locale('pt', 'BR')],
-        title: 'Bioma - Saúde Integral',
+        title: 'Bioma - Conectando Saúde',
         theme: ThemeData(
           primarySwatch: primaryColor,
           accentColor: redColor,

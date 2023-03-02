@@ -260,60 +260,64 @@ class _AuthFormState extends State<AuthFormFi> {
 
                   auth.fidelimax.cpf = cpf;
 
-                  if (!await auth.isAuthFidelimax) {
-                    try {
-                      auth.fidelimax.cpf = cpf;
+                  try {
+                    auth.fidelimax.cpf = cpf;
 
-                      auth.fidelimax.nome = _authData['nome'] ?? '';
+                    auth.fidelimax.nome = _authData['nome'] ?? '';
 
-                      auth.fidelimax.sexo = _authData['sexo'] ?? '';
-                      auth.fidelimax.email = auth.email ?? '';
-                      auth.fidelimax.dataNascimento =
-                          _authData['dataNascimento'] ?? '';
-                      auth.fidelimax.telefone = telefone;
-                      var a = await auth.fidelimax
-                          .createFidelimax()
-                          .then((value) async {
-                        // f = value;
-                        var CpfFidelimax = await auth.addCpfFidelimax();
-                        var ParceiroExisteOuCria =
-                            await auth.ParceiroExisteOuCria();
-                        if (CpfFidelimax != '') {
-                          print('Cpf Adicionado no BDG');
-                        }
-                        if (ParceiroExisteOuCria != '') {
-                          print('Parceiro Existe');
-                        }
+                    auth.fidelimax.sexo = _authData['sexo'] ?? '';
+                    auth.fidelimax.email = auth.email ?? '';
+                    auth.fidelimax.dataNascimento =
+                        _authData['dataNascimento'] ?? '';
+                    auth.fidelimax.telefone = telefone;
+                    var a = await auth.fidelimax
+                        .createFidelimax()
+                        .then((value) async {
+                      // f = value;
+                      var CpfFidelimax = await auth.addCpfFidelimax();
+                      var ParceiroExisteOuCria =
+                          await auth.ParceiroExisteOuCria();
+                      if (CpfFidelimax != '') {
+                        print('Cpf Adicionado no BDG');
+                      }
+                      if (ParceiroExisteOuCria != '') {
+                        print('Parceiro Existe');
+                      }
 
-                        if (auth.fidelimax.cpf != '')
-                          setState(() {
-                            var dados = Provider.of<RegrasList>(
-                              context,
-                              listen: false,
-                            ).limparDados();
-
-                            var regraList = Provider.of<RegrasList>(
-                              context,
-                              listen: false,
-                            ).limparDados();
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AuthOrHomePage(),
-                              ),
-                            ).whenComplete(() {
-                              setState(() => _isLoading = false);
+                      if (auth.fidelimax.cpf != '') {
+                        //   setState(() {});
+                        RegrasList regrasList =
+                            Provider.of(context, listen: false);
+                        //  setState(() {});
+                        if (auth.isAuth)
+                          await auth.fidelimax.ListCpfFidelimax(
+                              auth.userId ?? '', auth.token ?? '');
+                        if (auth.isAuth)
+                          await auth.fidelimax
+                              .RetornaDadosCliente(auth.fidelimax.cpf)
+                              .then((value) {
+                            print('ooioioi' + value.cpf);
+                            regrasList
+                                .carrgardados(context,
+                                    Onpress: () {}, all: true)
+                                .then((value) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AuthOrHomePage(),
+                                ),
+                              ).then((value) {
+                                setState(() {});
+                              });
                             });
                           });
-                      });
-                    } on AuthException catch (error) {
-                      _showErrorDialog(error.toString());
-                    } catch (error) {
-                      _showErrorDialog('Ocorreu um erro inesperado! ${error}');
-                    }
+                      }
+                    });
+                  } on AuthException catch (error) {
+                    _showErrorDialog(error.toString());
+                  } catch (error) {
+                    _showErrorDialog('Ocorreu um erro inesperado! ${error}');
                   }
-                  ;
                 },
                 child: Text('REGISTRAR'
 

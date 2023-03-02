@@ -74,7 +74,7 @@ class _ConfirmaInforState extends State<ConfirmaInfor> {
               height: 8,
             ),
             Visibility(
-              visible: true,
+              visible: false,
               child: FloatingActionButton.extended(
                 onPressed: () {
                   setState(() {

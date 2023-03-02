@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/agendamentos.dart';
 import 'package:biomaapp/components/infor_unidade.dart';
 import 'package:biomaapp/constants.dart';
@@ -106,7 +107,7 @@ class _MeusAgendamentosState extends State<MeusAgendamentos> {
           atulizaAgenda();
         },
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: ProgressIndicatorBioma())
             : Column(
                 children: [
                   SingleChildScrollView(
@@ -362,7 +363,7 @@ class _EmptyContentsState extends State<_EmptyContents> {
   Widget build(BuildContext context) {
     return _isLoading
         ? Center(
-            child: CircularProgressIndicator(),
+            child: ProgressIndicatorBioma(),
           )
         : Card(
             child: ListTile(

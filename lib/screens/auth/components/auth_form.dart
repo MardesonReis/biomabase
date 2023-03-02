@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/regras_list.dart';
@@ -122,13 +123,13 @@ class _AuthFormState extends State<AuthForm> {
                 Navigator.of(context).pop(true);
                 AlertShowDialog(
                     'Sucesso',
-                    'Um email de redefinição de senha foi enviado para ' +
+                    Text('Um email de redefinição de senha foi enviado para ' +
                         body['email'].toString() +
-                        '\nVerifique o SPAN',
+                        '\nVerifique o SPAN'),
                     context);
               } else {
                 Navigator.of(context).pop(true);
-                AlertShowDialog('Erro', 'Email não encontrado', context);
+                AlertShowDialog('Erro', Text('Email não encontrado'), context);
               }
             },
             child: Text('Confirmar'),
@@ -165,41 +166,37 @@ class _AuthFormState extends State<AuthForm> {
           _authData['password']!,
         );
       }
+      RegrasList regrasList = Provider.of(context, listen: false);
 
-      if (auth.isAuth) {
-        auth.tryAutoLogin().then((value) async {
-          if (auth.isAuth && !await auth.isAuthFidelimax) {
-            auth.fidelimax
-                .ListCpfFidelimax(auth.userId ?? '', auth.token ?? '')
-                .then((value) async {
-              if (await auth.isAuthFidelimax) {
-                auth.fidelimax.RetornaDadosCliente().then((value) {
-                  setState(() {
-                    // _isLogin = false;
-                  });
-                });
-              } else {
-                setState(() {
-                  auth.fidelimax.cpf = '';
-                  // _isLogin = false;
-                });
-              }
-            });
-          } else {
+      await auth.fidelimax
+          .ListCpfFidelimax(auth.userId ?? '', auth.token ?? '');
+
+      await auth.fidelimax
+          .ConsultaConsumidor(auth.fidelimax.cpf)
+          .then((value) async {
+        await auth.fidelimax
+            .RetornaDadosCliente(auth.fidelimax.cpf)
+            .then((value) async {
+          var regraList = await Provider.of<RegrasList>(
+            context,
+            listen: false,
+          ).limparDados();
+          var dados = await Provider.of<RegrasList>(
+            context,
+            listen: false,
+          ).limparDados();
+
+          auth.atualizaAcesso(context, () async {
             setState(() {
-              //auth.fidelimax.cpf = '';
-              //   _isLogin = false;
+              _isLoading = false;
+              widget.func.call();
             });
-          }
-          RegrasList regrasList = Provider.of(context, listen: false);
-          await regrasList
-              .carrgardados(context, Onpress: () {}, all: true)
-              .then((value) {
-            widget.func.call();
-            setState(() => _isLoading = false);
           });
         });
-      }
+      });
+
+      //if (auth.isAuth)
+
       //     setState(() => _isLoading = false);
     } on AuthException catch (error) {
       _showErrorDialog(error.toString());
@@ -222,7 +219,7 @@ class _AuthFormState extends State<AuthForm> {
       ),
       child: Container(
         padding: const EdgeInsets.all(16),
-        height: _isLogin() ? deviceSize.height * 0.35 : deviceSize.height * 0.5,
+        // height: _isLogin() ? deviceSize.height * 0.5 : deviceSize.height * 0.5,
         width: deviceSize.width * 0.75,
         child: Form(
           key: _formKey,
@@ -284,12 +281,14 @@ class _AuthFormState extends State<AuthForm> {
                 //     return null;
                 //   },
                 // ),
-                SizedBox(height: 20),
+                SizedBox(
+                  height: 50,
+                ),
               if (_isLoading)
-                CircularProgressIndicator()
+                ProgressIndicatorBioma()
               else
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: ElevatedButton(
                     onPressed: _submit,
                     child: Text(
@@ -306,10 +305,7 @@ class _AuthFormState extends State<AuthForm> {
                     ),
                   ),
                 ),
-              SizedBox(
-                height: defaultPadding,
-              ),
-              Row(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -328,7 +324,10 @@ class _AuthFormState extends State<AuthForm> {
                     ),
                   ),
                 ],
-              )
+              ),
+              SizedBox(
+                height: defaultPadding,
+              ),
             ],
           ),
         ),

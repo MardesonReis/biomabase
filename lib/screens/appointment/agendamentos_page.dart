@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/agendamentos.dart';
 import 'package:biomaapp/components/filtros_ativos_agendamento.dart';
 import 'package:biomaapp/components/infor_unidade.dart';
@@ -155,7 +156,7 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
                             ],
                           ),
                         )
-                      : Center(child: CircularProgressIndicator()),
+                      : Center(child: ProgressIndicatorBioma()),
                   unidade.cod_unidade.isNotEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -169,7 +170,7 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
                             ],
                           ),
                         )
-                      : Center(child: CircularProgressIndicator()),
+                      : Center(child: ProgressIndicatorBioma()),
                   if (widget.agendamento.des_status_agenda == 'P')
                     ElevatedButton(
                         onPressed: () {
@@ -179,13 +180,17 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
                                     if (value.des_status_agenda == 'V')
                                       {
                                         widget.agendamento = value,
-                                        AlertShowDialog('',
-                                            'Confirmado com sucesso!', context)
+                                        AlertShowDialog(
+                                            '',
+                                            Text('Confirmado com sucesso!'),
+                                            context)
                                       }
                                     else
                                       {
                                         AlertShowDialog(
-                                            '', 'Erro na confirmação!', context)
+                                            '',
+                                            Text('Erro na confirmação!'),
+                                            context)
                                       }
                                   });
 

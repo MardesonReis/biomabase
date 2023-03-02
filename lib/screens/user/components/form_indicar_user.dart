@@ -99,21 +99,21 @@ class _FormIndicaUserState extends State<FormIndicaUser> {
           var indicaAmigo =
               await userlist.IndicacaoAmigosBioma(NewUser, auth.fidelimax);
 
-          bool a = await AlertShowDialog('', str, context);
+          bool a = await AlertShowDialog('', Text(str), context);
 
           if (a) {
             Navigator.of(context).pop();
           }
         });
       } on AuthException catch (error) {
-        AlertShowDialog('Erro', error.toString(), context);
+        AlertShowDialog('Erro', Text(error.toString()), context);
       } catch (error) {
         AlertShowDialog(
-            'Ocorreu um erro inesperado!', error.toString(), context);
+            'Ocorreu um erro inesperado!', Text(error.toString()), context);
       }
     } else {
-      AlertShowDialog(
-          'CPF Inválido', 'Verifique os dados e tente novamente', context);
+      AlertShowDialog('CPF Inválido',
+          Text('Verifique os dados e tente novamente'), context);
     }
 
     setState(() => _isLoading = false);

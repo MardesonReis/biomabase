@@ -4,6 +4,7 @@ import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/auth.dart';
+import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/screens/auth/components/auth_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,32 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+  @override
+  void initState() {
+    // if (!mounted) return;
+
+    super.initState();
+
+    var auth = Provider.of<Auth>(
+      context,
+      listen: false,
+    );
+
+    if (auth.isAuth) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            //  setState(() {});
+            return AuthOrHomePage();
+          },
+        ),
+      ).then((value) {
+        setState(() {});
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of(context);

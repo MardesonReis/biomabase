@@ -282,7 +282,7 @@ class _FiltrosProcedimentosState extends State<FiltrosProcedimentos> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              filtros.FiltrosAtivos > 0
+              filtros.BuscarFiltrosAtivos() > 0
                   ? ElevatedButton(
                       onPressed: () => setState(() {
                         filtros.LimparTodosFiltros();

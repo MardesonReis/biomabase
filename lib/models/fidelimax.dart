@@ -22,6 +22,7 @@ class Fidelimax with ChangeNotifier {
   double? _pontos_expirar;
   double? _cashback;
   String? _categoria;
+  String? consumidor_existente = 'false';
   List<Procedimento> _produtos = [];
   List<Extrato> _extrato = [];
 
@@ -187,14 +188,14 @@ class Fidelimax with ChangeNotifier {
     return body['MensagemErro'].toString();
   }
 
-  Future<String> ConsultaConsumidor() async {
+  Future<String> ConsultaConsumidor(String cpfQuery) async {
     final url = Constants.FIDELIMAX_API +
-        'ConsultaConsumidor' +
-        '' +
+        'ConsultaConsumidor/' +
+        cpfQuery +
         Constants.AUT_BASE;
 
     Map parans = {
-      "cpf": this.cpf,
+      "cpf": cpfQuery,
       "categoria": 'true',
     };
 
@@ -206,7 +207,6 @@ class Fidelimax with ChangeNotifier {
       },
       body: parans,
     );
-    print(parans.toString());
     final body = jsonDecode(response.body)['dados'];
 
     //  if (body['CodigoResposta'] == 103) {
@@ -215,36 +215,40 @@ class Fidelimax with ChangeNotifier {
     //    notifyListeners();
     //    return this;
     //  }
-
+    print(url);
+    if (this.nome.isNotEmpty) return this._cpf;
     if (body['CodigoResposta'] == 100) {
       this.saldo = double.parse(body['saldo'].toString());
       this.nome = body['nome'].toString();
       this.pontos_expirar = double.parse(body['pontos_expirar'].toString());
       this.cashback = double.parse(body['cashback'].toString());
       this.categoria = body['categoria'].toString();
-      this.cpf = cpf;
+      this._cpf = cpfQuery;
     } else {
       this._cpf = '';
-      //  print("Cadastro Fidelimax não Encontrado");
+      print("Cadastro Fidelimax não Encontrado");
       //     throw AuthException(body['CodigoResposta'].toString());
 
     }
 
     //    _autoLogout();
 
-    //notifyListeners();
+    notifyListeners();
     return this._cpf;
   }
 
-  Future<Fidelimax> RetornaDadosCliente() async {
+  Future<Fidelimax> RetornaDadosCliente(String cpf) async {
     Constants.AGENDA_MEDICO_BASE_URL;
     final url = Constants.FIDELIMAX_API +
-        'RetornaDadosCliente' +
-        '' +
+        'RetornaDadosCliente/' +
+        cpf +
+        '/' +
         Constants.AUT_BASE;
 
+    print(url);
+
     Map parans = {
-      "cpf": this._cpf,
+      "cpf": cpf,
     };
 
     final response = await http.post(
@@ -255,7 +259,6 @@ class Fidelimax with ChangeNotifier {
       },
       body: parans,
     );
-
     final body = jsonDecode(response.body)['dados'];
 
     if (body['CodigoResposta'] == 100) {
@@ -275,7 +278,7 @@ class Fidelimax with ChangeNotifier {
 
     //    _autoLogout();
 
-    //notifyListeners();
+    notifyListeners();
     return this;
   }
 
@@ -341,10 +344,10 @@ class Fidelimax with ChangeNotifier {
   }
 
   Future<Fidelimax> createFidelimax() async {
-    final url = Constants.FIDELIMAX_API +
-        'CadastrarConsumidor/' +
-        '' +
-        Constants.AUT_BASE;
+    final url =
+        Constants.FIDELIMAX_API + 'CadastrarConsumidor/' + Constants.AUT_BASE;
+
+    // print(url);
 
     Map parans = {
       "nome": this.nome,
@@ -354,7 +357,7 @@ class Fidelimax with ChangeNotifier {
       "nascimento": this.dataNascimento,
       "telefone": this.telefone
     };
-    //debugPrint(this.email);
+    debugPrint(parans.toString());
 
     final response = await http.post(
       Uri.parse(url),
@@ -364,21 +367,26 @@ class Fidelimax with ChangeNotifier {
       },
       body: parans,
     );
-    print('Response: ' + parans.toString());
+    print(response.body);
     final body = jsonDecode(response.body)['dados'];
 
     if (body['CodigoResposta'] == 103) {
+      // this._cpf = '';
+      this.consumidor_existente = body['consumidor_existente'];
       // print("CPF Inesexistente");
-      //     throw AuthException(body['CodigoResposta'].toString());
+      throw AuthException(body['CodigoResposta'].toString());
     }
 
     if (body['CodigoResposta'] == 100) {
-      //    this._cpf = this.cpf;
+      this.consumidor_existente = body['consumidor_existente'];
+      //   this._cpf = this.cpf;
 
-      //  print("Cadastro Fidelimax com sucesso");
+      print("Cadastro Fidelimax com sucesso");
     } else {
-      //this._cpf = '';
-      // print("Cadastro Fidelimax deu erro");
+      // this._cpf = '';
+
+      print("Cadastro Fidelimax deu erro");
+      throw AuthException(body['CodigoResposta'].toString());
 
       // throw AuthException(body['CodigoResposta'].toString());
     }
@@ -395,9 +403,10 @@ class Fidelimax with ChangeNotifier {
 
     final cpfResponse = await http.get(
       Uri.parse(link),
+
       //  headers: headers
     );
-
+    print(link);
     Map<String, dynamic> cpfData =
         cpfResponse.body == 'null' ? {} : jsonDecode(cpfResponse.body);
 

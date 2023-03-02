@@ -27,7 +27,8 @@ import 'package:biomaapp/components/order.dart';
 import 'package:biomaapp/models/order_list.dart';
 
 class OrdersPage extends StatefulWidget {
-  Clips menu;
+  Clips menu =
+      Clips(titulo: 'Cesta de Solicitações', subtitulo: '', keyId: 'S');
   OrdersPage(this.menu);
   @override
   State<OrdersPage> createState() => _OrdersPageState();
@@ -50,8 +51,8 @@ class _OrdersPageState extends State<OrdersPage> {
     filtros.BuscarFiltrosAtivos();
     Paginas pages = auth.paginas;
     var menu = [
-      Clips(titulo: 'Agendar', subtitulo: '', keyId: 'A'),
-      Clips(titulo: 'Solicitar', subtitulo: '', keyId: 'S'),
+      // Clips(titulo: 'Agendar', subtitulo: '', keyId: 'A'),
+      Clips(titulo: 'Cesta de Solicitações', subtitulo: '', keyId: 'S'),
     ];
 
     var agendados = auth.filtrosativos.fila
@@ -69,6 +70,10 @@ class _OrdersPageState extends State<OrdersPage> {
     if (_doar > 0 && isChecked) {
       total = total + valoresDoar[_doar];
     }
+    setState(() {
+      widget.menu = menu[0];
+      ;
+    });
 
     return Scaffold(
         floatingActionButton: Row(
@@ -328,46 +333,59 @@ class _OrdersPageState extends State<OrdersPage> {
                   },
                 ),
               ),
-              ListTile(
-                leading: CircleAvatar(
-                  radius: 15,
-                  onBackgroundImageError: (_, __) {
-                    setState(() {
-                      isError = true;
-                    });
-                  },
-                  child: isError == true ? Text('I') : SizedBox(),
-                  backgroundImage: NetworkImage(
-                    Constants.IMG_USUARIO + 'io' + '.png',
+              if (agendados.isNotEmpty && widget.menu.keyId == 'A')
+                ListTile(
+                  leading: CircleAvatar(
+                    radius: 15,
+                    onBackgroundImageError: (_, __) {
+                      setState(() {
+                        isError = true;
+                      });
+                    },
+                    child: isError == true ? Text('I') : SizedBox(),
+                    backgroundImage: NetworkImage(
+                      Constants.IMG_USUARIO + 'io' + '.png',
+                    ),
+                  ),
+                  title: Text(
+                      '80% dos casos de cegueira no Brasil podem ser evitados',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  subtitle: Text(
+                      'Doe para o Instituto Olhar! A doação é dedutível no IR'),
+                  trailing: Checkbox(
+                    checkColor: Colors.white,
+                    value: isChecked,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isChecked = value!;
+                      });
+                    },
                   ),
                 ),
-                title: Text(
-                    '80% dos casos de cegueira no Brasil podem ser evitados',
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                subtitle: Text(
-                    'Doe para o Instituto Olhar! A doação é dedutível no IR'),
-                trailing: Checkbox(
-                  checkColor: Colors.white,
-                  value: isChecked,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      isChecked = value!;
-                    });
-                  },
-                ),
-              ),
-              if (isChecked)
-                ListTile(
-                  title: Wrap(
-                    //crossAxisAlignment: WrapCrossAlignment.center,
-                    alignment: WrapAlignment.center,
-                    children: List<Widget>.generate(
-                      valoresDoar.length,
-                      (int index) {
-                        if (valoresDoar[index] == 0) {
+              if (agendados.isNotEmpty && widget.menu.keyId == 'A')
+                if (isChecked)
+                  ListTile(
+                    title: Wrap(
+                      //crossAxisAlignment: WrapCrossAlignment.center,
+                      alignment: WrapAlignment.center,
+                      children: List<Widget>.generate(
+                        valoresDoar.length,
+                        (int index) {
+                          if (valoresDoar[index] == 0) {
+                            return ChoiceChip(
+                              label: Text('Agora não'),
+                              selected: _doar == index,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  _doar = index;
+                                });
+                              },
+                            );
+                          }
+
                           return ChoiceChip(
-                            label: Text('Agora não'),
+                            label: Text('R\$ ' + valoresDoar[index].toString()),
                             selected: _doar == index,
                             onSelected: (bool selected) {
                               setState(() {
@@ -375,21 +393,10 @@ class _OrdersPageState extends State<OrdersPage> {
                               });
                             },
                           );
-                        }
-
-                        return ChoiceChip(
-                          label: Text('R\$ ' + valoresDoar[index].toString()),
-                          selected: _doar == index,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              _doar = index;
-                            });
-                          },
-                        );
-                      },
-                    ).toList(),
+                        },
+                      ).toList(),
+                    ),
                   ),
-                ),
               Card(
                 elevation: 2,
                 child: Row(
@@ -521,7 +528,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       onTap: () {
                         if (auth.filtrosativos.FormaPg.isEmpty) {
                           return AlertShowDialog('Campos Obrigatório',
-                              'Informe uma Forma de Pagamento', context);
+                              Text('Informe uma Forma de Pagamento'), context);
                         } else {
                           Navigator.push(
                             context,

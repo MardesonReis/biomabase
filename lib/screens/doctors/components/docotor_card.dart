@@ -84,6 +84,13 @@ class _DoctorCardState extends State<DoctorCard> {
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                     Text(
+                      widget.doctor.especialidade.descricao.capitalize(),
+                      style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54),
+                    ),
+                    Text(
                       widget.doctor.subespecialidade.capitalize(),
                       style: TextStyle(
                           fontSize: 8,

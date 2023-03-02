@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
@@ -33,11 +34,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     isLogin(context, () {
       setState(() {});
     });
-
-    var dados = Provider.of<Auth>(
+    //fidelimax.ConsultaConsumidor(fidelimax.cpf);
+    var auth = Provider.of<Auth>(
       context,
       listen: false,
-    ).fidelimax.RetornaDadosCliente().then((value) {
+    );
+    auth.fidelimax.RetornaDadosCliente(auth.fidelimax.cpf).then((value) {
       setState(() {
         _isLoading = false;
       });
@@ -48,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     Auth auth = Provider.of(context);
     Fidelimax fidelimax = auth.fidelimax;
-    fidelimax.ConsultaConsumidor();
+
     filtrosAtivos filtros = auth.filtrosativos;
     return Scaffold(
       appBar: PreferredSize(
@@ -57,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       drawer: AppDrawer(),
       body: _isLoading
           ? Center(
-              child: CircularProgressIndicator(),
+              child: ProgressIndicatorBioma(),
             )
           : SingleChildScrollView(
               padding: EdgeInsets.all(defaultPadding),

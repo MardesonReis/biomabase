@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                 physics: BouncingScrollPhysics(),
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    AlertShowDialog('title', 'msg', context);
+                    AlertShowDialog('title', Text(''), context);
                   },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,

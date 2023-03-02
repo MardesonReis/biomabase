@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:math' show sin, cos, sqrt, atan2;
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/infor_unidade.dart';
 import 'package:biomaapp/components/section_title.dart';
 import 'package:biomaapp/models/regras.dart';
@@ -52,9 +53,6 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
   Completer<GoogleMapController> _controller = Completer();
   late LatLng _position = LatLng(-3.613425981453625, -38.53529385675654);
   Set<Marker> _marker = Set<Marker>();
-  bool _isLoadingAgendamento = true;
-  bool _isLoadingUnidade = true;
-  bool _isLoadingIcon = true;
   bool _isLoading = true;
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
@@ -71,7 +69,6 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
   //late Position _currentPosition;
   //TextEditingController txtQuery = new TextEditingController();
   int count = 0;
-  late BitmapDescriptor _markerIcon;
 
   @override
   void dispose() {
@@ -91,7 +88,6 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
       context,
       listen: false,
     );
-    filtrosAtivos filtros = auth.filtrosativos;
 
     AgendamentosList agenda = Provider.of<AgendamentosList>(
       context,
@@ -103,36 +99,26 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
       listen: false,
     );
     //13978829304
-
-    RegraList.carrgardados(context, Onpress: () {
-      setState(() {
-        _isLoading = false;
-      });
-    });
-
-    agenda.items.isEmpty && auth.fidelimax.cpf.isNotEmpty
-        ? agenda
-            .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '0')
-            .then((value) => setState(() {
-                  _isLoadingAgendamento = false;
-                }))
-        : setState(() {
-            _isLoadingAgendamento = false;
-          });
-
+    filtrosAtivos filtros = auth.filtrosativos;
     UnidadesList ListUnidade = Provider.of<UnidadesList>(
       context,
       listen: false,
     );
-    ListUnidade.items.isEmpty
-        ? ListUnidade.loadUnidades('').then((value) {
-            setState(() {
-              _isLoadingUnidade = false;
-            });
-          })
-        : setState(() {
-            _isLoadingUnidade = false;
-          });
+    auth.atualizaAcesso(context, () {
+      setState(() {
+        ListUnidade.items.isEmpty
+            ? ListUnidade.loadUnidades('').then((value) {
+                setState(() {
+                  _isLoading = false;
+                });
+              })
+            : setState(() {
+                _isLoading = false;
+              });
+      });
+    }).then((value) {
+      setState(() {});
+    });
   }
 
   double zoomVal = 8;
@@ -220,6 +206,8 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
 
     dados.map((e) {
       Procedimento p = Procedimento();
+      p.convenio = Convenios(
+          cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
       p.cod_procedimentos = e.cod_procedimentos;
       p.des_procedimentos = e.des_procedimentos;
@@ -242,6 +230,10 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
       med.idademax = e.idade_max;
       med.ativo = '1';
       med.subespecialidade = e.sub_especialidade;
+      med.especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
 
       Unidade unidade = Unidade();
       unidade.cod_unidade = e.cod_unidade;
@@ -287,7 +279,7 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
       key: globalKey,
       body: Container(
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: ProgressIndicatorBioma())
             : GoogleMap(
                 gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
                   new Factory<OneSequenceGestureRecognizer>(
@@ -349,7 +341,7 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
                               borderRadius: BorderRadius.circular(8.7),
                             ),
                             hoverColor: Colors.white,
-                            hintText: "Buscar",
+                            hintText: "Buscar Serviços, Especialistas...",
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(4.0)),
                             focusColor: Colors.white,
@@ -497,31 +489,37 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
 
   void OnMapCreated(GoogleMapController gmc) async {
     if (!mounted) return;
-    if (!_marker.isEmpty) return;
 
-    try {
-      var position = await determinePosition();
-
-      gmc.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng(
-            _position.latitude,
-            _position.longitude,
-          ),
-          zoom: 10)));
-      setState(() {
-        _position = position;
-        _controller.complete(gmc);
+    MinhaLocalizacao().then((value) async {
+      var position = await determinePosition().then((value) {
+        try {
+          gmc
+              .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+                  target: LatLng(
+                    _position.latitude,
+                    _position.longitude,
+                  ),
+                  zoom: 10)))
+              .then((value2) {
+            setState(() {
+              _position = value;
+              _controller.complete(gmc);
+            });
+          });
+        } on FormatException catch (err) {
+          if (!mounted) return;
+          // print(err);
+          setState(() {});
+          //setState(() => _err = err);
+        }
       });
-      return;
-    } on FormatException catch (err) {
-      if (!mounted) return;
-      print(err);
-      setState(() {});
-      //setState(() => _err = err);
-    }
+    });
   }
 
   Future<void> MinhaLocalizacao() async {
+    Auth auth = Provider.of(context);
+    filtrosAtivos filtros = auth.filtrosativos;
+
     double distance = await Geolocator.distanceBetween(
         latitude, longitude, _position.latitude, _position.latitude);
 
@@ -538,7 +536,7 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
         },
         markerId: MarkerId(DateTime.now().toString()),
         position: _position,
-        icon: _markerIcon,
+        icon: filtros.markerIcon,
         infoWindow:
             InfoWindow(title: 'Minha Localização', snippet: 'Fortaleza/CE'));
 
@@ -555,7 +553,7 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
         },
         markerId: MarkerId(DateTime.now().toString()),
         position: LatLng(latitude, longitude),
-        icon: _markerIcon,
+        icon: filtros.markerIcon,
         infoWindow:
             InfoWindow(title: 'Minha Localização', snippet: 'Fortaleza/CE'));
 
@@ -575,6 +573,8 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
   }
 
   Set<Marker> retornarMakers(List<Unidade> unidades, filtrosAtivos filtros) {
+    Set<Marker> _unidades = Set<Marker>();
+
     unidades.map((e) async {
       Marker m = await Marker(
           onTap: () async {
@@ -594,17 +594,16 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
           },
           markerId: MarkerId(e.cod_unidade),
           position: LatLng(e.latitude, e.longitude),
-          icon: await getico('assets/icons/bioma_maps.png', () {
-            setState(() {});
-          }, filtros),
-          //  icon: kIsWeb ? BitmapDescriptor.defaultMarker : _markerIcon,
+          icon: filtros.markerIcon,
+          // icon: kIsWeb ? BitmapDescriptor.defaultMarker : _markerIcon,
           infoWindow: InfoWindow(
               title: e.des_unidade,
               snippet: e.bairro + '/' + e.municipio + '-' + e.uf));
       setState(() {
-        _marker.add(m);
+        _unidades.add(m);
       });
     }).toList();
-    return _marker;
+
+    return _unidades;
   }
 }

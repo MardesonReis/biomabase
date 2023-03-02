@@ -44,7 +44,7 @@ class _Filtro_FlutuantesState extends State<Filtro_Flutuantes> {
         ),
         onTap: () {
           var conf = AlertShowDialog('Remover Filtro: ',
-              'Especialista: ' + e.des_profissional, context);
+              Text('Especialista: ' + e.des_profissional), context);
           if (conf == true) {
             // ignore: curly_braces_in_flow_control_structures
             setState(() {

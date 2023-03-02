@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:biomaapp/models/convenios.dart';
 import 'package:biomaapp/models/especialidade.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:biomaapp/utils/constants.dart';
 
 class Procedimento with ChangeNotifier {
+  Convenios convenio = Convenios(cod_convenio: '', desc_convenio: '');
   String cod_procedimentos = '';
   String des_procedimentos = '';
   String orientacoes = '';

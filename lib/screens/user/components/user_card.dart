@@ -7,6 +7,7 @@ import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/unidade.dart';
+import 'package:biomaapp/models/usuarios.list.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
@@ -17,14 +18,14 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 import '../../../constants.dart';
 
 class UserCard extends StatefulWidget {
-  const UserCard({
+  UserCard({
     Key? key,
     required this.user,
     required this.press,
   }) : super(key: key);
 
-  final Usuario user;
-  final VoidCallback press;
+  Usuario user;
+  VoidCallback press;
 
   @override
   State<UserCard> createState() => _UserCardState();
@@ -32,6 +33,31 @@ class UserCard extends StatefulWidget {
 
 class _UserCardState extends State<UserCard> {
   bool isError = false;
+  bool isLoading = true;
+  void initState() {
+    Auth auth = Provider.of<Auth>(
+      context,
+      listen: false,
+    );
+    var UserList = Provider.of<UsuariosList>(
+      context,
+      listen: false,
+    );
+
+    if (widget.user.pacientes_nomepaciente.isEmpty &&
+        widget.user.pacientes_cpf.isNotEmpty) {
+      UserList.loadPacientes(widget.user.pacientes_cpf).then((value) {
+        setState(() {
+          widget.user = UserList.items.first;
+          isLoading = false;
+        });
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,14 +73,12 @@ class _UserCardState extends State<UserCard> {
               isError = true;
             });
           },
-          child: isError == true
-              ? Text(widget.user.pacientes_nomepaciente[0])
-              : SizedBox(),
+          child: isError == true ? Text(' -') : SizedBox(),
           backgroundImage: NetworkImage(
             Constants.IMG_USUARIO + widget.user.pacientes_cpf + '.jpg',
           ),
         ),
-        title: Text(widget.user.pacientes_nomepaciente.capitalize()),
+        title: textResp(widget.user.pacientes_nomepaciente),
         subtitle: UtilBrasilFields.isCPFValido(widget.user.pacientes_cpf)
             ? Text(UtilBrasilFields.obterCpf(widget.user.pacientes_cpf))
             : Text('Cpf Não localizado'),

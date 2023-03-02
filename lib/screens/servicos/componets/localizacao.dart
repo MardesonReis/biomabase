@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:math' show sin, cos, sqrt, atan2;
 
 import 'dart:ui' as ui;
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/infor_unidade.dart';
 import 'package:biomaapp/components/section_title.dart';
@@ -31,6 +32,7 @@ import 'package:biomaapp/screens/especialidades/components/popMenuEspecialidades
 import 'package:biomaapp/screens/especialidades/components/popMenuGrupo.dart';
 import 'package:biomaapp/screens/especialidades/components/popMenuSubEspecialidades.dart';
 import 'package:biomaapp/screens/especialidades/components/popMenuUnidades.dart';
+import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
 import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -51,8 +53,6 @@ class LocalizacaoState extends State<Localizacao> {
   late Position _currentPosition;
   late LatLng _position = LatLng(-3.613425981453625, -38.53529385675654);
   Set<Marker> _marker = Set<Marker>();
-  bool _isLoadingAgendamento = true;
-  bool _isLoadingUnidade = true;
   bool _isLoading = true;
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
@@ -102,33 +102,16 @@ class LocalizacaoState extends State<Localizacao> {
       listen: false,
     );
     //13978829304
-
-    RegraList.carrgardados(context, Onpress: () {
-      dados.items.isEmpty
-          ? dados
-              .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '')
-              .then((value) => setState(() {
-                    _isLoading = false;
-                  }))
-          : setState(() {
-              _isLoading = false;
-            });
-
+    auth.atualizaAcesso(context, () {
       ListUnidade.items.isEmpty
           ? ListUnidade.loadUnidades('').then((value) {
               setState(() {
-                _isLoadingUnidade = false;
+                _isLoading = false;
               });
             })
           : setState(() {
-              _isLoadingUnidade = false;
+              _isLoading = false;
             });
-    }).then((value) {
-      setState(() {
-        _isLoading = false;
-        _isLoadingUnidade = false;
-        _isLoadingAgendamento = false;
-      });
     });
   }
 
@@ -328,6 +311,10 @@ class LocalizacaoState extends State<Localizacao> {
       med.idademax = e.idade_max;
       med.ativo = '1';
       med.subespecialidade = e.sub_especialidade;
+      med.especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
 
       Unidade unidade = Unidade();
       unidade.cod_unidade = e.cod_unidade;
@@ -356,8 +343,8 @@ class LocalizacaoState extends State<Localizacao> {
       cod_unidade = unidades.first.cod_unidade;
     }
 
-    return _isLoadingAgendamento || _isLoading || _isLoadingUnidade
-        ? Center(child: CircularProgressIndicator())
+    return _isLoading
+        ? Center(child: ProgressIndicatorBioma())
         : Scaffold(
             appBar: PreferredSize(
                 preferredSize: Size.fromHeight(40),
@@ -539,32 +526,10 @@ class LocalizacaoState extends State<Localizacao> {
         stream: _stream.stream,
         builder: (BuildContext, AsyncSnapshot) {
           return Align(
-            alignment: Alignment.topCenter,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  PopMenuConvenios(() {
-                    setState(() {});
-                  }),
-                  PopMenuEspecialidade(() {
-                    setState(() {});
-                  }),
-                  PopMenuSubEspecialidades(() {
-                    setState(() {});
-                  }),
-                  PopMenuGrupo(() {
-                    setState(() {});
-                  }),
-                  PopoMenuUnidades(() {
-                    setState(() {});
-                  })
-                ],
-              ),
-            ),
-          );
+              alignment: Alignment.topCenter,
+              child: filtrosScreen(
+                press: () => setState(() {}),
+              ));
         });
   }
 

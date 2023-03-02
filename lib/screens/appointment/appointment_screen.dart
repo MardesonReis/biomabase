@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
+import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/filtros_ativos_agendamento.dart';
 import 'package:biomaapp/components/infor_unidade.dart';
@@ -285,42 +287,29 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
 
     return _isLoadingAgenda && _isLoadUnidades
         ? Center(
-            child: CircularProgressIndicator(),
+            child: ProgressIndicatorBioma(),
           )
         : Scaffold(
+            drawer: AppDrawer(),
             appBar: PreferredSize(
                 preferredSize: Size.fromHeight(40),
                 child: CustomAppBar('Agendado\n', 'Procedimentos', () {}, [])),
             body: !auth.isAuth
-                ? Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          color: redColor,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Text('Login Necessário'),
-                                Spacer(),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      callbackLogin(context, () {
-                                        // setState(() {});
-                                      });
-                                    },
-                                    child: Text(
-                                      'Logar',
-                                      style: TextStyle(color: Colors.white),
-                                    ))
-                              ],
-                            ),
-                          ),
+                ? SafeArea(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Logar(
+                                fun: () {},
+                                widAtual: AppointmentScreen(press: () {})),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   )
                 : SafeArea(

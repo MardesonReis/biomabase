@@ -13,6 +13,7 @@ import 'package:biomaapp/models/indicacao.dart';
 import 'package:biomaapp/models/indicacoes_list.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/medicos_list.dart';
+import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/procedimento.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
@@ -24,6 +25,7 @@ import 'package:biomaapp/screens/doctors/components/docotor_card.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_infor.dart';
 import 'package:biomaapp/screens/pedidos/indicacoes_itens_screen.dart';
+import 'package:biomaapp/screens/user/components/user_card.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -83,39 +85,16 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
     Paginas pages = auth.paginas;
 
     mockResults = auth.filtrosativos.medicos;
+    var user = Usuario();
+    if (itens.isNotEmpty) {
+      user.pacientes_cpf = itens.first.autor;
+    }
 
     return Scaffold(
-      appBar: AppBar(
-          leading: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: new Image.asset('assets/imagens/biomaLogo.png'),
-          ),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AuthOrHomePage(),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  Icons.home,
-                  color: Colors.white,
-                ))
-          ],
-          elevation: 0,
-          title: Center(
-            child: Text(
-              'Procedimentos Solicitados',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          )),
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(40),
+          child: CustomAppBar('Link \n', 'de agendamentos', () {}, [])),
+      drawer: AppDrawer(),
       //   appBar: PreferredSize(
       //        preferredSize: Size.fromHeight(40),
       //        child: CustomAppBar('Filas de\n', 'Indicações', () {}, [])),
@@ -140,6 +119,18 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
+                        // textResp('Você Recebeu uma indicação de'),
+                        Text(
+                          'Você recebeu uma indicação de',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        user.pacientes_cpf.isNotEmpty
+                            ? UserCard(user: user, press: () {})
+                            : SizedBox(),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(

@@ -34,25 +34,27 @@ class filtrosAtivos with ChangeNotifier {
   List<FormaPagamento> FormaPg = [];
   List<Map<String, Object>> servicos_page = [];
   late GoogleMapController googleMapController;
-  int FiltrosAtivos = 0;
+
   List<Map<String, Object>> tipoFila = [];
   List<String> passo = [];
   BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
 
-  Future<void> BuscarFiltrosAtivos() async {
-    FiltrosAtivos = unidades.length +
+  int BuscarFiltrosAtivos() {
+    //notifyListeners();
+    return unidades.length +
         convenios.length +
         medicos.length +
         especialidades.length +
         subespecialidades.length +
-        grupos.length;
-    notifyListeners();
+        grupos.length +
+        procedimentos.length;
   }
 
   Future<void> LimparTodosFiltros() async {
     unidades.clear();
-    // convenios.clear();
+    convenios.clear();
     especialidades.clear();
+    procedimentos.clear();
     subespecialidades.clear();
     grupos.clear();
     agenda.clear();

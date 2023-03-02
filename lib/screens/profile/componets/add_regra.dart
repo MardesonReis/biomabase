@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/Clips.dart';
 import 'package:biomaapp/models/auth.dart';
@@ -179,7 +180,7 @@ class _AddRegraState extends State<AddRegra> {
             Card(
               elevation: 8,
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? Center(child: ProgressIndicatorBioma())
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -286,7 +287,7 @@ class _AddRegraState extends State<AddRegra> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                filtros.FiltrosAtivos > 0
+                filtros.BuscarFiltrosAtivos() > 0
                     ? ElevatedButton(
                         onPressed: () => setState(() {
                           filtros.LimparTodosFiltros();

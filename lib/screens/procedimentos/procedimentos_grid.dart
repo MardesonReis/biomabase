@@ -101,10 +101,14 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
           : true;
     });
     dados.map((e) {
-      if (!ProcedimentosInclusoIncluso.contains(e.cod_procedimentos)) {
-        ProcedimentosInclusoIncluso.add(e.cod_procedimentos);
+      if (!ProcedimentosInclusoIncluso.contains(
+          e.cod_procedimentos + ' - ' + e.cod_convenio)) {
+        ProcedimentosInclusoIncluso.add(
+            e.cod_procedimentos + ' - ' + e.cod_convenio);
 
         Procedimento p = Procedimento();
+        p.convenio = Convenios(
+            cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
         p.cod_procedimentos = e.cod_procedimentos;
         p.valor_sugerido = double.parse(e.valor_sugerido);
@@ -174,16 +178,20 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
                       childAspectRatio: 2.77,
                       crossAxisSpacing: defaultPadding,
                       mainAxisSpacing: defaultPadding,
+                      mainAxisExtent: 150,
                     ),
                     itemCount: ProcedimentosFiltrado.length,
                     itemBuilder: (BuildContext ctx, index) {
                       return ProcedimentosFiltrado.length > 0
-                          ? ProcedimentoGridItem(
-                              widget.doctor, ProcedimentosFiltrado[index], () {
-                              setState(() {
-                                widget.press.call();
-                              });
-                            })
+                          ? Container(
+                              child: ProcedimentoGridItem(
+                                  widget.doctor, ProcedimentosFiltrado[index],
+                                  () {
+                                setState(() {
+                                  widget.press.call();
+                                });
+                              }),
+                            )
                           : Text(
                               'Não há procedimentos para os filtros selecionados');
                     }),

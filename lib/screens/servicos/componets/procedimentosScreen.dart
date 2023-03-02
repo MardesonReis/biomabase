@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
@@ -15,6 +16,7 @@ import 'package:biomaapp/models/regras.dart';
 import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/subEspecialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
+import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 
 import 'package:biomaapp/screens/doctors/doctors_screen.dart';
 import 'package:biomaapp/screens/especialidades/components/popMenuConvenios.dart';
@@ -25,6 +27,7 @@ import 'package:biomaapp/screens/especialidades/components/popMenuUnidades.dart'
 import 'package:biomaapp/screens/procedimentos/procedimentosCircle.dart';
 import 'package:biomaapp/screens/procedimentos/procedimentos_infor.dart';
 import 'package:biomaapp/screens/procedimentos/procedimentos_screen_view.dart';
+import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
 import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +42,7 @@ class ProcedimentosScreen extends StatefulWidget {
 }
 
 class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
-  bool _isLoading = false;
+  bool _isLoading = true;
   List<Regra> regras = [];
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
@@ -52,29 +55,19 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
       listen: false,
     );
 
-    AgendamentosList dados = Provider.of<AgendamentosList>(
-      context,
-      listen: false,
-    );
     var RegraList = Provider.of<RegrasList>(
       context,
       listen: false,
     );
     //13978829304
 
-    RegraList.carrgardados(context, Onpress: () {
-      dados.items.isEmpty
-          ? dados
-              .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '')
-              .then((value) => setState(() {
-                    _isLoading = false;
-                  }))
-          : setState(() {
-              _isLoading = false;
-            });
-    }).then((value) => setState(() {
-          _isLoading = false;
-        }));
+    auth.atualizaAcesso(context, () {
+      setState(() {
+        _isLoading = false;
+      });
+    }).then((value) {
+      setState(() {});
+    });
 
     //13978829304
   }
@@ -161,6 +154,8 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
 
     dados.map((e) {
       Procedimento p = Procedimento();
+      p.convenio = Convenios(
+          cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
       p.cod_procedimentos = e.cod_procedimentos;
       p.des_procedimentos = e.des_procedimentos;
@@ -176,27 +171,18 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
       p.des_tratamento = e.tipo_tratamento;
 
       if (!ProcedimentosInclusoIncluso.contains(
-          e.cod_procedimentos + '-' + p.valor_sugerido.toString())) {
+          e.cod_convenio + '-' + p.valor_sugerido.toString())) {
         ProcedimentosInclusoIncluso.add(
-            e.cod_procedimentos + '-' + p.valor_sugerido.toString());
+            e.cod_convenio + '-' + p.valor_sugerido.toString());
 
         procedimentos.add(p);
       }
-      historico.items.map((element) {
-        if (element.cod_procedimento == p.cod_procedimentos) {
-          if (!UltimoProcedimentosInclusoIncluso.contains(
-              element.cod_procedimento)) {
-            UltimoProcedimentosInclusoIncluso.add(element.cod_procedimento);
-            HistoricoProcedimentos.add(p);
-          }
-        }
-      }).toList();
     }).toList();
     procedimentos
         .sort((a, b) => a.des_procedimentos.compareTo(b.des_procedimentos));
 
     return _isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? Center(child: ProgressIndicatorBioma())
         : Padding(
             padding: const EdgeInsets.only(
               top: 100,
@@ -218,6 +204,14 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                     setState(() {
                       _isLoading = false;
                     });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AuthOrHomePage(),
+                      ),
+                    ).then((value) {
+                      setState(() {});
+                    });
                   });
                 },
                 child: SingleChildScrollView(
@@ -226,29 +220,10 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            PopMenuConvenios(() {
-                              setState(() {});
-                            }),
-                            PopMenuEspecialidade(() {
-                              setState(() {});
-                            }),
-                            PopMenuSubEspecialidades(() {
-                              setState(() {});
-                            }),
-                            PopMenuGrupo(() {
-                              setState(() {});
-                            }),
-                            PopoMenuUnidades(() {
-                              setState(() {});
-                            })
-                          ],
-                        ),
+                      filtrosScreen(
+                        press: () {
+                          setState(() {});
+                        },
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -259,7 +234,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                             setState(() {});
                           },
                           decoration: InputDecoration(
-                            hintText: "Buscar Procedimentos",
+                            hintText: "Buscar Procedimentos ",
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(4.0)),
                             focusedBorder: OutlineInputBorder(
@@ -281,40 +256,9 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                       ),
                       FiltroAtivosScren(press: () {
                         setState(() {
-                          //widget.press.call();
+                          // widget.press.call();
                         });
                       }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SectionTitle(
-                          title: "Últimos Procedimentos",
-                          pressOnSeeAll: () {},
-                          OnSeeAll: false,
-                        ),
-                      ),
-                      if (HistoricoProcedimentos.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
-                            child: Row(
-                              children: List.generate(
-                                HistoricoProcedimentos.length,
-                                (index) => ProcedimentosCircle(
-                                    procedimento: HistoricoProcedimentos[index],
-                                    press: () {
-                                      setState(() {
-                                        filtros.LimparProcedimentos();
-                                        filtros.AddProcedimentos(
-                                            HistoricoProcedimentos[index]);
-                                      });
-                                      widget.press.call();
-                                    }),
-                              ),
-                            ),
-                          ),
-                        ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SectionTitle(

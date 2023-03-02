@@ -9,6 +9,7 @@ import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/screens/appointment/meusAgendamentos.dart';
 import 'package:biomaapp/screens/pedidos/indicacoes_screen.dart';
+import 'package:biomaapp/screens/pedidos/navaIndicacao.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +89,14 @@ class _IndicarListState extends State<IndicarList> {
         setState(() {
           widget.sucesso.add(e);
         });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NovaIndicacao(IdIndicacao: widget.filaId),
+          ),
+        ).then((value) => {
+              setState(() {}),
+            });
       } else {
         setState(() {
           widget.erro.add(e);
@@ -155,16 +164,6 @@ class _IndicarListState extends State<IndicarList> {
                   );
                 }),
               ),
-              widget.fila.length == (widget.erro.length + widget.sucesso.length)
-                  ? ElevatedButton(
-                      onPressed: () {
-                        pages.selecionarPaginaHome('Indicações');
-                        Navigator.of(context).pushReplacementNamed(
-                          AppRoutes.AUTH_OR_HOME,
-                        );
-                      },
-                      child: Text('Compartilhar'))
-                  : SizedBox()
             ],
           ),
         ),

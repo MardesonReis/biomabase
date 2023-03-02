@@ -30,19 +30,19 @@ class Paginas with ChangeNotifier {
     {
       'desc': 'Localização',
       'page': LocalizacaoScreen(),
-      'Ico': Icons.location_on,
+      'Ico': 'assets/icons/location_pin.svg',
     },
     {
       'desc': 'Especialistas',
       'page': MenuEspecialista(),
-      'Ico': Icons.medical_information,
+      'Ico': 'assets/icons/clinica.svg',
     },
     {
       'desc': 'Procedimentos',
       'page': MenuProcedimentos(),
 
       //  'page': ServicosScreen(),
-      'Ico': Icons.insert_chart_outlined_outlined,
+      'Ico': 'assets/icons/OFTALMOLOGIA.svg'
     },
     //{'desc': 'Indicações', 'page': IndicacoesScreen(), 'Ico': Icons.share},
     {
@@ -50,7 +50,7 @@ class Paginas with ChangeNotifier {
       'page': MenuCalendario(),
 
       //'page': MyAppointmentScreen(),
-      'Ico': Icons.calendar_month
+      'Ico': 'assets/icons/event.svg'
     },
   ];
 

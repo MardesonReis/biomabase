@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/constants.dart';
@@ -40,9 +41,7 @@ class ServicosScreen extends StatefulWidget {
 }
 
 class _ServicosScreenState extends State<ServicosScreen> {
-  bool _isLoadingAgendamento = true;
-  bool _isLoadingUnidade = true;
-  bool _isLoading = false;
+  bool _isLoading = true;
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
   final PageController _pageController = PageController();
@@ -83,38 +82,26 @@ class _ServicosScreenState extends State<ServicosScreen> {
       context,
       listen: false,
     );
-    //13978829304
-    RegraList.carrgardados(context, Onpress: () {}).then((value) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
 
-    GetpageScreen(filtros, context).then((value) {
-      setState(() {
-        widget.pageScreen = value;
-      });
-    });
-
-    agenda.items.isEmpty
-        ? agenda
-            .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '0')
-            .then((value) => setState(() {
-                  _isLoadingAgendamento = false;
-                }))
-        : setState(() {
-            _isLoadingAgendamento = false;
-          });
-
-    ListUnidade.items.isEmpty
-        ? ListUnidade.loadUnidades('').then((value) {
-            setState(() {
-              _isLoadingUnidade = false;
+    auth.atualizaAcesso(context, () {
+      ListUnidade.items.isEmpty
+          ? ListUnidade.loadUnidades('').then((value) {
+              GetpageScreen(filtros, context).then((value) {
+                setState(() {
+                  _isLoading = false;
+                  widget.pageScreen = value;
+                });
+              });
+            })
+          : GetpageScreen(filtros, context).then((value) {
+              setState(() {
+                _isLoading = false;
+                widget.pageScreen = value;
+              });
             });
-          })
-        : setState(() {
-            _isLoadingUnidade = false;
-          });
+    }).then((value) {
+      setState(() {});
+    });
   }
 
   @override
@@ -135,13 +122,7 @@ class _ServicosScreenState extends State<ServicosScreen> {
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
     final dados = dt.dados;
-    if (dados.isEmpty ||
-        widget.pageScreen.isEmpty ||
-        _isLoading ||
-        _isLoadingAgendamento ||
-        _isLoadingUnidade) {
-      return Center(child: CircularProgressIndicator());
-    }
+
     dados.retainWhere((element) {
       return filtrarUnidade
           ? filtros.unidades.contains(Unidade(
@@ -194,6 +175,10 @@ class _ServicosScreenState extends State<ServicosScreen> {
       med.idademax = e.idade_max;
       med.ativo = '1';
       med.subespecialidade = e.sub_especialidade;
+      med.especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
 
       if (!MedicosInclusos.contains(e.cod_profissional)) {
         MedicosInclusos.add(e.cod_profissional);
@@ -214,94 +199,101 @@ class _ServicosScreenState extends State<ServicosScreen> {
       // filtros.addsServicosPage(pageScreen.elementAt(index));
     }
 
-    return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(40),
-          child: CustomAppBar('Busque\n', 'Serviços', () {}, [])),
-      drawer: AppDrawer(),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              Container(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(
-                      widget.pageScreen.length,
-                      (index) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          InkWell(
-                            onTap: () async {
-                              await filtros.LimparServicosPage();
-                              await filtros
-                                  .addsServicosPage(widget.pageScreen[index]);
-                              setState(() {});
-                            },
-                            child: Card(
-                              elevation: 8,
-                              color: widget.pageScreen[index]['titulo'] ==
-                                      filtros.servicos_page.first['titulo']
-                                  ? primaryColor
-                                  : Colors.white,
-                              child: Padding(
-                                padding: const EdgeInsets.all(defaultPadding),
-                                child: Text(
-                                    widget.pageScreen[index]['titulo']
-                                        as String,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: widget.pageScreen[index]
-                                                    ['titulo'] ==
-                                                filtros.servicos_page
-                                                    .first['titulo']
-                                            ? Colors.white
-                                            : Colors.black)),
-                              ),
+    return _isLoading
+        ? Center(child: ProgressIndicatorBioma())
+        : Scaffold(
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.miniEndTop,
+            appBar: PreferredSize(
+                preferredSize: Size.fromHeight(40),
+                child: CustomAppBar('Busque\n', 'Serviços', () {}, [])),
+            drawer: AppDrawer(),
+            body: Container(
+              height: MediaQuery.of(context).size.height,
+              child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Container(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(
+                            widget.pageScreen.length,
+                            (index) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                InkWell(
+                                  onTap: () async {
+                                    await filtros.LimparServicosPage();
+                                    await filtros.addsServicosPage(
+                                        widget.pageScreen[index]);
+                                    setState(() {});
+                                  },
+                                  child: Card(
+                                    elevation: 8,
+                                    color: widget.pageScreen[index]['titulo'] ==
+                                            filtros
+                                                .servicos_page.first['titulo']
+                                        ? primaryColor
+                                        : Colors.white,
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.all(defaultPadding),
+                                      child: Text(
+                                          widget.pageScreen[index]['titulo']
+                                              as String,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: widget.pageScreen[index]
+                                                          ['titulo'] ==
+                                                      filtros.servicos_page
+                                                          .first['titulo']
+                                                  ? Colors.white
+                                                  : Colors.black)),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-              AspectRatio(
-                aspectRatio: 0.5,
-                child: Container(
-                  child: PageView.builder(
-                    scrollDirection: Axis.horizontal,
-                    //   physics: PageScrollPhysics(),
-                    controller: _pageController,
+                    AspectRatio(
+                      aspectRatio: 0.5,
+                      child: Container(
+                        child: PageView.builder(
+                          scrollDirection: Axis.horizontal,
+                          //   physics: PageScrollPhysics(),
+                          controller: _pageController,
 
-                    onPageChanged: (num) async {
-                      await filtros.LimparServicosPage();
-                      await filtros.addsServicosPage(widget.pageScreen[num]);
-                      setState(() {});
-                    },
-                    //  PageController(viewportFraction: 0.85, initialPage: 0),
-                    itemCount: widget.pageScreen.length,
-                    itemBuilder: (context, index) {
-                      //     debugPrint(_pageController.page.toString());
-                      return filtros.servicos_page.first['screen'] as Widget;
-                    },
-                  ),
+                          onPageChanged: (num) async {
+                            await filtros.LimparServicosPage();
+                            await filtros
+                                .addsServicosPage(widget.pageScreen[num]);
+                            setState(() {});
+                          },
+                          //  PageController(viewportFraction: 0.85, initialPage: 0),
+                          itemCount: widget.pageScreen.length,
+                          itemBuilder: (context, index) {
+                            //     debugPrint(_pageController.page.toString());
+                            return filtros.servicos_page.first['screen']
+                                as Widget;
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: defaultPadding,
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(
-                height: defaultPadding,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
   }
 
   Future<List<Map<String, Object>>> GetpageScreen(

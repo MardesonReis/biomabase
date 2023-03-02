@@ -134,6 +134,10 @@ class _ProcedimentosScrennViwerState extends State<ProcedimentosScrennViwer> {
       med.idademax = e.idade_max;
       med.ativo = '1';
       med.subespecialidade = e.sub_especialidade;
+      med.especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
 
       if (!MedicosInclusos.contains(e.cod_profissional)) {
         MedicosInclusos.add(e.cod_profissional);
@@ -199,7 +203,7 @@ class _ProcedimentosScrennViwerState extends State<ProcedimentosScrennViwer> {
                           setState(() {});
                         },
                         decoration: InputDecoration(
-                          hintText: "Buscar",
+                          hintText: "Buscar Especialistas",
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4.0)),
                           focusedBorder: OutlineInputBorder(

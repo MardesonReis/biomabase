@@ -46,7 +46,7 @@ class _DoctorInforState extends State<DoctorInfor> {
               : SizedBox(),
         ),
         title: textResp('Dr(a) ' + widget.doctor.des_profissional),
-        subtitle: textResp(widget.doctor.subespecialidade),
+        subtitle: textResp(widget.doctor.especialidade.descricao),
       ),
     );
   }

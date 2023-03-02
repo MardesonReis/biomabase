@@ -6,7 +6,7 @@ class Constants {
   static const FIDELIMAX_API = BIOMA_API + 'fidelimax/';
 
   static const USER_FAVORITES_URL =
-      'https://bioma-95001-default-rtdb.firebaseio.com//userFavorites';
+      'https://bioma-95001-default-rtdb.firebaseio.com/userFavorites';
   static const PRODUCT_BASE_URL =
       'https://bioma-95001-default-rtdb.firebaseio.com/products';
   static const ORDER_BASE_URL =

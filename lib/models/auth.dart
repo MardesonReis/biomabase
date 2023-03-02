@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/paginas.dart';
@@ -11,6 +12,7 @@ import 'package:biomaapp/data/store.dart';
 import 'package:biomaapp/exceptions/auth_exception.dart';
 import 'package:biomaapp/models/fidelimax.dart';
 import 'package:biomaapp/utils/constants.dart';
+import 'package:provider/provider.dart';
 
 class Auth with ChangeNotifier {
   String? _token;
@@ -41,10 +43,8 @@ class Auth with ChangeNotifier {
     return _token != null && isValid;
   }
 
-  Future<bool> get isAuthFidelimax async {
-    var isValid;
-    await this.fidelimax.ConsultaConsumidor().then((value) {});
-    return this.fidelimax.cpf.isEmpty ? false : true;
+  bool get isAuthFidelimax {
+    return this.fidelimax.cpf.isNotEmpty;
   }
 
   String? get token {
@@ -57,6 +57,51 @@ class Auth with ChangeNotifier {
 
   String? get userId {
     return isAuth ? _userId : null;
+  }
+
+  Future<void> atualizaAcesso(BuildContext context, VoidCallback press) async {
+    getico('assets/icons/bioma_maps.png', () {}, this.filtrosativos)
+        .then((value) {
+      this.filtrosativos.markerIcon = value;
+      //  press.call();
+    });
+    var regraList = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+    this.tryAutoLogin().then((value) async {
+      if (this.isAuth && this.fidelimax.cpf == '') {
+        this
+            .fidelimax
+            .ListCpfFidelimax(this.userId ?? '', this.token ?? '')
+            .then((value) async {
+          this.fidelimax.cpf = value;
+          //   press.call();
+
+          await this.fidelimax.ConsultaConsumidor(value).then((value2) async {
+            this.fidelimax.cpf = value;
+
+            await this
+                .fidelimax
+                .RetornaDadosCliente(this.fidelimax.cpf)
+                .then((value) async {
+              this.fidelimax = value;
+              // press.call();
+
+              //   auth.fidelimax = value;
+
+              await regraList.carrgardados(context, Onpress: () {
+                press.call();
+              }, all: true);
+            });
+          });
+        });
+      } else {
+        await regraList.carrgardados(context, Onpress: () {
+          press.call();
+        });
+      }
+    });
   }
 
   Future<void> _authenticate(
@@ -116,7 +161,7 @@ class Auth with ChangeNotifier {
     );
 
     final body = jsonDecode(response.body);
-    print(response.body);
+    //  print(response.body);
     return body;
   }
 
@@ -154,7 +199,7 @@ class Auth with ChangeNotifier {
     _userId = null;
     _expiryDate = null;
     fidelimax = Fidelimax();
-    fidelimax.dispose();
+    //fidelimax.dispose();
 
     _clearLogoutTimer();
     await Store.remove('userData').then((_) {
@@ -219,12 +264,12 @@ class Auth with ChangeNotifier {
         'VerificaOuCriaParceiro/' +
         Constants.AUT_BASE +
         get;
-    // print(link.toString());
+    print(link.toString());
     final response = await http.get(
       Uri.parse(link),
     );
 
-    debugPrint(response.body);
+    //debugPrint(response.body);
     if (response.body == 'null') return '';
 
     List listmedicos = jsonDecode(response.body)['dados'];

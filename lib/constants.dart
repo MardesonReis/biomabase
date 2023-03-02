@@ -14,6 +14,7 @@ import 'package:biomaapp/screens/auth/auth_page.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,7 +35,7 @@ const secudaryColor = Color.fromRGBO(224, 247, 250, 1);
 const textColor = Color(0xFF35364F);
 const backgroundColor = Color(0xFFE6EFF9);
 const redColor = Color.fromARGB(255, 230, 151, 151);
-const destColor = Color.fromRGBO(251, 192, 45, 1);
+const destColor = Colors.yellow;
 String MarterDoctor = '13978829304';
 List<String> Master = ['60465112323', MarterDoctor];
 
@@ -43,7 +44,7 @@ const defaultPadding = 8.0;
 const emailError = 'Enter a valid email address';
 const requiredField = "This field is required";
 
-callbackLogin(BuildContext context, VoidCallback fun) {
+callbacogin(BuildContext context, VoidCallback fun, Widget Nextpage) {
   RegrasList regrasList = Provider.of<RegrasList>(
     context,
     listen: false,
@@ -54,14 +55,18 @@ callbackLogin(BuildContext context, VoidCallback fun) {
     MaterialPageRoute(
       builder: (context) => AuthPage(
         func: () {
-          fun.call();
-          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return Nextpage;
+              },
+            ),
+          ).then((value) {});
         },
       ),
     ),
-  ).whenComplete(() {
-    fun.call();
-  });
+  ).then((value) {});
 }
 
 textResp(String text) {
@@ -138,11 +143,9 @@ isLogin(BuildContext context, VoidCallback press) async {
 
   if (!auth.isAuth) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      press.call();
-
       await Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
         return AuthOrHomePage();
-      }));
+      })).then((value) => press.call());
     });
   }
 }
@@ -509,11 +512,11 @@ Future<BitmapDescriptor> getico(
 
   if (filtros.markerIcon == BitmapDescriptor.defaultMarker) {
     var ico = await getBytesFromAsset(path, 100);
-    filtros.markerIcon =
-        await BitmapDescriptor.fromBytes(ico, size: ui.Size(100, 100));
+    filtros.markerIcon = await BitmapDescriptor.fromBytes(ico);
+    return filtros.markerIcon;
   }
 
-  // pess.call();
+  pess.call();
   return filtros.markerIcon;
 }
 
@@ -535,12 +538,12 @@ showSnackBar(Widget content, BuildContext context) {
   );
 }
 
-AlertShowDialog(String title, String msg, BuildContext context) {
-  return showDialog(
+AlertShowDialog(String title, Widget msg, BuildContext context) async {
+  return await showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(title),
-      content: Text(msg),
+      content: msg,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),

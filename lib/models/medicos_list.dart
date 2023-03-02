@@ -39,8 +39,7 @@ class MedicosList with ChangeNotifier {
     //debugPrint(cpf);
 
     _items.clear();
-    unidades.clear();
-    convenios.clear();
+
     final response = await http.get(
       Uri.parse(
           '${Constants.MEDICOS_BASE_URL}/0/' + medico + Constants.AUT_BASE),
@@ -70,8 +69,7 @@ class MedicosList with ChangeNotifier {
     //debugPrint(cpf);
 
     _items.clear();
-    unidades.clear();
-    convenios.clear();
+
     final response = await http.get(
       Uri.parse(
           '${Constants.MEDICOS_BASE_URL}/0/0/' + cpf + Constants.AUT_BASE),

@@ -69,12 +69,16 @@ class _ProcedimentoGridItemState extends State<ProcedimentoGridItem> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Text(
-                    widget.procedimentos.des_procedimentos.capitalize(),
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    direction: Axis.vertical,
+                    children: [
+                      textResp(widget.procedimentos.des_procedimentos),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      textResp(widget.procedimentos.convenio.desc_convenio),
+                    ],
                   ),
                 ),
                 Divider(
@@ -87,15 +91,19 @@ class _ProcedimentoGridItemState extends State<ProcedimentoGridItem> {
                   padding: const EdgeInsets.all(3.0),
                   child: GridTileBar(
                     backgroundColor: Colors.white,
-                    leading: Text(
+                    // leading: s,
+                    title: Text(
                       'R\$ ' + widget.procedimentos.valor_sugerido.toString(),
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.black),
                     ),
-                    title: SizedBox(),
-                    trailing: textResp(widget.procedimentos.orientacoes),
+                    trailing: Wrap(
+                      children: [
+                        textResp(widget.procedimentos.orientacoes),
+                      ],
+                    ),
                   )),
             ),
           ),

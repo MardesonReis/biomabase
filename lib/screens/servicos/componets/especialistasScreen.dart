@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
@@ -27,6 +28,7 @@ import 'package:biomaapp/screens/especialidades/components/popMenuGrupo.dart';
 import 'package:biomaapp/screens/especialidades/components/popMenuSubEspecialidades.dart';
 import 'package:biomaapp/screens/especialidades/components/popMenuUnidades.dart';
 import 'package:biomaapp/screens/home/components/card_especialidades.dart';
+import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
 import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,29 +64,15 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
       listen: false,
     );
 
-    AgendamentosList dados = Provider.of<AgendamentosList>(
-      context,
-      listen: false,
-    );
-    var RegraList = Provider.of<RegrasList>(
-      context,
-      listen: false,
-    );
-    //13978829304
-
-    RegraList.carrgardados(context, Onpress: () {
-      dados.items.isEmpty
-          ? dados
-              .loadAgendamentos(auth.fidelimax.cpf.toString(), '0', '0', '')
-              .then((value) => setState(() {
-                    _isLoading = false;
-                  }))
-          : setState(() {
-              _isLoading = false;
-            });
-    }).then((value) => setState(() {
-          _isLoading = false;
-        }));
+    auth.atualizaAcesso(context, () {
+      setState(() {
+        _isLoading = false;
+      });
+    }).then((value) {
+      setState(() {
+        //  _isLoading = false;
+      });
+    });
   }
 
   @override
@@ -103,7 +91,6 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
     mockResults = auth.filtrosativos.medicos;
     List<Data> m = [];
     List<Medicos> medicos = [];
-    List<Medicos> ultimosMedicos = [];
     List<Especialidade> especialidades = [];
     var filtrarUnidade = filtros.unidades.isNotEmpty;
     var filtrarConvenio = filtros.convenios.isNotEmpty;
@@ -178,15 +165,10 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
       med.idademax = e.idade_max;
       med.ativo = '1';
       med.subespecialidade = e.sub_especialidade;
-
-      historico.items.map((element) {
-        if (element.cod_profissional == med.cod_profissional) {
-          if (!UltimosMedicosInclusos.contains(e.cod_profissional)) {
-            UltimosMedicosInclusos.add(e.cod_profissional);
-            ultimosMedicos.add(med);
-          }
-        }
-      }).toList();
+      med.especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
 
       if (!MedicosInclusos.contains(e.cod_profissional)) {
         MedicosInclusos.add(e.cod_profissional);
@@ -205,7 +187,7 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
     especialidades.sort((a, b) => a.descricao.compareTo(b.descricao));
 
     return _isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? Center(child: ProgressIndicatorBioma())
         : Padding(
             padding:
                 const EdgeInsets.only(top: 100, bottom: 1, left: 1, right: 1),
@@ -218,9 +200,18 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
                     listen: false,
                   );
                   //13978829304
+
                   await regraList.carrgardados(context, all: true, Onpress: () {
                     setState(() {
                       _isLoading = false;
+                    });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AuthOrHomePage(),
+                      ),
+                    ).then((value) {
+                      setState(() {});
                     });
                   });
                 },
@@ -230,30 +221,9 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            PopMenuConvenios(() {
-                              setState(() {});
-                            }),
-                            PopMenuEspecialidade(() {
-                              setState(() {});
-                            }),
-                            PopMenuSubEspecialidades(() {
-                              setState(() {});
-                            }),
-                            PopMenuGrupo(() {
-                              setState(() {});
-                            }),
-                            PopoMenuUnidades(() {
-                              setState(() {});
-                            })
-                          ],
-                        ),
-                      ),
+                      filtrosScreen(press: () {
+                        setState(() {});
+                      }),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
@@ -263,7 +233,7 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
                             setState(() {});
                           },
                           decoration: InputDecoration(
-                            hintText: "Buscar",
+                            hintText: "Buscar Especialistas",
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(4.0)),
                             focusedBorder: OutlineInputBorder(
@@ -290,48 +260,11 @@ class _EspecialistasScreenState extends State<EspecialistasScreenn> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SectionTitle(
-                          title: "Últimos Especialistas",
-                          pressOnSeeAll: () {},
-                          OnSeeAll: false,
-                        ),
-                      ),
-                      if (ultimosMedicos.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
-                            child: Row(
-                              children: List.generate(
-                                ultimosMedicos.length,
-                                (i) => DoctorInforCicle(
-                                    doctor: ultimosMedicos[i],
-                                    press: () {
-                                      setState(() {
-                                        filtros.LimparMedicos();
-                                        filtros.addMedicos(ultimosMedicos[i]);
-
-                                        widget.press.call();
-                                      });
-                                    }),
-                              ),
-                            ),
-                          ),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SectionTitle(
                           title: "Todos os Especialistas",
                           pressOnSeeAll: () {
                             setState(() {
                               pages.selecionarPaginaHome('Especialistas');
                             });
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DoctorsScreen(),
-                              ),
-                            );
                           },
                           OnSeeAll: false,
                         ),

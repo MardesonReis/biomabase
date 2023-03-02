@@ -430,7 +430,7 @@ class _EmptyContentsState extends State<_EmptyContents> {
                     trailing: InkWell(
                       onTap: () {
                         AlertShowDialog('Resgate Indisponível',
-                            'Módulo não está ativo', context);
+                            Text('Módulo não está ativo'), context);
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.yellow,

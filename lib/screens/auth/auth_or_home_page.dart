@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/regras_list.dart';
@@ -31,8 +32,8 @@ class AuthOrHomePage extends StatefulWidget {
 class _AuthOrHomePageState extends State<AuthOrHomePage> {
   Uri? _latestUri;
   Object? _err;
-  bool _isLogin = false;
-  bool _isLoadingRegras = false;
+  bool _isLogin = true;
+  bool _isLoadingRegras = true;
 
   StreamSubscription? _sub;
 
@@ -45,6 +46,7 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
   void initState() {
     super.initState();
     if (!mounted) return;
+
     var auth = Provider.of<Auth>(
       context,
       listen: false,
@@ -54,38 +56,14 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
       context,
       listen: false,
     );
-    //13978829304
 
-    auth.tryAutoLogin().then((value) async {
-      if (auth.isAuth && !await auth.isAuthFidelimax) {
-        auth.fidelimax
-            .ListCpfFidelimax(auth.userId ?? '', auth.token ?? '')
-            .then((value) async {
-          if (await auth.isAuthFidelimax) {
-            auth.fidelimax.RetornaDadosCliente().then((value) {
-              setState(() {
-                _isLogin = false;
-              });
-            });
-          } else {
-            setState(() {
-              auth.fidelimax.cpf = '';
-              _isLogin = false;
-            });
-          }
-        });
-      } else {
-        setState(() {
-          //auth.fidelimax.cpf = '';
-          _isLogin = false;
-        });
-      }
-    });
-    regraList.carrgardados(context, Onpress: () {
+    //13978829304
+    auth.atualizaAcesso(context, () {
       setState(() {
-        _isLoadingRegras = false;
+        _isLogin = false;
       });
     });
+
     _handleIncomingLinks();
     _handleInitialUri();
   }
@@ -141,14 +119,16 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
       _initialUriIsHandled = true;
       //     showSnackBar('_handleInitialUri called', context);
       try {
-        final uri = await getInitialUri();
-        if (uri == null) {
-          //   print('no initial uri');
-        } else {
-          //  print('got initial uri: $uri');
+        await getInitialUri().then((uri) {
           if (!mounted) return;
-          setState(() => _latestUri = uri);
-        }
+          if (uri == null) {
+            //   print('no initial uri');
+          } else {
+            //  print('got initial uri: $uri');
+            if (!mounted) return;
+            setState(() => _latestUri = uri);
+          }
+        });
       } on PlatformException {
         // As mensagens da plataforma podem falhar, mas ignoramos a exceção
         //  print('falied to get initial uri');
@@ -187,8 +167,8 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
       body = AuthPageFi();
     }
 
-    return _isLogin && _isLoadingRegras
-        ? Scaffold(body: Center(child: CircularProgressIndicator()))
+    return _isLogin
+        ? Scaffold(body: Center(child: ProgressIndicatorBioma()))
         : body;
   }
 }

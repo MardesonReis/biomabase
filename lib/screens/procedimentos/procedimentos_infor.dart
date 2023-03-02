@@ -53,6 +53,7 @@ class _ProcedimentosInforState extends State<ProcedimentosInfor> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              textResp(widget.procedimento.convenio.desc_convenio),
               textResp(
                   widget.procedimento.especialidade.descricao.capitalize()),
               textResp(widget.procedimento.orientacoes.toString()),

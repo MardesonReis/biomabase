@@ -1,9 +1,13 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
+import 'package:biomaapp/models/Clips.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/fidelimax.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/paginas.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/screens/home/components/menu_bar_filtros.dart';
 import 'package:biomaapp/screens/home/components/opcoesProcedimentosGrupos.dart';
+import 'package:biomaapp/screens/pedidos/orders_page.dart';
 import 'package:biomaapp/screens/procedimentos/filtroProcedimentos.dart';
 import 'package:biomaapp/screens/search/search_screen.dart';
 import 'package:biomaapp/utils/app_routes.dart';
@@ -32,12 +36,40 @@ class CustomAppBar extends StatefulWidget {
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
+  bool _isLogin = true;
+  @override
+  void initState() {
+    if (!mounted) return;
+
+    super.initState();
+    var regraList = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+    var auth = Provider.of<Auth>(
+      context,
+      listen: false,
+    );
+
+    auth.atualizaAcesso(context, () {
+      setState(() {});
+    }).then((value) {
+      setState(() {
+        _isLogin = false;
+      });
+    });
+
+    //13978829304
+
+    // regraList.carrgardados(context, all: false, Onpress: () {});
+  }
+
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of(context);
     Fidelimax fidelimax = auth.fidelimax;
     filtrosAtivos filtros = auth.filtrosativos;
-    filtros.BuscarFiltrosAtivos();
+
     Paginas pages = auth.paginas;
 
     var show = () {
@@ -101,10 +133,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
       //     ),
       //   ),
       // ),
+      // leading: Padding(
+      //   padding: const EdgeInsets.all(4.0),
+      //   child: new Image.asset('assets/imagens/biomaLogo.png'),
+      // ),
+
       iconTheme: const IconThemeData(
         //size: 40, //change size on your need
         color: destColor, //change color on your need
       ),
+
       backgroundColor: Colors.transparent,
       elevation: 0.0,
       title: Text.rich(
@@ -123,52 +161,47 @@ class _CustomAppBarState extends State<CustomAppBar> {
         ),
       ),
       actions: <Widget>[
-            Badge(
-              child: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  radius: 25,
-                  child: IconButton(
-                      tooltip: 'Bions',
-                      onPressed: () {
-                        setState(() {
-                          Navigator.of(context).pushNamed(
-                            AppRoutes.EXTRATO_FIDELIMAX,
-                            //    arguments: auth.fidelimax,
-                          );
-                          //   show.call();
-                        });
-                      },
-                      icon: Icon(
-                        Icons.monetization_on,
-                        size: 25,
-                        color: destColor,
-                      ))),
-              // showBadge: filtros.FiltrosAtivos > 0,
-              toAnimate: true,
-              shape: BadgeShape.square,
-              //   ignorePointer: true,
-              badgeColor: Colors.yellow,
-              borderRadius: BorderRadius.circular(100),
-              position: BadgePosition.topEnd(top: 10, end: -17),
-              badgeContent: InkWell(
-                onTap: () {
-                  setState(() {
-                    Navigator.of(context).pushNamed(
-                      AppRoutes.EXTRATO_FIDELIMAX,
-                      //    arguments: auth.fidelimax,
-                    );
-                    //   show.call();
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(1),
-                  child: Text(
-                    auth.fidelimax.saldo.toString(),
-                    style: TextStyle(fontSize: 8),
+            if (auth.isAuth)
+              Badge(
+                child: IconButton(
+                  tooltip: 'Bions',
+                  onPressed: () {
+                    setState(() {
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.EXTRATO_FIDELIMAX,
+                        //    arguments: auth.fidelimax,
+                      );
+                      //   show.call();
+                    });
+                  },
+                  icon: Image.asset('assets/icons/bions.png'),
+                ),
+                // showBadge: filtros.FiltrosAtivos > 0,
+                toAnimate: true,
+                shape: BadgeShape.square,
+                //   ignorePointer: true,
+                badgeColor: Colors.yellow,
+                borderRadius: BorderRadius.circular(100),
+                position: BadgePosition.topEnd(top: 10, end: -18),
+                badgeContent: InkWell(
+                  onTap: () {
+                    setState(() {
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.EXTRATO_FIDELIMAX,
+                        //    arguments: auth.fidelimax,
+                      );
+                      //   show.call();
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(1),
+                    child: Text(
+                      auth.fidelimax.saldo.toString(),
+                      style: TextStyle(fontSize: 8),
+                    ),
                   ),
                 ),
               ),
-            ),
             SizedBox(
               width: 10,
             ),
@@ -177,14 +210,21 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   backgroundColor: Colors.transparent,
                   radius: 25,
                   child: IconButton(
-                      tooltip: 'Fila de desejos',
+                      tooltip: 'Cesta de Solicitações',
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed(
-                          AppRoutes.ORDERS,
-                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrdersPage(Clips(
+                                  titulo: 'Solicitar',
+                                  subtitulo: '',
+                                  keyId: 'S')),
+                            )).then((value) {
+                          setState(() {});
+                        });
                       },
                       icon: Icon(
-                        Icons.list,
+                        Icons.hub_sharp,
                         size: 25,
                         color: destColor,
                       ))),

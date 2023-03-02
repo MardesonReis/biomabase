@@ -104,17 +104,18 @@ class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
           u.municipio.capitalize();
     }
 
-    var uniatual = filtros.unidades.isNotEmpty
-        ? filtros.unidades.first
-        : Unidades_selecionada;
-
-    filtros.unidades.isEmpty ? Unidades_selecionada = uniPadrao : true;
+    unidades.contains(uniPadrao)
+        ? false
+        : setState(() {
+            unidades.add(uniPadrao);
+          });
+    filtros.unidades.isNotEmpty
+        ? Unidades_selecionada = filtros.unidades.first
+        : Unidades_selecionada = uniPadrao;
     return unidades.isEmpty
         ? CircularProgressIndicator()
         : PopupMenuButton<Unidade>(
-            initialValue: filtros.unidades.isNotEmpty
-                ? filtros.unidades.first
-                : Unidades_selecionada,
+            initialValue: Unidades_selecionada,
             child: Card(
               elevation: 8,
               child: Padding(
@@ -123,9 +124,9 @@ class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
                   children: [
                     Row(
                       children: [
-                        Text(uniatual.cod_unidade != '00'
-                            ? (bildeUnidadeinf(uniatual))
-                            : uniatual.des_unidade),
+                        Text(Unidades_selecionada.cod_unidade != '00'
+                            ? (bildeUnidadeinf(Unidades_selecionada))
+                            : Unidades_selecionada.des_unidade),
                         Icon(
                           Icons.expand_more_outlined,
                           color: primaryColor,

@@ -52,7 +52,7 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
             .isNotEmpty;
       });
     }
-    if (filtrarProcedimentos) {
+    if (filtrarMedicos) {
       dados.retainWhere((element) {
         return filtros.medicos
             .where((m) => m.cod_profissional == element.cod_profissional)
@@ -84,12 +84,28 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
     convenios.sort((a, b) => a.desc_convenio.compareTo(b.desc_convenio));
     var c = Convenios(cod_convenio: '', desc_convenio: 'Convênios');
 
-    if (ConvenioSelecionado.cod_convenio.isEmpty) {
-      ConvenioSelecionado = c;
-    }
-    if (!convenios.contains(c)) {
-      convenios.add(c);
-    }
+    convenios.contains(c)
+        ? false
+        : setState(() {
+            convenios.add(c);
+          });
+
+    filtros.convenios.isNotEmpty
+        ? setState(
+            () {
+              ConvenioSelecionado = filtros.convenios.first;
+            },
+          )
+        : setState(
+            () {
+              ConvenioSelecionado = convenios
+                  .where((element) => element.cod_convenio != '')
+                  .toList()
+                  .first;
+              filtros.convenios.add(ConvenioSelecionado);
+            },
+          );
+
     return PopupMenuButton<Convenios>(
       initialValue: ConvenioSelecionado,
       child: Card(
@@ -116,9 +132,8 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
             filtros.addConvenios(value);
           }
           ConvenioSelecionado = value;
-
-          widget.press.call();
         });
+        widget.press.call();
       },
       itemBuilder: (BuildContext context) {
         return convenios.map((Convenios choice) {

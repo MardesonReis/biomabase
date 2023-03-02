@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:biomaapp/models/especialidade.dart';
 import 'package:biomaapp/models/unidade.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,15 +22,16 @@ class Medicos with ChangeNotifier {
   String idademax = '';
   String PacientesAtendidos = '';
   String TotalDeAtendidos = '';
+  late Especialidade especialidade;
 
   Medicos();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Unidade &&
+      other is Medicos &&
           runtimeType == other.runtimeType &&
-          des_profissional == other.des_unidade;
+          des_profissional == other.des_profissional;
 
   @override
   int get hashCode => des_profissional.hashCode;

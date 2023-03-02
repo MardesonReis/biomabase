@@ -237,11 +237,20 @@ class RegrasList with ChangeNotifier {
   Future<bool> carrgardados(BuildContext context,
       {bool all = false, required VoidCallback Onpress}) async {
     Auth auth = Provider.of(context, listen: false);
+
     if (this._dados.isEmpty || all == true) {
-      this.dados.clear();
-      await this.Regras(auth.fidelimax.cpf).then((value) {});
+      this.limparDados();
+
+      //await auth.fidelimax.ConsultaConsumidor(auth.fidelimax.cpf);
+      // await auth.fidelimax.RetornaDadosCliente(auth.fidelimax.cpf);
+
+      await this.Regras(auth.fidelimax.cpf).then((value) {
+        Onpress.call();
+      });
+    } else {
+      Onpress.call();
     }
-    Onpress.call();
+
     return true;
   }
 }

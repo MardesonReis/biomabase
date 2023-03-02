@@ -346,12 +346,12 @@ class _ConfirmaRegraState extends State<ConfirmaRegra> {
 
                         var id_regra = await regrasList.addRegra(regra);
                         if (id_regra != '') {
-                          await AlertShowDialog(
-                              'Sucesso', 'Adiconado com sucesso', context);
+                          await AlertShowDialog('Sucesso',
+                              Text('Adiconado com sucesso'), context);
                           Navigator.of(context).pop();
                         } else {
                           AlertShowDialog(
-                              'Erro', 'Regra não adicionada', context);
+                              'Erro', Text('Regra não adicionada'), context);
                         }
                       },
                       child: Text('Adicionar Regra'))
