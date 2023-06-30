@@ -5,6 +5,7 @@ import 'package:biomaapp/models/fidelimax.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/regras_list.dart';
+import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/screens/home/components/menu_bar_filtros.dart';
 import 'package:biomaapp/screens/home/components/opcoesProcedimentosGrupos.dart';
 import 'package:biomaapp/screens/pedidos/orders_page.dart';
@@ -16,11 +17,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:user_profile_avatar/user_profile_avatar.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as bdg;
 
 import '../constants.dart';
 
-class CustomAppBar extends StatefulWidget {
+class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   CustomAppBar(
     this.text,
     this.title,
@@ -32,11 +33,14 @@ class CustomAppBar extends StatefulWidget {
   List<Widget> actions;
   VoidCallback press;
   @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  @override
   State<CustomAppBar> createState() => _CustomAppBarState();
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
   bool _isLogin = true;
+
   @override
   void initState() {
     if (!mounted) return;
@@ -138,10 +142,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
       //   child: new Image.asset('assets/imagens/biomaLogo.png'),
       // ),
 
-      iconTheme: const IconThemeData(
-        //size: 40, //change size on your need
-        color: destColor, //change color on your need
-      ),
+      iconTheme: IconThemeData(
+          size: 32, //change size on your need
+          color: destColor,
+
+          //change color on your need
+          shadows: [
+            Shadow(blurRadius: 3.0, color: Colors.grey, offset: Offset.zero)
+          ]),
 
       backgroundColor: Colors.transparent,
       elevation: 0.0,
@@ -160,91 +168,90 @@ class _CustomAppBarState extends State<CustomAppBar> {
           ],
         ),
       ),
+
       actions: <Widget>[
             if (auth.isAuth)
-              Badge(
-                child: IconButton(
-                  tooltip: 'Bions',
-                  onPressed: () {
-                    setState(() {
-                      Navigator.of(context).pushNamed(
-                        AppRoutes.EXTRATO_FIDELIMAX,
-                        //    arguments: auth.fidelimax,
-                      );
-                      //   show.call();
-                    });
-                  },
-                  icon: Image.asset('assets/icons/bions.png'),
-                ),
-                // showBadge: filtros.FiltrosAtivos > 0,
-                toAnimate: true,
-                shape: BadgeShape.square,
-                //   ignorePointer: true,
-                badgeColor: Colors.yellow,
-                borderRadius: BorderRadius.circular(100),
-                position: BadgePosition.topEnd(top: 10, end: -18),
-                badgeContent: InkWell(
-                  onTap: () {
-                    setState(() {
-                      Navigator.of(context).pushNamed(
-                        AppRoutes.EXTRATO_FIDELIMAX,
-                        //    arguments: auth.fidelimax,
-                      );
-                      //   show.call();
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(1),
-                    child: Text(
-                      auth.fidelimax.saldo.toString(),
-                      style: TextStyle(fontSize: 8),
-                    ),
+              BuildButton('Bions', () {
+                setState(() {
+                  Navigator.of(context).pushNamed(
+                    AppRoutes.EXTRATO_FIDELIMAX,
+                    //    arguments: auth.fidelimax,
+                  );
+                  //   show.call();
+                });
+              },
+                  Image.asset(
+                    'assets/icons/bions.png',
+                    scale: 32,
                   ),
-                ),
-              ),
-            SizedBox(
-              width: 10,
-            ),
-            Badge(
-              child: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  radius: 25,
-                  child: IconButton(
-                      tooltip: 'Cesta de Solicitações',
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OrdersPage(Clips(
-                                  titulo: 'Solicitar',
-                                  subtitulo: '',
-                                  keyId: 'S')),
-                            )).then((value) {
-                          setState(() {});
-                        });
-                      },
-                      icon: Icon(
-                        Icons.hub_sharp,
-                        size: 25,
-                        color: destColor,
-                      ))),
-              showBadge: filtros.fila.isNotEmpty,
-              toAnimate: true,
-              shape: BadgeShape.square,
-              //   ignorePointer: true,
-              badgeColor: redColor,
-              borderRadius: BorderRadius.circular(100),
-              position: BadgePosition.topEnd(top: 2, end: -10),
-              badgeContent: Padding(
-                padding: const EdgeInsets.all(1),
-                child: Text(filtros.fila.length.toString()),
-              ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
+                  auth.fidelimax.saldo.toString(),
+                  showBadge: true),
+            if (auth.isAuth)
+              BuildButton('Cesta de Solicitações', () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrdersPage(Clips(
+                          titulo: 'Solicitar', subtitulo: '', keyId: 'S')),
+                    )).then((value) {
+                  setState(() {});
+                });
+              },
+                  Icon(
+                    Icons.shopping_cart,
+                    size: 32,
+                    color: destColor,
+                  ),
+                  filtros.fila.length.toString(),
+                  showBadge: filtros.fila.isNotEmpty),
           ] +
-          widget.actions,
+          widget.actions +
+          [],
     );
   }
+}
+
+Widget BuildButton(String tooltip, VoidCallback press, Widget Icon, String text,
+    {bool showBadge = false}) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: bdg.Badge(
+      child: Container(
+        child: IconButton(
+          splashRadius: 32,
+          tooltip: tooltip,
+          onPressed: () {
+            press.call();
+          },
+          icon: Container(
+              decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
+                BoxShadow(
+                  color: Colors.grey[300]!,
+                  blurRadius: 3.0,
+                ),
+              ]),
+              child: Icon),
+        ),
+      ),
+      showBadge: showBadge,
+      toAnimate: true,
+      shape: bdg.BadgeShape.square,
+      //   ignorePointer: true,
+      badgeColor: Colors.yellow,
+      borderRadius: BorderRadius.circular(100),
+      position: bdg.BadgePosition.topEnd(top: 10, end: -18),
+      badgeContent: InkWell(
+        onTap: () {
+          press.call();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(1),
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 8),
+          ),
+        ),
+      ),
+    ),
+  );
 }

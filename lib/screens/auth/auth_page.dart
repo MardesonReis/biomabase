@@ -54,7 +54,7 @@ class _AuthPageState extends State<AuthPage> {
           preferredSize: Size.fromHeight(50),
           child: PreferredSize(
             preferredSize: Size.fromHeight(40),
-            child: CustomAppBar('Informações\n', 'de acesso', () {}, []),
+            child: CustomAppBar('Acesso ao \n', ' Bioma', () {}, []),
           ),
         ),
         body: SingleChildScrollView(
@@ -63,8 +63,10 @@ class _AuthPageState extends State<AuthPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(149, 111, 253, 0.9),
-                  Color.fromRGBO(21, 219, 226, 0.9),
+                  primaryColor,
+                  Colors.white,
+                  // Colors.white,
+                  destColor,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -90,19 +92,13 @@ class _AuthPageState extends State<AuthPage> {
 
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 5,
-                              color: Colors.black26,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
                         ),
                         child: Container(
-                          child:
-                              new Image.asset('assets/imagens/biomaLogo.png'),
-                          width: 150,
+                          child: new Image.asset(
+                            'assets/imagens/bioma_logo.png',
+                            fit: BoxFit.contain,
+                          ),
+                          width: 200,
                         ),
                       ),
                       AuthForm(func: () {

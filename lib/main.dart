@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:biomaapp/components/shere.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/Clips.dart';
@@ -12,11 +13,14 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/formaPG_list.dart';
 import 'package:biomaapp/models/indicacoes_list.dart';
 import 'package:biomaapp/models/medicos_list.dart';
+import 'package:biomaapp/models/minhasaude_list.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/perfilDeAtendimento.dart';
+import 'package:biomaapp/models/redebioma_list.dart';
 import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/usuarios.list.dart';
 import 'package:biomaapp/models/unidades_list.dart';
+import 'package:biomaapp/models/voucher_list.dart';
 import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/screens/doctors/doctors_screen.dart';
 import 'package:biomaapp/screens/especialidades/especialidades_screen.dart';
@@ -31,7 +35,6 @@ import 'package:biomaapp/screens/search/search_screen.dart';
 import 'package:biomaapp/screens/user/add_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:localization/localization.dart';
 import 'package:provider/provider.dart';
 import 'package:biomaapp/models/auth.dart';
@@ -39,7 +42,6 @@ import 'package:biomaapp/models/cart.dart';
 import 'package:biomaapp/models/order_list.dart';
 import 'package:biomaapp/models/product_list.dart';
 import 'package:biomaapp/models/procedimento_list.dart';
-
 import 'package:biomaapp/utils/app_routes.dart';
 
 //void main() {  runApp(MyApp());}
@@ -237,6 +239,27 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 auth.token ?? '', auth.userId ?? '', previous?.items ?? []);
           },
         ),
+        ChangeNotifierProxyProvider<Auth, MinhaSaudeList>(
+          create: (_) => MinhaSaudeList(),
+          update: (ctx, auth, previous) {
+            return MinhaSaudeList(auth.token ?? '', auth.userId ?? '',
+                previous?.tipos ?? [], previous?.items ?? []);
+          },
+        ),
+        ChangeNotifierProxyProvider<Auth, RedeBiomaList>(
+          create: (_) => RedeBiomaList(),
+          update: (ctx, auth, previous) {
+            return RedeBiomaList(
+                auth.token ?? '', auth.userId ?? '', previous?.items ?? []);
+          },
+        ),
+        ChangeNotifierProxyProvider<Auth, VoucherList>(
+          create: (_) => VoucherList(),
+          update: (ctx, auth, previous) {
+            return VoucherList(
+                auth.token ?? '', auth.userId ?? '', previous?.items ?? []);
+          },
+        ),
         ChangeNotifierProvider(
           create: (_) => Cart(),
         ),
@@ -259,8 +282,12 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         supportedLocales: [Locale('pt', 'BR')],
         title: 'Bioma - Conectando Saúde',
         theme: ThemeData(
+          indicatorColor: destColor,
+          iconTheme: IconThemeData(
+              color: primaryColor,
+              size: 32,
+              shadows: [Shadow(blurRadius: 1.0, color: Colors.grey[600])]),
           primarySwatch: primaryColor,
-          accentColor: redColor,
           fontFamily: 'Lato',
         ),
         //home: ProductsOverviewPage(),

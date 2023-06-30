@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:biomaapp/models/AgendaMedico.dart';
 import 'package:biomaapp/models/Fila.dart';
 import 'package:biomaapp/models/convenios.dart';
 import 'package:biomaapp/models/especialidade.dart';
@@ -33,6 +34,7 @@ class filtrosAtivos with ChangeNotifier {
   List<Clips> olho = [];
   List<FormaPagamento> FormaPg = [];
   List<Map<String, Object>> servicos_page = [];
+  List<AgendaMedico> hora_extra = [];
   late GoogleMapController googleMapController;
 
   List<Map<String, Object>> tipoFila = [];

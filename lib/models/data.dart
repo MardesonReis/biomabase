@@ -31,20 +31,7 @@ class Data with ChangeNotifier {
   final String valor;
   final String frequencia;
 
-  String get textBusca =>
-      des_profissional +
-      ' - ' +
-      this.des_especialidade +
-      ' - ' +
-      this.sub_especialidade +
-      ' - ' +
-      this.grupo +
-      ' - ' +
-      this.desc_convenio +
-      ' - ' +
-      this.des_unidade +
-      ' - ' +
-      this.des_procedimentos;
+  final String textBusca;
 
   Data({
     required this.id_regra,
@@ -71,6 +58,7 @@ class Data with ChangeNotifier {
     required this.tabop_quantidade,
     required this.valor,
     required this.frequencia,
+    required this.textBusca,
   });
 
   @override
@@ -78,13 +66,13 @@ class Data with ChangeNotifier {
       identical(this, other) ||
       other is Data &&
           runtimeType == other.runtimeType &&
-          textBusca == other.textBusca;
+          id_regra == other.id_regra;
 
   @override
-  int get hashCode => textBusca.hashCode;
+  int get hashCode => id_regra.hashCode;
 
   @override
   String toString() {
-    return textBusca;
+    return id_regra;
   }
 }

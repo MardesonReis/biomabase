@@ -38,6 +38,8 @@ class _ProcedimentosInforState extends State<ProcedimentosInfor> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
+          dense: true,
+          visualDensity: VisualDensity.compact,
           onTap: () {
             setState(() {
               widget.press.call();

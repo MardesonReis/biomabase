@@ -37,34 +37,48 @@ import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+//import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:incrementally_loading_listview/incrementally_loading_listview.dart';
 import 'package:provider/provider.dart';
 
 class Localizacao extends StatefulWidget {
-  final VoidCallback press;
-  Localizacao({required this.press});
+  VoidCallback press;
+  VoidCallback refreshPage;
+  Localizacao({required this.press, required this.refreshPage});
   @override
   LocalizacaoState createState() => LocalizacaoState();
 }
 
 class LocalizacaoState extends State<Localizacao> {
   Completer<GoogleMapController> _controller = Completer();
-  late Position _currentPosition;
+  //late Position _currentPosition;
+  var _currentPosition;
   late LatLng _position = LatLng(-3.613425981453625, -38.53529385675654);
   Set<Marker> _marker = Set<Marker>();
-  bool _isLoading = true;
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
   final ScrollController controller = ScrollController();
   final StreamController _stream = StreamController.broadcast();
-
+  late ScrollController scroll_controller = ScrollController();
+  Future? _initialLoad;
   int count = 0;
 
   @override
-  void dispose() {
-    _stream.close();
-    super.dispose();
+  @override
+  void loadMore() {
+    var dt = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+    var carrega = scroll_controller.position.pixels >=
+        scroll_controller.position.maxScrollExtent -
+            (tela(context).height * 0.2);
+
+    if (carrega)
+      dt.loadMore(context).then((value) {
+        setState(() {});
+      });
   }
 
   void _refreshPage() {
@@ -92,7 +106,7 @@ class LocalizacaoState extends State<Localizacao> {
       context,
       listen: false,
     );
-    var RegraList = Provider.of<RegrasList>(
+    var dt = Provider.of<RegrasList>(
       context,
       listen: false,
     );
@@ -102,17 +116,20 @@ class LocalizacaoState extends State<Localizacao> {
       listen: false,
     );
     //13978829304
-    auth.atualizaAcesso(context, () {
-      ListUnidade.items.isEmpty
-          ? ListUnidade.loadUnidades('').then((value) {
-              setState(() {
-                _isLoading = false;
-              });
-            })
-          : setState(() {
-              _isLoading = false;
-            });
+
+    scroll_controller.addListener(loadMore);
+
+    _initialLoad = dt.loadMore(context).then((value) {
+      setState(() {});
     });
+    super.initState();
+  }
+
+  void dispose() {
+    scroll_controller.removeListener(loadMore);
+
+    _stream.close();
+    super.dispose();
   }
 
   double zoomVal = 8;
@@ -136,133 +153,12 @@ class LocalizacaoState extends State<Localizacao> {
 
     mockResults = auth.filtrosativos.medicos;
     List<Unidade> HistoricoUnidades = [];
-    List<Unidade> unidades = [];
+    List<Unidade> unidades = dt.returnUnidades(BancoDeUnidades.items);
 
     List<Medicos> medicos = [];
     List<Procedimento> HistoricoProcedimentos = [];
     List<Procedimento> procedimentos = [];
-
-    var filtrarUnidade = filtros.unidades.isNotEmpty;
-    var filtrarConvenio = filtros.convenios.isNotEmpty;
-    var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
-    var filtrarGrupos = filtros.grupos.isNotEmpty;
-    var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    var filtrarMedicos = filtros.medicos.isNotEmpty;
-    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
-
-    final dados = dt.dados;
-    if (filtrarProcedimento) {
-      dados.retainWhere((element) {
-        return filtros.procedimentos
-            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
-            .isNotEmpty;
-      });
-    }
-    if (filtrarMedicos) {
-      dados.retainWhere((element) {
-        return filtros.medicos
-            .where((m) => m.cod_profissional == element.cod_profissional)
-            .isNotEmpty;
-      });
-    }
-    dados.retainWhere((element) {
-      return filtrarUnidade
-          ? filtros.unidades.contains(Unidade(
-              cod_unidade: element.cod_unidade,
-              des_unidade: element.des_unidade))
-          : true;
-    });
-
-    dados.retainWhere((element) {
-      return filtrarConvenio
-          ? filtros.convenios.contains(Convenios(
-              cod_convenio: element.cod_convenio,
-              desc_convenio: element.desc_convenio))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarEspecialidade
-          ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
-              ativo: 'S'))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarSubEspecialidade
-          ? filtros.subespecialidades
-              .contains(SubEspecialidade(descricao: element.sub_especialidade))
-          : true;
-    });
-
-    dados.retainWhere((element) {
-      return filtrarGrupos
-          ? filtros.grupos.contains(Grupo(descricao: element.grupo))
-          : true;
-    });
-    dados.map((e) async {
-      Unidade unidade = Unidade();
-      var str = '';
-      unidade.cod_unidade = e.cod_unidade;
-      unidade.des_unidade = e.des_unidade;
-
-      if (!UnidadesInclusoIncluso.contains(e.cod_unidade)) {
-        UnidadesInclusoIncluso.add(e.cod_unidade);
-
-        if (BancoDeUnidades.items.isNotEmpty) {
-          var u = BancoDeUnidades.items
-              .where((element) => element.cod_unidade == unidade.cod_unidade)
-              .toList()
-              .first;
-          //  u.distancia = await getDistance(unidade.latitude, unidade.l atitude);
-          str = u.des_unidade +
-              ' - ' +
-              u.municipio +
-              ' - ' +
-              u.bairro +
-              ' - ' +
-              u.logradouro;
-
-          if (str.toUpperCase().contains(txtQuery.text.toUpperCase())) {
-            setState(() {
-              unidades.add(u);
-            });
-          }
-        }
-      }
-    }).toList();
-
-    dados.map((e) async {
-      Unidade unidade = Unidade();
-      var str = '';
-      unidade.cod_unidade = e.cod_unidade;
-      unidade.des_unidade = e.des_unidade;
-
-      if (!UnidadesInclusoIncluso.contains(e.cod_unidade)) {
-        UnidadesInclusoIncluso.add(e.cod_unidade);
-
-        if (BancoDeUnidades.items.isNotEmpty) {
-          var u = BancoDeUnidades.items
-              .where((element) => element.cod_unidade == unidade.cod_unidade)
-              .toList()
-              .first;
-          //  u.distancia = await getDistance(unidade.latitude, unidade.l atitude);
-          str = u.des_unidade +
-              ' - ' +
-              u.municipio +
-              ' - ' +
-              u.bairro +
-              ' - ' +
-              u.logradouro;
-
-          if (str.toUpperCase().contains(txtQuery.text.toUpperCase())) {
-            setState(() {
-              unidades.add(u);
-            });
-          }
-        }
-      }
-    }).toList();
+    late bool _hasMoreItems;
     unidades.map((e) async {
       Marker m = await Marker(
           onTap: () async {
@@ -274,9 +170,7 @@ class LocalizacaoState extends State<Localizacao> {
           },
           markerId: MarkerId(e.cod_unidade),
           position: LatLng(e.latitude, e.longitude),
-          icon: await getico('assets/icons/bioma_maps.png', () {
-            setState(() {});
-          }, filtros),
+          icon: filtros.markerIcon,
           infoWindow: InfoWindow(
               title: e.des_unidade,
               snippet: e.bairro + '/' + e.municipio + '-' + e.uf));
@@ -287,54 +181,6 @@ class LocalizacaoState extends State<Localizacao> {
 
     unidades.sort((a, b) => a.distancia.compareTo(b.distancia));
 
-    dados.map((e) {
-      Procedimento p = Procedimento();
-
-      p.cod_procedimentos = e.cod_procedimentos;
-      p.des_procedimentos = e.des_procedimentos;
-      p.valor = double.parse(e.valor);
-      p.grupo = e.grupo;
-      p.frequencia = e.frequencia;
-      p.quantidade = e.tabop_quantidade;
-      p.especialidade.codespecialidade = e.cod_especialidade;
-      p.especialidade.descricao = e.des_especialidade;
-      p.cod_tratamento = e.cod_tratamento;
-      p.des_tratamento = e.tipo_tratamento;
-
-      Medicos med = Medicos();
-      med.cod_profissional = e.cod_profissional;
-      med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_especialidade;
-      med.crm = e.crm;
-      med.cpf = e.cpf;
-      med.idademin = e.idade_mim;
-      med.idademax = e.idade_max;
-      med.ativo = '1';
-      med.subespecialidade = e.sub_especialidade;
-      med.especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
-          ativo: 'S');
-
-      Unidade unidade = Unidade();
-      unidade.cod_unidade = e.cod_unidade;
-      unidade.des_unidade = e.des_unidade;
-
-      if (!ProcedimentosInclusoIncluso.contains(e.cod_procedimentos)) {
-        ProcedimentosInclusoIncluso.add(e.cod_procedimentos);
-        procedimentos.add(p);
-      }
-      if (!MedicosInclusos.contains(e.cod_profissional)) {
-        MedicosInclusos.add(e.cod_profissional);
-        medicos.add(med);
-      }
-      // if (!UnidadesIncluso.contains(e.cod_unidade)) {
-      //   UnidadesIncluso.add(e.cod_unidade);
-      //   unidades.add(unidade);
-      // }
-    }).toList();
-    unidades.sort((a, b) => a.des_unidade.compareTo(b.des_unidade));
-
     var cod_unidade = '';
     if (filtros.unidades.isNotEmpty) {
       cod_unidade = filtros.unidades.first.cod_unidade;
@@ -342,102 +188,62 @@ class LocalizacaoState extends State<Localizacao> {
     if (filtros.unidades.isEmpty && unidades.isNotEmpty) {
       cod_unidade = unidades.first.cod_unidade;
     }
+    var busca = dt.seemore == false && unidades.isEmpty;
+    var a;
 
-    return _isLoading
-        ? Center(child: ProgressIndicatorBioma())
-        : Scaffold(
-            appBar: PreferredSize(
-                preferredSize: Size.fromHeight(40),
-                child: CustomAppBar(
-                    'Busque\n', 'Locais de Atendimento', () {}, [])),
-            // height: MediaQuery.of(context).size.height - 200,
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildFiltros(),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.3,
-                    child: Stack(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: _buildGoogleMap(unidades),
-                        ),
+    a = dt.like.trim().isEmpty
+        ? a = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(child: Text('Informe termos para busca')),
+          )
+        : a = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text('Nada encontrado para o termo de busca informado')),
+          );
 
-                        // Padding(
-                        //   padding: const EdgeInsets.all(8.0),
-                        //   child: _zoomminusfunction(),
-                        // ),
-                        // Padding(
-                        //   padding: const EdgeInsets.all(8.0),
-                        //   child: _zoomplusfunction(),
-                        // ),
-                        //     _mylocalbutton(),
-                      ],
-                    ),
-                  ),
-                  FiltroAtivosScren(press: () {
-                    setState(() {
-                      _refreshPage();
-                    });
-                  }),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.text,
-                      controller: txtQuery,
-                      onChanged: (String) {
-                        setState(() {});
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Buscar",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.0)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black)),
-                        prefixIcon: Icon(Icons.search),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            txtQuery.text = '';
-                            setState(() {
-                              mockResults.clear();
-                              //buscarQuery(txtQuery.text);
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SectionTitle(
-                      title: "Locais de Atendimento",
-                      pressOnSeeAll: () {},
-                      OnSeeAll: false,
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    physics: BouncingScrollPhysics(),
-                    child: Column(
-                      children: List.generate(
-                        unidades.length,
-                        (index) => InforUnidade(unidades[index], () {
-                          filtros.LimparUnidade();
-                          filtros.addunidades(unidades[index]);
+    return busca
+        ? a
+        : FutureBuilder(
+            future: _initialLoad,
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return Center(child: ProgressIndicatorBioma());
 
-                          widget.press.call();
-                        }),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.3,
-                  ),
-                ],
-              ),
-            ),
+                case ConnectionState.done:
+                  return IncrementallyLoadingListView(
+                    // controller: scroll_controller,
+                    hasMore: () => !dt.limit,
+                    loadMore: () async {
+                      await dt.loadMore(context);
+                    },
+                    itemBuilder: (context, index) {
+                      return InforUnidade(unidades[index], () {
+                        filtros.LimparUnidade();
+                        filtros.addunidades(unidades[index]);
+                        widget.press.call();
+                      });
+                    },
+                    itemCount: () => unidades.length,
+                    onLoadMore: () {
+                      setState(() {
+                        dt.seemore = true;
+                      });
+                    },
+                    onLoadMoreFinished: () {
+                      setState(() {
+                        dt.seemore = false;
+                      });
+                    },
+                    separatorBuilder: (_, __) => Divider(),
+                    loadMoreOffsetFromBottom: 0,
+                  );
+                  break;
+                default:
+                  return Text('Tem algo errado, verifique sua internet');
+              }
+            },
           );
   }
 

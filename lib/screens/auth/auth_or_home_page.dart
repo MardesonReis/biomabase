@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/data_list.dart';
+import 'package:biomaapp/models/redebioma_list.dart';
 import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/screens/auth/auth_page.dart';
 import 'package:biomaapp/screens/auth/auth_page_fi.dart';
+import 'package:biomaapp/screens/home/components/redebiomadetalhes.dart';
 import 'package:biomaapp/screens/pedidos/navaIndicacao.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/foundation.dart';
@@ -145,12 +147,29 @@ class _AuthOrHomePageState extends State<AuthOrHomePage> {
     @override
     Auth auth = Provider.of(context);
     var body;
+
     var acaos = [];
     if (_latestUri != null && _latestUri.toString().contains('?')) {
       acaos = _latestUri.toString().split('?')[1].split('=');
       auth.acoes.addAll({acaos[0]: acaos[1]});
       if (acaos[0] == 'id_indicacao') {
         body = NovaIndicacao(IdIndicacao: acaos[1]);
+      }
+      if (acaos[0] == 'id_promo') {
+        var rede = Provider.of<RedeBiomaList>(
+          context,
+          listen: false,
+        );
+        body = ProgressIndicatorBioma();
+
+        rede.ListarRede(acaos[1]).then((value) {
+
+          setState(() {
+            body = RedeBiomaDetalhes(
+              Redeitem: rede.items.first,
+            );
+          });
+        });
       }
       // } else if (auth.isAuth && auth.fidelimax.cpf == '') {
       //    body = auth.isAuth ? AuthPageFi() : AuthPage();

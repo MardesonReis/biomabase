@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:biomaapp/components/app_drawer.dart';
-import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/usuarios.list.dart';
-import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';

@@ -49,39 +49,6 @@ class _filtrosScreenState extends State<filtrosScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ProgressIndicatorBioma(),
-                  )
-                : IconButton(
-                    onPressed: () async {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      var regraList = Provider.of<RegrasList>(
-                        context,
-                        listen: false,
-                      );
-                      //13978829304
-
-                      await regraList.carrgardados(context, all: true,
-                          Onpress: () {
-                        setState(() {
-                          _isLoading = false;
-                          widget.press.call();
-                        });
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AuthOrHomePage(),
-                          ),
-                        ).then((value) {
-                          setState(() {});
-                        });
-                      });
-                    },
-                    icon: Icon(Icons.refresh)),
             PopMenuConvenios(() {
               setState(() {
                 widget.press.call();
@@ -92,16 +59,16 @@ class _filtrosScreenState extends State<filtrosScreen> {
                 widget.press.call();
               });
             }),
-            PopMenuSubEspecialidades(() {
-              setState(() {
-                widget.press.call();
-              });
-            }),
-            PopMenuGrupo(() {
-              setState(() {
-                widget.press.call();
-              });
-            }),
+            //  PopMenuSubEspecialidades(() {
+            //   setState(() {
+            //    widget.press.call();
+            ///  });
+            // }),
+            //  PopMenuGrupo(() {
+            //    setState(() {
+            //      widget.press.call();
+            //    });
+            //   }),
             PopoMenuUnidades(() {
               setState(() {
                 widget.press.call();

@@ -70,7 +70,7 @@ class _BottonMenuState extends State<BottonMenu> {
             },
             child: Container(
               color: auth.paginas.selectedPage == index
-                  ? destColor[100]
+                  ? Colors.white
                   : primaryColor,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),
@@ -80,14 +80,19 @@ class _BottonMenuState extends State<BottonMenu> {
                   children: [
                     CircleAvatar(
                       radius: 15,
-                      child: SvgPicture.asset(
-                          // panelIcon 's Type:IconData
-                          Ico,
-                          height: 13.0,
-                          width: 13.0,
-                          allowDrawingOutsideViewBox: true,
-                          //  color: Colors.red,
-                          semanticsLabel: pages[index]['desc'].toString()),
+                      backgroundColor: primaryColor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: SvgPicture.asset(
+                            // panelIcon 's Type:IconData
+                            Ico,
+                            height: 25.0,
+                            //  width: 13.0,
+                            //    allowDrawingOutsideViewBox: true,
+                            fit: BoxFit.cover,
+                            color: Colors.white,
+                            semanticsLabel: pages[index]['desc'].toString()),
+                      ),
                     ),
                     SizedBox(
                       height: 1,

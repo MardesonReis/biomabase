@@ -39,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context,
       listen: false,
     );
-    auth.fidelimax.RetornaDadosCliente(auth.fidelimax.cpf).then((value) {
+    auth.atualizaAcesso(context, () async {
       setState(() {
         _isLoading = false;
       });
@@ -55,7 +55,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(40),
-          child: CustomAppBar('Meu\n', 'Perfil', () {}, [])),
+          child: CustomAppBar('Meu\n', 'Perfil', () {}, [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PermicoesScreen(),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.settings))
+          ])),
       drawer: AppDrawer(),
       body: _isLoading
           ? Center(
@@ -121,20 +132,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       Spacer(),
-                      Column(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PermicoesScreen(),
-                                  ),
-                                );
-                              },
-                              icon: Icon(Icons.more_vert)),
-                        ],
-                      )
                     ],
                   ),
                   SizedBox(height: defaultPadding),

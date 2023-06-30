@@ -10,9 +10,12 @@ import 'package:biomaapp/screens/home/home_screen.dart';
 import 'package:biomaapp/screens/pedidos/indicacoes_screen.dart';
 import 'package:biomaapp/screens/profile/profile_screen.dart';
 import 'package:biomaapp/screens/servicos/ServicosScreen.dart';
+import 'package:biomaapp/screens/servicos/buscar.dart';
+import 'package:biomaapp/screens/servicos/componets/localizacao.dart';
 import 'package:biomaapp/screens/servicos/componets/localizacaoScreen.dart';
 import 'package:biomaapp/screens/servicos/componets/menuCalendario.dart';
 import 'package:biomaapp/screens/servicos/componets/menuEspecialistas.dart';
+import 'package:biomaapp/screens/servicos/componets/menuLocalizacao.dart';
 import 'package:biomaapp/screens/servicos/componets/menuProcedimentos.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,29 +24,35 @@ import 'package:biomaapp/utils/constants.dart';
 class Paginas with ChangeNotifier {
   int selectedPage = 0;
   List<Map<String, Object>> pages = [
+    {
+      'desc': 'Home',
+      'page': HomePage(),
+      'Ico': 'assets/icons/home.svg',
+    },
     // {
-    //   'desc': 'Home',
-    //   'page': HomePage(),
-    //   'Ico': Icons.home,
+    //   'desc': 'Buscar',
+    //   'page': BuscarScree(),
+    //   'Ico': 'assets/icons/Serach.svg',
     // },
 
     {
-      'desc': 'Localização',
-      'page': LocalizacaoScreen(),
-      'Ico': 'assets/icons/location_pin.svg',
-    },
-    {
       'desc': 'Especialistas',
       'page': MenuEspecialista(),
-      'Ico': 'assets/icons/clinica.svg',
+      'Ico': 'assets/icons/doctor_icon.svg',
     },
     {
       'desc': 'Procedimentos',
       'page': MenuProcedimentos(),
 
       //  'page': ServicosScreen(),
-      'Ico': 'assets/icons/OFTALMOLOGIA.svg'
+      'Ico': 'assets/icons/heart_monitor.svg'
     },
+    // {
+    //   'desc': 'Localização',
+    //   'page': MenuLocalizacao(),
+    //   'Ico': 'assets/icons/location_pin.svg',
+    // },
+
     //{'desc': 'Indicações', 'page': IndicacoesScreen(), 'Ico': Icons.share},
     {
       'desc': 'Agenda',

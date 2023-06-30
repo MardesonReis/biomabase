@@ -5,7 +5,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_infor.dart';
 import 'package:biomaapp/screens/servicos/componets/especialistasScreen.dart';
 import 'package:biomaapp/screens/user/components/user_card.dart';
-import 'package:biomaapp/screens/user/components/user_screen.dart';
+import 'package:biomaapp/utils/SelectUser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +22,21 @@ class BuildUsuario extends StatefulWidget {
 }
 
 class _BuildUsuarioState extends State<BuildUsuario> {
+  buscarusUarios() {
+    setState(() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserScreen(),
+        ),
+      ).then((value) => {
+            setState(() {
+              widget.refreshPage.call();
+            }),
+          });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of(context);
@@ -55,20 +70,7 @@ class _BuildUsuarioState extends State<BuildUsuario> {
               visible: filtros.usuarios.isEmpty,
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  setState(() {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserScreen(),
-                      ),
-                    ).then((value) => {
-                          setState(() {
-                            widget.refreshPage.call();
-                          }),
-                        });
-                  });
-
-                  widget.press.call();
+                  buscarusUarios();
                 },
                 label: Text('Clique para informar Usuário'),
                 backgroundColor: primaryColor,
@@ -95,18 +97,7 @@ class _BuildUsuarioState extends State<BuildUsuario> {
               ? UserCard(
                   user: filtros.usuarios.first,
                   press: () {
-                    setState(() {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UserScreen(),
-                        ),
-                      ).then((value) => {
-                            setState(() {
-                              widget.refreshPage.call();
-                            }),
-                          });
-                    });
+                    buscarusUarios();
                   })
               : SizedBox(),
         ],

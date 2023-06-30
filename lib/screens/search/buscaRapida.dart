@@ -5,8 +5,6 @@ import 'package:biomaapp/screens/home/components/menu_bar_filtros.dart';
 import 'package:biomaapp/screens/search/search_result_screen.dart';
 import 'package:flutter/material.dart';
 
-import '../../constants.dart';
-
 class BuscaRapida extends StatefulWidget {
   const BuscaRapida({Key? key}) : super(key: key);
 

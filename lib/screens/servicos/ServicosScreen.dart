@@ -165,20 +165,20 @@ class _ServicosScreenState extends State<ServicosScreen> {
     });
 
     dados.map((e) {
-      Medicos med = Medicos();
+      var especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
+      Medicos med = Medicos(especialidade: especialidade);
       med.cod_profissional = e.cod_profissional;
       med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_convenio;
+
       med.crm = e.crm;
       med.cpf = e.cpf;
       med.idademin = e.idade_mim;
       med.idademax = e.idade_max;
       med.ativo = '1';
       med.subespecialidade = e.sub_especialidade;
-      med.especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
-          ativo: 'S');
 
       if (!MedicosInclusos.contains(e.cod_profissional)) {
         MedicosInclusos.add(e.cod_profissional);
@@ -303,7 +303,21 @@ class _ServicosScreenState extends State<ServicosScreen> {
       {'screen': MenuEspecialista(), 'titulo': 'Especialistas'},
       //    if (filtros.procedimentos.isNotEmpty)
       {'screen': MenuProcedimentos(), 'titulo': 'Procedimentos'},
-      {'screen': MenuLocalizacao(), 'titulo': 'Localização'},
+      {
+        'screen': MenuLocalizacao(press: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UnidadesScreen(),
+            ),
+          ).then((value) => {
+                setState(() {}),
+              });
+        }, refreshPage: () {
+          setState(() {});
+        }),
+        'titulo': 'Localização'
+      },
       {'screen': MenuCalendario(), 'titulo': 'Calendário'},
       //  {'screen': UnidadesScreen(), 'titulo': 'Clinicas'}
     ];

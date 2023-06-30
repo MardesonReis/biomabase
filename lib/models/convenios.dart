@@ -25,4 +25,18 @@ class Convenios with ChangeNotifier {
   String toString() {
     return desc_convenio;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cod_convenio': cod_convenio.toString(),
+      'desc_convenio': desc_convenio.toString(),
+    };
+  }
+
+  factory Convenios.fromJson(Map<String, dynamic> json) {
+    return Convenios(
+      cod_convenio: json['cod_convenio'],
+      desc_convenio: json['desc_convenio'],
+    );
+  }
 }

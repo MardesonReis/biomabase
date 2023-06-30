@@ -1,12 +1,8 @@
 import 'package:biomaapp/screens/fidelimax/ExtratoWidget.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/extrato.dart';
-import 'package:biomaapp/models/extrato_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:biomaapp/components/app_drawer.dart';
-import 'package:biomaapp/components/order.dart';
-import 'package:biomaapp/models/order_list.dart';
 
 class ExtratoPage extends StatefulWidget {
   @override

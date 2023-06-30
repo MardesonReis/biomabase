@@ -6,6 +6,7 @@ import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:biomaapp/exceptions/auth_exception.dart';
@@ -58,7 +59,7 @@ class _AuthFormState extends State<AuthForm> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Ocorreu um Erro ID 2'),
+        title: Text('Erro'),
         content: Text(msg),
         actions: [
           TextButton(
@@ -74,31 +75,35 @@ class _AuthFormState extends State<AuthForm> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Recuperar Sneha'),
-        content: Column(
-          children: [
-            Title(color: Colors.blue, child: Text('Informe um email')),
-            Form(
-              key: _formKeyRecuver,
-              child: Column(
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'E-mail'),
-                    keyboardType: TextInputType.emailAddress,
-                    onSaved: (email) => _authDataRecuver['email'] = email ?? '',
-                    controller: _EmailController,
-                    validator: (_email) {
-                      final email = _email ?? '';
-                      if (email.trim().isEmpty || !email.contains('@')) {
-                        return 'Informe um e-mail válido.';
-                      }
-                      return null;
-                    },
-                  )
-                ],
+        title: Center(child: Text('Recuperar senha')),
+        content: Container(
+          height: tela(context).height * 0.2,
+          child: Column(
+            children: [
+              Title(color: Colors.blue, child: Text('Informe um email')),
+              Form(
+                key: _formKeyRecuver,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(labelText: 'E-mail'),
+                      keyboardType: TextInputType.emailAddress,
+                      onSaved: (email) =>
+                          _authDataRecuver['email'] = email ?? '',
+                      controller: _EmailController,
+                      validator: (_email) {
+                        final email = _email ?? '';
+                        if (email.trim().isEmpty || !email.contains('@')) {
+                          return 'Informe um e-mail válido.';
+                        }
+                        return null;
+                      },
+                    )
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -168,36 +173,12 @@ class _AuthFormState extends State<AuthForm> {
       }
       RegrasList regrasList = Provider.of(context, listen: false);
 
-      await auth.fidelimax
-          .ListCpfFidelimax(auth.userId ?? '', auth.token ?? '');
-
-      await auth.fidelimax
-          .ConsultaConsumidor(auth.fidelimax.cpf)
-          .then((value) async {
-        await auth.fidelimax
-            .RetornaDadosCliente(auth.fidelimax.cpf)
-            .then((value) async {
-          var regraList = await Provider.of<RegrasList>(
-            context,
-            listen: false,
-          ).limparDados();
-          var dados = await Provider.of<RegrasList>(
-            context,
-            listen: false,
-          ).limparDados();
-
-          auth.atualizaAcesso(context, () async {
-            setState(() {
-              _isLoading = false;
-              widget.func.call();
-            });
-          });
+      auth.atualizaAcesso(context, () async {
+        setState(() {
+          _isLoading = false;
+          widget.func.call();
         });
       });
-
-      //if (auth.isAuth)
-
-      //     setState(() => _isLoading = false);
     } on AuthException catch (error) {
       _showErrorDialog(error.toString());
       setState(() => _isLoading = false);
@@ -238,19 +219,30 @@ class _AuthFormState extends State<AuthForm> {
                   return null;
                 },
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Senha'),
-                keyboardType: TextInputType.text,
-                obscureText: true,
-                controller: _passwordController,
-                onSaved: (password) => _authData['password'] = password ?? '',
-                validator: (_password) {
-                  final password = _password ?? '';
-                  if (password.isEmpty || password.length < 5) {
-                    return 'Informe uma senha válida';
+              RawKeyboardListener(
+                focusNode: FocusNode(),
+                onKey: (event) async {
+                  if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                    await _submit();
                   }
-                  return null;
                 },
+                child: TextFormField(
+                    decoration: InputDecoration(labelText: 'Senha'),
+                    keyboardType: TextInputType.text,
+                    obscureText: true,
+                    controller: _passwordController,
+                    onSaved: (password) =>
+                        _authData['password'] = password ?? '',
+                    validator: (_password) {
+                      final password = _password ?? '';
+                      if (password.isEmpty || password.length < 5) {
+                        return 'Informe uma senha válida';
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (value) async {
+                      await _submit();
+                    }),
               ),
               if (_isSignup())
                 TextFormField(

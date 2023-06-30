@@ -1,6 +1,9 @@
 import 'package:biomaapp/constants.dart';
+import 'package:biomaapp/models/AgendaMedico.dart';
+import 'package:biomaapp/models/agedaMedicoList.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
+import 'package:biomaapp/screens/appointment/componets/buildHoraExtra.dart';
 import 'package:biomaapp/screens/appointment/componets/calendario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -29,6 +32,37 @@ class _BuildCalendarioState extends State<BuildCalendario> {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            Visibility(
+              visible: filtros.medicos.first.cpf.contains(auth.fidelimax.cpf) ||
+                  Master.contains(auth.fidelimax.cpf),
+              child: FloatingActionButton.extended(
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) => HoraEstra(
+                        press: () {
+                          setState(() {
+                            //  filtros.hora_extra.clear();
+                          });
+                          Navigator.pop(context);
+                        },
+                        restorationId: 'HoraExtra'),
+                  ).then((value) {
+                    setState(() {
+                      //  buscarRegistros();
+                    });
+                  });
+
+                  // widget.press.call();
+                },
+                label: Text('Hora Extra'),
+                backgroundColor: primaryColor,
+                icon: Icon(Icons.more_time_rounded),
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
             Visibility(
               visible: filtros.dias.isNotEmpty && filtros.horarios.isNotEmpty,
               child: FloatingActionButton.extended(

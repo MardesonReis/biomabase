@@ -409,9 +409,9 @@ class _EmptyContentsState extends State<_EmptyContents> {
                 children: [
                   IconButton(
                       onPressed: () async {
-                        Medicos doctor = await Medicos();
-                        doctor.BuscarMedicoPorId(
+                        Medicos doctor = await Medicos.toId(
                             widget.agendamento.cod_profissional);
+
                         Procedimento procedimento = Procedimento();
                         procedimento
                             .loadProcedimentosID(

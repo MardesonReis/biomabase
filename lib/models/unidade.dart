@@ -83,4 +83,36 @@ class Unidade with ChangeNotifier {
     notifyListeners();
     return this;
   }
+
+  factory Unidade.fromJson(Map<String, dynamic> json) {
+    return Unidade(
+      cod_unidade: json['cod_unidade'],
+      des_unidade: json['des_unidade'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cod_unidade': cod_unidade,
+      'des_unidade': des_unidade,
+      'contato': contato,
+      'logo': logo,
+      'ativo': ativo,
+      'nomecompleto': nomecompleto,
+      'logradouro': logradouro,
+      'numero': numero,
+      'complemento': complemento,
+      'municipio': municipio,
+      'uf': uf,
+      'cep': cep,
+      'codibge': codibge,
+      'cnpj': cnpj,
+      'bairro': bairro,
+      'novidades': novidades,
+      'cnes': cnes,
+      'longitude': longitude,
+      'latitude': latitude,
+      'distancia': distancia,
+    };
+  }
 }

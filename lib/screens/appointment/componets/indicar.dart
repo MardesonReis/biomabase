@@ -303,7 +303,7 @@ class _IndicarState extends State<Indicar> {
                   ProcedimentosInfor(
                       procedimento: widget.procedimentos, press: () {}),
 
-                  widget.doctor.cod_especialidade == '1'
+                  widget.doctor.especialidade.codespecialidade == '1'
                       ? monoBino(widget.procedimentos, () {
                           setState(() {});
                         })
@@ -338,13 +338,13 @@ class _IndicarState extends State<Indicar> {
                                       child: CustomAppBar(
                                           'Busque\n', 'Amigos', () {}, [])),
                                   drawer: AppDrawer(),
-                                  body: Localizacao(
-                                    press: () {
-                                      setState(() {
-                                        Navigator.pop(context);
-                                      });
-                                    },
-                                  )),
+                                  body: Localizacao(press: () {
+                                    setState(() {
+                                      Navigator.pop(context);
+                                    });
+                                  }, refreshPage: () {
+                                    setState(() {});
+                                  })),
                             ),
                           ).then((value) => {
                                 setState(() {}),

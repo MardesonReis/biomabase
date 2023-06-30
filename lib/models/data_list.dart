@@ -86,6 +86,7 @@ class DataList with ChangeNotifier {
           tabop_quantidade: item['tabop_quantidade'].toString(),
           valor: item['valor'].toString(),
           frequencia: item['frequencia'].toString(),
+          textBusca: '',
         );
         if (!_items.contains(data)) {
           _items.add(data);

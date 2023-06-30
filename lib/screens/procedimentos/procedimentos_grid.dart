@@ -47,6 +47,7 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
     List<Grupo> gruposlist = [];
     List<Convenios> convenioslist = [];
     List<Procedimento> ProcedimentosFiltrado = [];
+    
     Set<String> convenios = Set();
     filtrosAtivos filtros = auth.filtrosativos;
     var filtrarUnidade = filtros.unidades.isNotEmpty;

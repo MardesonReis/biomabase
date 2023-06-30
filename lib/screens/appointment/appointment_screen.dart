@@ -3,9 +3,7 @@ import 'dart:async';
 import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
-import 'package:biomaapp/components/filtros_ativos_agendamento.dart';
-import 'package:biomaapp/components/infor_unidade.dart';
-import 'package:biomaapp/components/monoBino.dart';
+
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/Clips.dart';
 import 'package:biomaapp/models/agedaMedicoList.dart';
@@ -13,52 +11,21 @@ import 'package:biomaapp/models/AgendaMedico.dart';
 import 'package:biomaapp/models/Fila.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/convenios.dart';
-import 'package:biomaapp/models/data_list.dart';
-import 'package:biomaapp/models/extrato_list.dart';
+
 import 'package:biomaapp/models/filtrosAtivos.dart';
-import 'package:biomaapp/models/medicos.dart';
-import 'package:biomaapp/models/medicos_list.dart';
-import 'package:biomaapp/models/pacientes.dart';
-import 'package:biomaapp/models/procedimento.dart';
-import 'package:biomaapp/models/regras_list.dart';
+
 import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/unidades_list.dart';
-import 'package:biomaapp/screens/appointment/componets/agenda_indicar.dart';
 import 'package:biomaapp/screens/appointment/componets/buildConvenios.dart';
 import 'package:biomaapp/screens/appointment/componets/buildEspecialistas.dart';
 import 'package:biomaapp/screens/appointment/componets/buildCalendario.dart';
 import 'package:biomaapp/screens/appointment/componets/buildLocalizacao.dart';
 import 'package:biomaapp/screens/appointment/componets/buildProcedimentos.dart';
 import 'package:biomaapp/screens/appointment/componets/buildUsuario.dart';
-import 'package:biomaapp/screens/appointment/componets/calendario.dart';
 import 'package:biomaapp/screens/appointment/componets/confirmaInformacoes.dart';
-import 'package:biomaapp/screens/appointment/componets/indicar.dart';
-import 'package:biomaapp/screens/appointment/componets/agendar.dart';
-import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
-import 'package:biomaapp/screens/auth/auth_page.dart';
+
 import 'package:biomaapp/screens/auth/logar.dart';
-import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
-import 'package:biomaapp/screens/doctors/components/doctor_infor.dart';
-import 'package:biomaapp/screens/especialidades/components/popMenuConvenios.dart';
-import 'package:biomaapp/screens/home/home_screen.dart';
-import 'package:biomaapp/screens/main/main_screen.dart';
-import 'package:biomaapp/screens/pedidos/indicacoes_screen.dart';
-import 'package:biomaapp/screens/pedidos/orders_page.dart';
-import 'package:biomaapp/screens/procedimentos/procedimentosCircle.dart';
-import 'package:biomaapp/screens/procedimentos/procedimentos_infor.dart';
-import 'package:biomaapp/screens/search/components/menu_bar_convenios.dart';
-import 'package:biomaapp/screens/search/components/menu_bar_dias.dart';
-import 'package:biomaapp/screens/search/components/menu_bar_horarios.dart';
-import 'package:biomaapp/screens/search/components/menu_bar_meses.dart';
-import 'package:biomaapp/screens/search/components/menu_bar_unidades.dart';
-import 'package:biomaapp/screens/servicos/componets/especialistasScreen.dart';
-import 'package:biomaapp/screens/servicos/componets/localizacao.dart';
-import 'package:biomaapp/screens/servicos/componets/procedimentosScreen.dart';
-import 'package:biomaapp/screens/user/components/user_card.dart';
-import 'package:biomaapp/screens/user/components/user_screen.dart';
-import 'package:biomaapp/utils/app_routes.dart';
-import 'package:biomaapp/utils/constants.dart';
-import 'package:brasil_fields/brasil_fields.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -118,20 +85,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
           _isLoadingAgenda = false;
         });
       });
-
-    var unlist = Provider.of<UnidadesList>(
-      context,
-      listen: false,
-    );
-    unlist.items.isEmpty
-        ? unlist.loadUnidades('').then((value) {
-            setState(() {
-              _isLoadingAgenda = false;
-            });
-          })
-        : setState(() {
-            _isLoadingAgenda = false;
-          });
   }
 
   int selectedSloats = 0;

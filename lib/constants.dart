@@ -1,26 +1,19 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:biomaapp/models/Clips.dart';
 import 'package:biomaapp/models/auth.dart';
-import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/procedimento.dart';
 import 'package:biomaapp/models/regras_list.dart';
-import 'package:biomaapp/screens/appointment/appointment_screen.dart';
 import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/screens/auth/auth_page.dart';
-import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:form_field_validator/form_field_validator.dart';
-import 'package:geolocator/geolocator.dart';
+//import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -43,6 +36,14 @@ const defaultPadding = 8.0;
 
 const emailError = 'Enter a valid email address';
 const requiredField = "This field is required";
+Size tela(BuildContext context) {
+  return MediaQuery.of(context).size;
+}
+
+String IncluirZero(String inf) {
+  var novoInf = inf.length == 1 ? '0' + inf : inf;
+  return novoInf;
+}
 
 callbacogin(BuildContext context, VoidCallback fun, Widget Nextpage) {
   RegrasList regrasList = Provider.of<RegrasList>(
@@ -69,13 +70,14 @@ callbacogin(BuildContext context, VoidCallback fun, Widget Nextpage) {
   ).then((value) {});
 }
 
-textResp(String text) {
+textResp(String text,
+    {Color? color = Colors.black, double fontSize = 11, int maxLines = 1}) {
   return RichText(
     overflow: TextOverflow.ellipsis,
-    maxLines: 1,
-    strutStyle: StrutStyle(fontSize: 11.0),
+    maxLines: maxLines,
+    strutStyle: StrutStyle(fontSize: fontSize),
     text: TextSpan(
-      style: TextStyle(color: Colors.black, fontSize: 11),
+      style: TextStyle(color: color, fontSize: fontSize),
       text: text.isEmpty ? '' : text.capitalize(),
     ),
   );
@@ -104,6 +106,13 @@ Map<String, String> StatusProcedimentosAgendadosSSS = {
   "S": "SOLICITADO",
   "P": "RESERVADO",
   "X": "CANCELADO",
+};
+Map<String, IconData> IconMinhaSaude = {
+  "Medicamento": Icons.medication_outlined,
+  "Medições": Icons.monitor_heart_sharp,
+  "Laboratoriais": Icons.biotech,
+  "Atividades": Icons.directions_bike,
+  "Sintomas": Icons.tag_faces_rounded,
 };
 Map<String, String> StatusProximaConsulta = {
   "A": "AGENDADO",
@@ -214,44 +223,44 @@ especialidadeDetalhe(Procedimento p) {
 
 Future<LatLng> determinePosition() async {
   bool serviceEnabled;
-  LocationPermission permission;
   LatLng latLng = LatLng(-3.613425981453625, -38.53529385675654);
+  // LocationPermission permission;
 
-  // Test if location services are enabled.
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    // Location services are not enabled don't continue
-    // accessing the position and request users of the
-    // App to enable the location services.
+  // // Test if location services are enabled.
+  // serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  // if (!serviceEnabled) {
+  //   // Location services are not enabled don't continue
+  //   // accessing the position and request users of the
+  //   // App to enable the location services.
 
-    //return Future.error('Os serviços de localização estão desativados.');
-    return latLng;
-  }
+  //   //return Future.error('Os serviços de localização estão desativados.');
+  //   return latLng;
+  // }
 
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      // Permissions are denied, next time you could try
-      // requesting permissions again (this is also where
-      // Android's shouldShowRequestPermissionRationale
-      // returned true. According to Android guidelines
-      // your App should show an explanatory UI now.
-      // return Future.error('As permissões de localização foram negadas');
-      return latLng;
-    }
-  }
+  // permission = await Geolocator.checkPermission();
+  // if (permission == LocationPermission.denied) {
+  //   permission = await Geolocator.requestPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     // Permissions are denied, next time you could try
+  //     // requesting permissions again (this is also where
+  //     // Android's shouldShowRequestPermissionRationale
+  //     // returned true. According to Android guidelines
+  //     // your App should show an explanatory UI now.
+  //     // return Future.error('As permissões de localização foram negadas');
+  //     return latLng;
+  //   }
+  // }
 
-  if (permission == LocationPermission.deniedForever) {
-    // Permissions are denied forever, handle appropriately.
-    // return Future.error(        'As permissões de localização são negadas permanentemente, não podemos solicitar permissões.');
-    return latLng;
-  }
+  // if (permission == LocationPermission.deniedForever) {
+  //   // Permissions are denied forever, handle appropriately.
+  //   // return Future.error(        'As permissões de localização são negadas permanentemente, não podemos solicitar permissões.');
+  //   return latLng;
+  // }
 
-  // When we reach here, permissions are granted and we can
-  // continue accessing the position of the device.
-  var local = await Geolocator.getCurrentPosition();
-  latLng = LatLng(local.latitude, local.longitude);
+  // // When we reach here, permissions are granted and we can
+  // // continue accessing the position of the device.
+  // var local = await Geolocator.getCurrentPosition();
+  // latLng = LatLng(local.latitude, local.longitude);
   return latLng;
 }
 
@@ -432,12 +441,46 @@ Image buildImgDoctor(Medicos doctor, BuildContext context) {
   );
 }
 
+Image buildImg(String src, BuildContext context) {
+  double h = 200;
+  return Image.network(
+    src,
+    height: h,
+    loadingBuilder:
+        (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+      if (loadingProgress == null) return child;
+
+      return const Center(child: CircularProgressIndicator());
+    },
+    errorBuilder:
+        (BuildContext context, Object exception, StackTrace? stackTrace) {
+      return Image.network(
+        src,
+        height: h,
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) return child;
+
+          return const Center(child: CircularProgressIndicator());
+        },
+        errorBuilder:
+            (BuildContext context, Object exception, StackTrace? stackTrace) {
+          return new Image.asset(
+            'assets/imagens/deful.png',
+            height: h,
+          );
+        },
+      );
+    },
+  );
+}
+
 abrirUrl(String url) async {
   if (!await launchUrl(Uri.parse(url))) throw 'Could not launch $url';
 }
 
-abrirWhatsApp(String msg) async {
-  var whatsappUrl = "whatsapp://send?phone=&text=" + msg;
+abrirWhatsApp(String numero, String msg) async {
+  var whatsappUrl = "whatsapp://send?phone=" + numero + "&text=" + msg;
 
   if (await launchUrl(Uri.parse(whatsappUrl))) {
     await launchUrl(Uri.parse(whatsappUrl));

@@ -45,73 +45,13 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
 
     mockResults = auth.filtrosativos.medicos;
     List<Data> m = [];
-    List<Medicos> medicos = [];
+    List<Medicos> medicos = dt.returnMedicos('');
     var filtrarUnidade = filtros.unidades.isNotEmpty;
     var filtrarConvenio = filtros.convenios.isNotEmpty;
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
     var filtrarGrupos = filtros.grupos.isNotEmpty;
     var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
     final dados = dt.dados;
-
-    dados.retainWhere((element) {
-      return filtrarUnidade
-          ? filtros.unidades.contains(Unidade(
-              cod_unidade: element.cod_unidade,
-              des_unidade: element.des_unidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarConvenio
-          ? filtros.convenios.contains(Convenios(
-              cod_convenio: element.cod_convenio,
-              desc_convenio: element.desc_convenio))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarEspecialidade
-          ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
-              ativo: 'S'))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarSubEspecialidade
-          ? filtros.subespecialidades
-              .contains(SubEspecialidade(descricao: element.sub_especialidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarGrupos
-          ? filtros.grupos.contains(Grupo(descricao: element.grupo))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return txtQuery.text.isNotEmpty
-          ? element.textBusca
-              .toUpperCase()
-              .contains(txtQuery.text.toUpperCase())
-          : true;
-    });
-
-    dados.map((e) {
-      Medicos med = Medicos();
-      med.cod_profissional = e.cod_profissional;
-      med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_especialidade;
-      med.crm = e.crm;
-      med.cpf = e.cpf;
-      med.idademin = e.idade_mim;
-      med.idademax = e.idade_max;
-      med.ativo = '1';
-      med.subespecialidade = e.sub_especialidade;
-
-      if (!MedicosInclusos.contains(e.cod_profissional)) {
-        MedicosInclusos.add(e.cod_profissional);
-        medicos.add(med);
-      }
-    }).toList();
-    medicos.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
 
     return Scaffold(
       appBar: PreferredSize(

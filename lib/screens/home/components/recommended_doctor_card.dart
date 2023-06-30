@@ -5,6 +5,7 @@ import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
 import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidade.dart';
+import 'package:biomaapp/screens/appointment/appointment_screen.dart';
 import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,18 @@ class _RecommendDoctorCardState extends State<RecommendDoctorCard> {
           builder: (context) => DoctorDetailsScreen(
             doctor: widget.doctor,
             press: () {
-              setState(() {});
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AppointmentScreen(
+                    press: () {
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ).then((value) => {
+                    setState(() {}),
+                  });
             },
           ),
         ),
@@ -104,46 +116,6 @@ class _RecommendDoctorCardState extends State<RecommendDoctorCard> {
                       padding: const EdgeInsets.symmetric(
                           vertical: defaultPadding / 2),
                       child: Rating(score: 5),
-                    ),
-                    Text(
-                      "Locais de atendimento: ",
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(right: defaultPadding / 2),
-                          width: 2,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Color(0xFF83D047),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(defaultPadding)),
-                          ),
-                        ),
-                        Container(
-                          height: 40,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ...List.generate(
-                                    unidadeslist.length,
-                                    (index) => Text(
-                                          unidadeslist[index]
-                                              .des_unidade
-                                              .capitalize(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .caption,
-                                        ),
-                                    growable: true),
-                                SizedBox(height: defaultPadding / 2),
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
                     ),
                     Text(
                       "Limite de Idade",

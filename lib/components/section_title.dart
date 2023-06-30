@@ -22,9 +22,10 @@ class _SectionTitleState extends State<SectionTitle> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      tileColor: primaryColor[100],
+      //tileColor: primaryColor[100],
       title: Text(widget.title,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
       trailing: widget.OnSeeAll
           ? TextButton(
               child: Text(

@@ -12,5 +12,6 @@
         "tabela",
         "titulo",
         "unidade"
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

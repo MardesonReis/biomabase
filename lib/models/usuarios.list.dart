@@ -29,21 +29,27 @@ class UsuariosList with ChangeNotifier {
   Future<void> loadPacientes(String query) async {
     //debugPrint(cpf);
     _items.clear();
+    String like = '';
+    String offset = '';
     String cpf = UtilBrasilFields.isCPFValido(query) ||
             UtilBrasilFields.isCNPJValido(query)
         ? query
         : '0';
-    String likeNome = UtilBrasilFields.isCPFValido(query) ||
-            UtilBrasilFields.isCNPJValido(query)
-        ? '0'
-        : query;
+    if (cpf == '0') {
+      like = '&like=' + query;
+    }
+    offset = '&offset=' + this._items.length.toString();
 
-    var link = Uri.parse('${Constants.PACIENTE_BASE_URL}/' +
+    var url = '${Constants.PACIENTE_BASE_URL}' +
         cpf +
         '/' +
-        likeNome +
-        Constants.AUT_BASE);
-    debugPrint(link.toString());
+        '0/' +
+        Constants.AUT_BASE +
+        like +
+        offset;
+
+    var link = Uri.parse(url);
+    // debugPrint(link.toString());
 
     final response = await http.get(link);
     if (response.body == 'null') return;

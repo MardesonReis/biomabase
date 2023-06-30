@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/monoBino.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/Clips.dart';
@@ -5,6 +6,7 @@ import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/convenios.dart';
 import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/especialidade.dart';
+import 'package:biomaapp/models/especialidades_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/procedimento.dart';
 import 'package:biomaapp/models/regras_list.dart';
@@ -21,55 +23,52 @@ class PopMenuEspecialidade extends StatefulWidget {
 }
 
 class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
-  ScrollController OlhoScrollController = ScrollController();
+  var _isLoading = true;
+  late Especialidade especialidadeSelecionado;
+  @override
+  void initState() {
+    Auth auth = Provider.of<Auth>(
+      context,
+      listen: false,
+    );
+    EspecialidadesList conveniosList = Provider.of<EspecialidadesList>(
+      context,
+      listen: false,
+    );
+    conveniosList.items.isEmpty
+        ? conveniosList.loadEspecialidade('').then((value) {
+            setState(() {
+              especialidadeSelecionado = conveniosList.items
+                  .where((element) => element.codespecialidade == '1')
+                  .toList()
+                  .first;
 
-  Especialidade especialidadeSelecionado = Especialidade(
-      codespecialidade: '00', descricao: 'Especialidades', ativo: '');
+              auth.filtrosativos.especialidades.add(especialidadeSelecionado);
+              _isLoading = false;
+            });
+          })
+        : setState(() {
+            _isLoading = false;
+          });
+  }
+
+  ScrollController OlhoScrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     var verifprocedimento = false;
     Auth auth = Provider.of(context);
+    EspecialidadesList especialidadeListe = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
-    RegrasList dt = Provider.of(context, listen: false);
 
     Set<String> MedicosInclusos = Set();
     Set<String> EspecialidadesInclusas = Set();
 
     mockResults = auth.filtrosativos.medicos;
 
-    List<Especialidade> especialidades = [];
-    var filtrarUnidade = filtros.unidades.isNotEmpty;
-    var filtrarConvenio = filtros.convenios.isNotEmpty;
-    var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
-    var filtrarGrupos = filtros.grupos.isNotEmpty;
-    var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    var filtrarConvenios = filtros.convenios.isNotEmpty;
-    final dados = dt.dados;
-    dados.retainWhere((element) {
-      return filtrarConvenios
-          ? filtros.convenios.contains(Convenios(
-              cod_convenio: element.cod_convenio,
-              desc_convenio: element.desc_convenio))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarSubEspecialidade
-          ? filtros.subespecialidades
-              .contains(SubEspecialidade(descricao: element.sub_especialidade))
-          : true;
-    });
+    List<Especialidade> especialidades = especialidadeListe.items;
 
-    dados.map((e) {
-      if (!EspecialidadesInclusas.contains(e.cod_especialidade)) {
-        EspecialidadesInclusas.add(e.cod_especialidade);
-        especialidades.add(Especialidade(
-            codespecialidade: e.cod_especialidade,
-            descricao: e.des_especialidade,
-            ativo: 'S'));
-      }
-    }).toList();
-    especialidades.sort((a, b) => a.descricao.compareTo(b.descricao));
+    var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
 
     Especialidade allEsp = Especialidade(
         codespecialidade: '00', descricao: 'Especialidades', ativo: '');
@@ -80,8 +79,8 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
           });
     filtros.especialidades.isEmpty ? especialidadeSelecionado = allEsp : true;
 
-    return especialidades.isEmpty
-        ? CircularProgressIndicator()
+    return _isLoading
+        ? Container(width: 50, child: ProgressIndicatorBioma())
         : PopupMenuButton<Especialidade>(
             initialValue: filtros.especialidades.isNotEmpty
                 ? filtros.especialidades.first

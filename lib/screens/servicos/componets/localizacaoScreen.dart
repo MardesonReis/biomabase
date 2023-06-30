@@ -37,7 +37,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
+//import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 //import 'package:vector_math/vector_math.dart';
@@ -219,21 +219,19 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
       p.especialidade.descricao = e.des_especialidade;
       p.cod_tratamento = e.cod_tratamento;
       p.des_tratamento = e.tipo_tratamento;
-
-      Medicos med = Medicos();
+      var especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
+      Medicos med = Medicos(especialidade: especialidade);
       med.cod_profissional = e.cod_profissional;
       med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_especialidade;
       med.crm = e.crm;
       med.cpf = e.cpf;
       med.idademin = e.idade_mim;
       med.idademax = e.idade_max;
       med.ativo = '1';
       med.subespecialidade = e.sub_especialidade;
-      med.especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
-          ativo: 'S');
 
       Unidade unidade = Unidade();
       unidade.cod_unidade = e.cod_unidade;
@@ -520,8 +518,8 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
     Auth auth = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
 
-    double distance = await Geolocator.distanceBetween(
-        latitude, longitude, _position.latitude, _position.latitude);
+    // double distance = await Geolocator.distanceBetween(
+    //     latitude, longitude, _position.latitude, _position.latitude);
 
     final Marker mkr = Marker(
         onTap: () {

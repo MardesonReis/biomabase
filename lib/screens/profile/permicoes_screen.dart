@@ -33,7 +33,7 @@ import 'package:biomaapp/screens/profile/componets/dadosPerfil.dart';
 import 'package:biomaapp/screens/servicos/componets/especialistasScreen.dart';
 import 'package:biomaapp/screens/settings/settings_screen.dart';
 import 'package:biomaapp/screens/user/components/user_card.dart';
-import 'package:biomaapp/screens/user/components/user_screen.dart';
+import 'package:biomaapp/utils/SelectUser.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:brasil_fields/brasil_fields.dart';
@@ -116,7 +116,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
       });
     });
 
-    RegraList.carrgardados(context, Onpress: () {
+    RegraList.Regras(context).then((value) {
       setState(() {
         _isLoading = false;
       });
@@ -182,10 +182,13 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
       }
     }).toList();
     perfilDeAtendimento.items.map((e) {
-      Medicos med = Medicos();
+      var especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
+      Medicos med = Medicos(especialidade: especialidade);
       med.cod_profissional = e.cod_profissional;
       med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_especialidade;
       med.crm = e.crm;
       med.cpf = e.cpf;
       med.idademin = e.idade_mim;
@@ -208,7 +211,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(40),
           child: CustomAppBar('Minhas \n', 'Permissões', () {}, [])),
-      drawer: AppDrawer(),
+      //  drawer: AppDrawer(),
       body: _isLoading && _isLoadingPerfil
           ? Center(
               child: ProgressIndicatorBioma(),
@@ -284,8 +287,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                             setState(() {
                               _isLoading = true;
                             });
-                            await regrasList.Regras(auth.fidelimax.cpf)
-                                .then((value) {
+                            await regrasList.Regras(context).then((value) {
                               setState(() {
                                 _isLoading = false;
                               });
@@ -320,11 +322,11 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   textResp('Procedimento: ' +
-                                      regras[index].des_procedimento +
+                                      regras[index].r_des_procedimentos +
                                       ' - R\$:  ' +
-                                      regras[index].valor_sugerido),
+                                      regras[index].r_valor_sugerido),
                                   textResp('Especialista: ' +
-                                      regras[index].des_medico),
+                                      regras[index].r_des_profissional),
                                 ],
                               ),
                               subtitle: Column(
@@ -332,11 +334,15 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Text('Parceiro: ' +
-                                      regras[index].des_parceiro.capitalize() +
+                                      regras[index]
+                                          .r_des_parceiro
+                                          .capitalize() +
                                       " - " +
-                                      regras[index].cpf_parceiro.capitalize()),
+                                      regras[index]
+                                          .r_cpf_parceiro
+                                          .capitalize()),
                                   Text('Orientações: ' +
-                                      regras[index].orientacoes),
+                                      regras[index].r_orientacoes),
                                 ],
                               ),
                               leading: Column(
@@ -345,7 +351,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                     radius: 15,
                                     backgroundImage: NetworkImage(
                                         Constants.IMG_USUARIO +
-                                            regras[index].cpf_medico +
+                                            regras[index].r_cpf_profissional +
                                             '.jpg',
                                         scale: 20),
                                   ),
@@ -360,7 +366,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
 
                                   if (a) {
                                     var id_regra = await regrasList.Remover(
-                                        regras[index].id_regra);
+                                        regras[index].r_id);
                                     if (id_regra != '') {
                                       AlertShowDialog(
                                           'Sucesso',
@@ -370,8 +376,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                       setState(() {
                                         _isLoading = true;
                                       });
-                                      await regrasList.Regras(
-                                          auth.fidelimax.cpf);
+                                      await regrasList.Regras(context);
                                       setState(() {
                                         _isLoading = false;
                                       });
@@ -395,7 +400,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                               ))),
                     ),
                   SizedBox(height: defaultPadding),
-                  if (perfilDeAtendimento.items.isEmpty)
+                  if (perfilDeAtendimento.items.isEmpty || _isLoading)
                     ProgressIndicatorBioma(),
                   if (menu_select.keyId == 'P')
                     Column(

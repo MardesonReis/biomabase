@@ -18,9 +18,11 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.16.0 <3.0.0"
+  
 
 dependencies:
+  printing: ^5.3.0
   flutter:
     sdk: flutter
   provider: ^6.0.2
@@ -35,7 +37,7 @@ dependencies:
   brasil_fields: ^1.9.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+ 
   scroll_to_index: ^3.0.1
   user_profile_avatar: ^0.1.2
   cached_network_image: ^3.2.1
@@ -59,6 +61,16 @@ dependencies:
   qr_flutter: ^4.0.0
   flutter_native_splash: ^2.2.16
   google_maps_flutter_web: ^0.4.0+3
+  textfield_tags: ^2.0.2
+  incrementally_loading_listview: ^1.0.0
+  fl_chart: ^0.62.0
+  syncfusion_flutter_charts: ^21.2.4
+  flutter_svg_provider: ^1.0.3
+  carousel_slider: ^4.2.1
+  pdf: ^3.2.0
+  path_provider: ^2.0.15
+  
+
   
 
 dev_dependencies:
@@ -67,12 +79,29 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   table_calendar: ^3.0.6
-
+#Para mudar o ICO tem que rodar flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/icons/icon.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/icons/icon.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/icon.png"
 
 flutter_icons: 
   android: "launcher_icons"
   ios: true
-  image_path: "assets/icons/bioma.png"
+  image_path: "assets/icons/icon.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

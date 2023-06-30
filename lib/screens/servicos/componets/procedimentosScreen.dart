@@ -30,6 +30,7 @@ import 'package:biomaapp/screens/procedimentos/procedimentos_screen_view.dart';
 import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
 import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
 import 'package:flutter/material.dart';
+import 'package:incrementally_loading_listview/incrementally_loading_listview.dart';
 import 'package:provider/provider.dart';
 
 class ProcedimentosScreen extends StatefulWidget {
@@ -47,29 +48,47 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
   final ScrollController controller = ScrollController();
-
+  late ScrollController scroll_controller = ScrollController();
+  Future? _initialLoad;
   @override
+  void loadMore() {
+    var dt = Provider.of<RegrasList>(
+      context,
+      listen: false,
+    );
+    var carrega = scroll_controller.position.pixels >=
+        scroll_controller.position.maxScrollExtent -
+            (tela(context).height * 0.2);
+
+    if (carrega)
+      dt.loadMore(context).then((value) {
+        setState(() {});
+      });
+  }
+
   void initState() {
     Auth auth = Provider.of<Auth>(
       context,
       listen: false,
     );
 
-    var RegraList = Provider.of<RegrasList>(
+    var dt = Provider.of<RegrasList>(
       context,
       listen: false,
     );
     //13978829304
 
-    auth.atualizaAcesso(context, () {
-      setState(() {
-        _isLoading = false;
-      });
-    }).then((value) {
+    //13978829304
+    scroll_controller.addListener(loadMore);
+    _initialLoad = dt.loadMore(context).then((value) {
       setState(() {});
     });
+    super.initState();
+  }
 
-    //13978829304
+  void dispose() {
+    scroll_controller.removeListener(loadMore);
+    super.dispose();
   }
 
   @override
@@ -87,215 +106,90 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
 
     mockResults = auth.filtrosativos.medicos;
     List<Procedimento> HistoricoProcedimentos = [];
-    List<Procedimento> procedimentos = [];
-
-    var filtrarUnidade = filtros.unidades.isNotEmpty;
-    var filtrarConvenio = filtros.convenios.isNotEmpty;
-    var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
-    var filtrarGrupos = filtros.grupos.isNotEmpty;
-    var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    var filtrarMedicos = filtros.medicos.isNotEmpty;
-    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
-
     final dados = dt.dados;
-    if (filtrarProcedimento) {
-      dados.retainWhere((element) {
-        return filtros.procedimentos
-            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
-            .isNotEmpty;
-      });
-    }
-    if (filtrarMedicos) {
-      dados.retainWhere((element) {
-        return filtros.medicos
-            .where((m) => m.cod_profissional == element.cod_profissional)
-            .isNotEmpty;
-      });
-    }
+    List<Procedimento> procedimentos = dt.returnProcedimentos('');
 
-    dados.retainWhere((element) {
-      return filtrarUnidade
-          ? filtros.unidades.contains(Unidade(
-              cod_unidade: element.cod_unidade,
-              des_unidade: element.des_unidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarConvenio
-          ? filtros.convenios.contains(Convenios(
-              cod_convenio: element.cod_convenio,
-              desc_convenio: element.desc_convenio))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarEspecialidade
-          ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
-              ativo: 'S'))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarSubEspecialidade
-          ? filtros.subespecialidades
-              .contains(SubEspecialidade(descricao: element.sub_especialidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return element.des_procedimentos
-          .toLowerCase()
-          .contains(txtQuery.text.toLowerCase());
-    });
-    dados.retainWhere((element) {
-      return filtrarGrupos
-          ? filtros.grupos.contains(Grupo(descricao: element.grupo))
-          : true;
-    });
-
-    dados.map((e) {
-      Procedimento p = Procedimento();
-      p.convenio = Convenios(
-          cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
-
-      p.cod_procedimentos = e.cod_procedimentos;
-      p.des_procedimentos = e.des_procedimentos;
-      p.valor = double.parse(e.valor);
-      p.valor_sugerido = double.parse(e.valor_sugerido);
-      p.orientacoes = e.orientacoes;
-      p.grupo = e.grupo;
-      p.frequencia = e.frequencia;
-      p.quantidade = e.tabop_quantidade;
-      p.especialidade.codespecialidade = e.cod_especialidade;
-      p.especialidade.descricao = e.des_especialidade;
-      p.cod_tratamento = e.cod_tratamento;
-      p.des_tratamento = e.tipo_tratamento;
-
-      if (!ProcedimentosInclusoIncluso.contains(
-          e.cod_convenio + '-' + p.valor_sugerido.toString())) {
-        ProcedimentosInclusoIncluso.add(
-            e.cod_convenio + '-' + p.valor_sugerido.toString());
-
-        procedimentos.add(p);
-      }
-    }).toList();
     procedimentos
         .sort((a, b) => a.des_procedimentos.compareTo(b.des_procedimentos));
-
-    return _isLoading
-        ? Center(child: ProgressIndicatorBioma())
-        : Padding(
-            padding: const EdgeInsets.only(
-              top: 100,
-              bottom: 1,
-              left: 1,
-              right: 1,
-            ),
-            child: Container(
-              //  height: MediaQuery.of(context).size.height - 200,
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  var regraList = Provider.of<RegrasList>(
-                    context,
-                    listen: false,
-                  );
-                  //13978829304
-
-                  await regraList.carrgardados(context, all: true, Onpress: () {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AuthOrHomePage(),
-                      ),
-                    ).then((value) {
-                      setState(() {});
-                    });
-                  });
-                },
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      filtrosScreen(
-                        press: () {
-                          setState(() {});
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          keyboardType: TextInputType.text,
-                          controller: txtQuery,
-                          onChanged: (String) {
-                            setState(() {});
-                          },
-                          decoration: InputDecoration(
-                            hintText: "Buscar Procedimentos ",
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4.0)),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.black)),
-                            prefixIcon: Icon(Icons.search),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.clear),
-                              onPressed: () {
-                                txtQuery.text = '';
-                                setState(() {
-                                  mockResults.clear();
-                                  //buscarQuery(txtQuery.text);
-                                });
-                                // widget.press.call();
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      FiltroAtivosScren(press: () {
-                        setState(() {
-                          // widget.press.call();
-                        });
-                      }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SectionTitle(
-                          title: "Todos os Procedimentos",
-                          pressOnSeeAll: () {},
-                          OnSeeAll: false,
-                        ),
-                      ),
-                      if (procedimentos.isNotEmpty)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          physics: BouncingScrollPhysics(),
-                          child: Column(
-                            children: List.generate(
-                              procedimentos.length,
-                              (index) => ProcedimentosInfor(
-                                procedimento: procedimentos[index],
-                                press: () {
-                                  setState(() {
-                                    filtros.LimparProcedimentos();
-                                    filtros.AddProcedimentos(
-                                        procedimentos[index]);
-                                  });
-                                  widget.press.call();
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+    var busca = dt.seemore == false && procedimentos.isEmpty;
+    var a;
+    a = dt.like.trim().isEmpty
+        ? a = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(child: Text('Informe termos para busca')),
+          )
+        : a = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text('Nada encontrado para o termo de busca informado')),
           );
+
+    return busca
+        ? a
+        : FutureBuilder(
+            future: _initialLoad,
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                // return Center(child: ProgressIndicatorBioma());
+
+                case ConnectionState.done:
+                  return IncrementallyLoadingListView(
+                    //   controller: scroll_controller,
+                    hasMore: () => !dt.limit,
+                    loadMore: () async {
+                      await dt.loadMore(context);
+                    },
+                    itemBuilder: (context, index) {
+                      return ProcedimentosInfor(
+                        procedimento: procedimentos[index],
+                        press: () {
+                          setState(() {
+                            filtros.procedimentos.clear();
+                            filtros.procedimentos.add(procedimentos[index]);
+                            widget.press.call();
+                          });
+                        },
+                      );
+                    },
+                    itemCount: () => procedimentos.length,
+                    onLoadMore: () {
+                      setState(() {
+                        dt.seemore = true;
+                      });
+                    },
+                    onLoadMoreFinished: () {
+                      setState(() {
+                        dt.seemore = false;
+                      });
+                    },
+                    separatorBuilder: (_, __) => Divider(),
+                    loadMoreOffsetFromBottom: 0,
+                  );
+                  break;
+                default:
+                  return Text('Tem algo errado, verifique sua internet');
+              }
+            },
+          );
+    return ListView.builder(
+      scrollDirection: Axis.vertical,
+      physics: ScrollPhysics(),
+      shrinkWrap: true,
+      controller: scroll_controller,
+      itemCount: procedimentos.length,
+      itemBuilder: (context, index) {
+        return ProcedimentosInfor(
+          procedimento: procedimentos[index],
+          press: () {
+            setState(() {
+              filtros.procedimentos.clear();
+              filtros.procedimentos.add(procedimentos[index]);
+              widget.press.call();
+            });
+          },
+        );
+      },
+    );
   }
 }

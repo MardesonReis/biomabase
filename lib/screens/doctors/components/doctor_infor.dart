@@ -1,7 +1,11 @@
 import 'package:biomaapp/constants.dart';
+import 'package:biomaapp/models/auth.dart';
+import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/medicos.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DoctorInfor extends StatefulWidget {
   Medicos doctor;
@@ -19,11 +23,19 @@ class _DoctorInforState extends State<DoctorInfor> {
 
   @override
   Widget build(BuildContext context) {
+    RegrasList dt = Provider.of(context);
+
+    Auth auth = Provider.of(context);
+
+    filtrosAtivos filtros = auth.filtrosativos;
+
     return Card(
       elevation: 8,
       child: ListTile(
         onTap: () {
           setState(() {
+            filtros.LimparMedicos();
+            filtros.addMedicos(widget.doctor);
             widget.press.call();
           });
         },

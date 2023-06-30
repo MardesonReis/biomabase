@@ -52,4 +52,39 @@ class Fila with ChangeNotifier {
   String toString() {
     return sequencial.toString();
   }
+
+  factory Fila.fromJson(Map<String, dynamic> json) {
+    return Fila(
+      unidade: Unidade.fromJson(json['unidade']),
+      convenios: Convenios.fromJson(json['convenios']),
+      medico: Medicos.fromJson(json['medico']),
+      procedimento: Procedimento.fromJson(json['procedimento']),
+      data: json['data'],
+      olho: json['olho'],
+      horario: json['horario'],
+      sequencial: json['sequencial'],
+      status: json['status'],
+      indicado: Usuario.fromJson(json['indicado']),
+      indicando: Usuario.fromJson(json['indicando']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'unidade': unidade.toJson(),
+      'convenios': convenios.toJson(),
+      'medico': medico.toJson(),
+      'procedimento': procedimento.toJson(),
+      'data': data,
+      'olho': olho,
+      'horario': horario,
+      'sequencial': sequencial,
+      'status': status,
+      'indicado': indicado.toJson(),
+      'indicando': indicando.toJson(),
+      'dataindicacao': dataindicacao,
+      'horaindicacao': horaindicacao,
+      'obs': obs,
+    };
+  }
 }

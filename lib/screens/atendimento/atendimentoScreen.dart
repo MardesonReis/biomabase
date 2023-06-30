@@ -6,6 +6,7 @@ import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/fidelimax.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
+import 'package:biomaapp/screens/atendimento/components/receitarOculos.dart';
 import 'package:biomaapp/screens/fidelimax/card_fidelimax.dart';
 import 'package:biomaapp/screens/home/components/meu_bioma.dart';
 import 'package:biomaapp/screens/profile/componets/dadosPerfil.dart';
@@ -134,22 +135,14 @@ class _AtendimentoScreenState extends State<AtendimentoScreen> {
                     title: Text(('Receitar Óculos')),
                     trailing: Icon(Icons.remove_red_eye_outlined),
                     onTap: () {
-                      auth.isAuth
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ListTile(
-                                  tileColor: primaryColor[100],
-                                  title:
-                                      Text(('Adicionar Imagem ao Prontuário')),
-                                  trailing:
-                                      Icon(Icons.picture_in_picture_rounded),
-                                ),
-                              ),
-                            ).whenComplete(() {
-                              setState(() {});
-                            })
-                          : showSnackBar(Text('Logar'), context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GlassesPrescriptionForm(),
+                        ),
+                      ).whenComplete(() {
+                        setState(() {});
+                      });
                     },
                   ),
                   SizedBox(height: defaultPadding),

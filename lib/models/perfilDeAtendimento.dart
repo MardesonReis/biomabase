@@ -80,6 +80,7 @@ class PerfilDeAtendimento with ChangeNotifier {
           tabop_quantidade: item['tabop_quantidade'].toString(),
           valor: item['valor'].toString(),
           frequencia: item['frequencia'].toString(),
+          textBusca: item['text_like'].toString(),
         ));
         // notifyListeners();
       },

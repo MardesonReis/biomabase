@@ -4,6 +4,7 @@ import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/especialidade.dart';
 import 'package:biomaapp/models/especialidades_list.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -27,11 +28,14 @@ class _EspecialidadesCardState extends State<EspecialidadesCard> {
   @override
   Widget build(BuildContext context) {
     EspecialidadesList especialidades = Provider.of(context, listen: false);
+    RegrasList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
 
     widget.fun = () {
       setState(() {
+        dt.limparDados();
+        filtros.LimparEspecialidades();
         filtros.especialidades.contains(widget.esp)
             ? filtros.removerEspacialidades(widget.esp)
             : filtros.addEspacialidades(widget.esp);

@@ -1,3 +1,4 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/monoBino.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/Clips.dart';
@@ -21,11 +22,13 @@ class PopoMenuUnidades extends StatefulWidget {
 }
 
 class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
-  ScrollController OlhoScrollController = ScrollController();
-  bool _isLoading = false;
+  var _isLoading = true;
 
   Unidade Unidades_selecionada =
       Unidade(cod_unidade: '00', des_unidade: 'Unidades');
+  @override
+  ScrollController OlhoScrollController = ScrollController();
+
   @override
   void initState() {
     Auth auth = Provider.of<Auth>(
@@ -53,40 +56,16 @@ class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
     var verifprocedimento = false;
     Auth auth = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
-    RegrasList dt = Provider.of(context, listen: false);
+    UnidadesList unlist = Provider.of(context, listen: false);
     UnidadesList DataUnidades = Provider.of(context);
-    Set<String> UnidadesIncluso = Set();
 
     Set<String> MedicosInclusos = Set();
     Set<String> EspecialidadesInclusas = Set();
 
-    mockResults = auth.filtrosativos.medicos;
-
     List<Especialidade> especialidades = [];
     var filtrarUnidade = filtros.unidades.isNotEmpty;
-    var filtrarConvenio = filtros.convenios.isNotEmpty;
-    var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
-    var filtrarGrupos = filtros.grupos.isNotEmpty;
-    var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    final dados = dt.dados;
-    List<Unidade> unidades = [];
 
-    dados
-        .map((e) => DataUnidades.items.where((element) {
-              if (element.cod_unidade.contains(e.cod_unidade)) {
-                if (!UnidadesIncluso.contains(element.cod_unidade)) {
-                  UnidadesIncluso.add(element.cod_unidade);
-
-                  setState(() {
-                    unidades.add(element);
-                  });
-                }
-                return true;
-              } else {
-                return false;
-              }
-            }).toList())
-        .toList();
+    List<Unidade> unidades = unlist.items;
 
     unidades.sort((a, b) => a.des_unidade.compareTo(b.des_unidade));
 
@@ -112,8 +91,8 @@ class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
     filtros.unidades.isNotEmpty
         ? Unidades_selecionada = filtros.unidades.first
         : Unidades_selecionada = uniPadrao;
-    return unidades.isEmpty
-        ? CircularProgressIndicator()
+    return _isLoading
+        ? Container(width: 50, child: ProgressIndicatorBioma())
         : PopupMenuButton<Unidade>(
             initialValue: Unidades_selecionada,
             child: Card(
@@ -125,7 +104,7 @@ class _PopoMenuUnidadesState extends State<PopoMenuUnidades> {
                     Row(
                       children: [
                         Text(Unidades_selecionada.cod_unidade != '00'
-                            ? (bildeUnidadeinf(Unidades_selecionada))
+                            ? ((Unidades_selecionada.des_unidade))
                             : Unidades_selecionada.des_unidade),
                         Icon(
                           Icons.expand_more_outlined,

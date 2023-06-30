@@ -39,6 +39,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:incrementally_loading_listview/incrementally_loading_listview.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -48,7 +49,6 @@ import 'package:intl/date_symbol_data_local.dart';
 class CalendarioScren extends StatefulWidget {
   VoidCallback press;
   VoidCallback refreshPage;
-  List<AgendaMedico> agenda = [];
 
   CalendarioScren({Key? key, required this.press, required this.refreshPage})
       : super(key: key);
@@ -97,18 +97,13 @@ class _CalendarioScrenState extends State<CalendarioScren> {
       context,
       listen: false,
     );
-    auth.atualizaAcesso(context, () {
-      list.listarDatas('0', 'N').then((value) {
-        setState(() {
-          widget.agenda = list.items;
-          _selectedDay = _focusedDay;
-          _selectedEvents = ValueNotifier([]);
+    list.listarDatas('0', 'N').then((value) {
+      setState(() {
+        _selectedDay = _focusedDay;
+        _selectedEvents = ValueNotifier([]);
 
-          _isLoadingAgenda = false;
-        });
+        _isLoadingAgenda = false;
       });
-    }).then((value) {
-      setState(() {});
     });
   }
 
@@ -133,139 +128,17 @@ class _CalendarioScrenState extends State<CalendarioScren> {
     Set<String> EspecialidadesInclusas = Set();
     Set<String> EventosInclusos = Set();
     List<AgendaMedico> result;
-
-    mockResults = auth.filtrosativos.medicos;
     List<Data> m = [];
-    List<Medicos> medicos = [];
-    List<Medicos> medicosPorData = [];
+
     var aFiltros = [];
-    var med = [];
+    List<Medicos> med = [];
     List<Especialidade> especialidades = [];
-    var filtrarUnidade = filtros.unidades.isNotEmpty;
-    var filtrarConvenio = filtros.convenios.isNotEmpty;
-    var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
-    var filtrarGrupos = filtros.grupos.isNotEmpty;
-    var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
+
     final kToday = DateTime.now();
     final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
     final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
-    var filtrarMedicos = filtros.medicos.isNotEmpty;
-    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
 
-    final dados = dt.dados;
-    if (filtrarProcedimento) {
-      dados.retainWhere((element) {
-        return filtros.procedimentos
-            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
-            .isNotEmpty;
-      });
-    }
-    if (filtrarMedicos) {
-      dados.retainWhere((element) {
-        return filtros.medicos
-            .where((m) => m.cod_profissional == element.cod_profissional)
-            .isNotEmpty;
-      });
-    }
-    dados.retainWhere((element) {
-      return filtrarUnidade
-          ? filtros.unidades.contains(Unidade(
-              cod_unidade: element.cod_unidade,
-              des_unidade: element.des_unidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarUnidade
-          ? filtros.unidades.contains(Unidade(
-              cod_unidade: element.cod_unidade,
-              des_unidade: element.des_unidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarConvenio
-          ? filtros.convenios.contains(Convenios(
-              cod_convenio: element.cod_convenio,
-              desc_convenio: element.desc_convenio))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarEspecialidade
-          ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
-              ativo: 'S'))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarSubEspecialidade
-          ? filtros.subespecialidades
-              .contains(SubEspecialidade(descricao: element.sub_especialidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return element.textBusca
-          .toLowerCase()
-          .contains(txtQuery.text.toLowerCase());
-    });
-    dados.retainWhere((element) {
-      return filtrarGrupos
-          ? filtros.grupos.contains(Grupo(descricao: element.grupo))
-          : true;
-    });
-
-    dados.map((e) {
-      Medicos med = Medicos();
-      med.cod_profissional = e.cod_profissional;
-      med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_especialidade;
-      med.crm = e.crm;
-      med.cpf = e.cpf;
-      med.idademin = e.idade_mim;
-      med.idademax = e.idade_max;
-      med.ativo = '1';
-      med.subespecialidade = e.sub_especialidade;
-      med.especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
-          ativo: 'S');
-
-      if (!MedicosInclusos.contains(e.cod_profissional)) {
-        MedicosInclusos.add(e.cod_profissional);
-
-        medicos.add(med);
-      }
-
-      if (!EspecialidadesInclusas.contains(e.cod_especialidade)) {
-        EspecialidadesInclusas.add(e.cod_especialidade);
-        especialidades.add(Especialidade(
-            codespecialidade: e.cod_especialidade,
-            descricao: e.des_especialidade,
-            ativo: 'S'));
-      }
-    }).toList();
-
-    medicos.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
-    especialidades.sort((a, b) => a.descricao.compareTo(b.descricao));
-
-    setState(() {
-      aFiltros = agenda.itemsDatas
-          .where((agenda) => medicos
-              .where((element) {
-                return element.cod_profissional == agenda.medico;
-              })
-              .toList()
-              .isNotEmpty)
-          .toList();
-      med = medicos
-          .where((medico) => aFiltros
-              .where((agenda) =>
-                  agenda.medico.contains(medico.cod_profissional) &&
-                  varificadata(DateTime.parse(agenda.data),
-                      _selectedDay ?? DateTime.now()))
-              .toList()
-              .isNotEmpty)
-          .toList();
-    });
+    List<Medicos> medicos = dt.returnMedicos('');
 
     List<LDatas> _getEventsForDay(DateTime d) {
       List<LDatas> result = [];
@@ -348,123 +221,124 @@ class _CalendarioScrenState extends State<CalendarioScren> {
       }
     }
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(40),
-          child: CustomAppBar('Buscar\n', 'Agenda', () {}, [])),
-      drawer: AppDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 100, bottom: 1, left: 1, right: 1),
-        child: RefreshIndicator(
-          onRefresh: () async {
-            var regraList = Provider.of<RegrasList>(
-              context,
-              listen: false,
-            );
-            //13978829304
-
-            var list = Provider.of<agendaMedicoList>(
-              context,
-              listen: false,
-            );
-            list.listarDatas('0', 'N').then((value) {
-              print(list.itemsDatas.length.toString());
-
-              setState(() {
-                widget.agenda = list.items;
-                _selectedDay = _focusedDay;
-                _selectedEvents = ValueNotifier([]);
-
-                _isLoadingAgenda = false;
-              });
-            });
-            await regraList.carrgardados(context, all: false, Onpress: () {
-              setState(() {
-                _isLoading = false;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AuthOrHomePage(),
-                  ),
-                ).then((value) {
-                  setState(() {});
-                });
-              });
-            });
-          },
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _isLoading
-                              ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ProgressIndicatorBioma())
-                              : IconButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      _isLoading = true;
-                                    });
-                                    var regraList = Provider.of<RegrasList>(
-                                      context,
-                                      listen: false,
-                                    );
-                                    //13978829304
-
-                                    await regraList.carrgardados(context,
-                                        all: true, Onpress: () {
-                                      setState(() {
-                                        _isLoading = false;
-                                      });
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              AuthOrHomePage(),
-                                        ),
-                                      ).then((value) {
-                                        setState(() {});
-                                      });
-                                    });
-                                  },
-                                  icon: Icon(Icons.refresh)),
-                          PopMenuConvenios(() {
-                            setState(() {
-                              widget.press;
-                            });
-                          }),
-                          PopMenuEspecialidade(() {
-                            setState(() {});
-                          }),
-                          PopMenuSubEspecialidades(() {
-                            setState(() {});
-                          }),
-                          PopMenuGrupo(() {
-                            setState(() {});
-                          }),
-                          PopoMenuUnidades(() {
-                            setState(() {});
-                          })
-                        ],
-                      ),
+    ListarMedicos() {
+      setState(() {
+        aFiltros = agenda.itemsDatas
+            .where((agenda) => medicos
+                .where((element) {
+                  return element.cod_profissional == agenda.medico;
+                })
+                .toList()
+                .isNotEmpty)
+            .toList();
+        med = medicos
+            .where((medico) => aFiltros
+                .where((agenda) =>
+                    agenda.medico.contains(medico.cod_profissional) &&
+                    varificadata(DateTime.parse(agenda.data),
+                        _selectedDay ?? DateTime.now()))
+                .toList()
+                .isNotEmpty)
+            .toList();
+      });
+      showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return med.isEmpty
+              ? Text('Não há especialista para termo ou dia buscado')
+              : StatefulBuilder(
+                  builder: (BuildContext context, StateSetter mystate) {
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text('Médicos que dispoível para ' +
+                              _selectedDay!.day.toString() +
+                              '/' +
+                              _selectedDay!.month.toString() +
+                              '/' +
+                              _selectedDay!.year.toString()),
+                        ),
+                        Container(
+                          height: tela(context).height * 0.6,
+                          child: IncrementallyLoadingListView(
+                            //  controller: scroll_controller,
+                            hasMore: () => !dt.limit,
+                            loadMore: () async {
+                              await dt.loadMore(context).then((value) {
+                                mystate(() async {});
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              return DoctorInfor(
+                                doctor: med[index],
+                                press: () async {
+                                  mystate(() {
+                                    widget.press.call();
+                                  });
+                                },
+                              );
+                            },
+                            itemCount: () {
+                              // setState(() {});
+                              return med.length;
+                            },
+                            onLoadMore: () {
+                              mystate(() {
+                                dt.seemore = true;
+                              });
+                            },
+                            onLoadMoreFinished: () {
+                              mystate(() {
+                                dt.seemore = false;
+                              });
+                            },
+                            separatorBuilder: (_, __) => Divider(),
+                            loadMoreOffsetFromBottom: 2,
+                          ),
+                        ),
+                        if (dt.seemore == true)
+                          Padding(
+                              padding: EdgeInsets.all(10),
+                              child:
+                                  Container(child: ProgressIndicatorBioma())),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                });
+        },
+      ).then((value) {
+        setState(() {});
+      });
+    }
 
-                Column(
+    var busca = _isLoadingAgenda == false && dt.returnMedicos('').isEmpty;
+    var a;
+    a = dt.seemore == true
+        ? a = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(child: Text('')),
+          )
+        : dt.like.trim().isNotEmpty
+            ? a = Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(child: Text('Informe termos de busca válido')),
+              )
+            : a = Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(child: Text('Informe termos de busca')),
+              );
+
+    return _isLoadingAgenda
+        ? Column(
+            children: [
+              Center(child: CircularProgressIndicator()),
+            ],
+          )
+        : dt.returnMedicos('').isEmpty
+            ? a
+            : SingleChildScrollView(
+                child: Column(
                   children: [
                     TableCalendar<LDatas>(
                       locale: 'pt_BR',
@@ -499,7 +373,13 @@ class _CalendarioScrenState extends State<CalendarioScren> {
                         // Use `CalendarStyle` to customize the UI
                         outsideDaysVisible: false,
                       ),
-                      onDaySelected: _onDaySelected,
+                      onDaySelected: (selectedDay, focusedDay) {
+                        setState(() {
+                          _onDaySelected(selectedDay, focusedDay);
+                        });
+
+                        ListarMedicos();
+                      },
                       onRangeSelected: _onRangeSelected,
                       onFormatChanged: (format) {
                         if (_calendarFormat != format) {
@@ -509,124 +389,14 @@ class _CalendarioScrenState extends State<CalendarioScren> {
                         }
                       },
                       onPageChanged: (focusedDay) {
-                        _focusedDay = focusedDay;
+                        setState(() {
+                          _focusedDay = focusedDay;
+                        });
                       },
                     ),
-                    SizedBox(
-                      height: defaultPadding,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        keyboardType: TextInputType.text,
-                        controller: txtQuery,
-                        onChanged: (String) {
-                          setState(() {});
-                        },
-                        decoration: InputDecoration(
-                          hintText: "Buscar Especialistas",
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4.0)),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black)),
-                          prefixIcon: Icon(Icons.search),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              txtQuery.text = '';
-                              setState(() {
-                                mockResults.clear();
-                                //buscarQuery(txtQuery.text);
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                    FiltroAtivosScren(press: () {
-                      setState(() {
-                        widget.refreshPage.call();
-                      });
-                    }),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SectionTitle(
-                        title: "Todos os Especialistas",
-                        pressOnSeeAll: () {
-                          setState(() {
-                            pages.selecionarPaginaHome('Especialistas');
-                          });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DoctorsScreen(),
-                            ),
-                          );
-                        },
-                        OnSeeAll: false,
-                      ),
-                    ),
-                    aFiltros.isEmpty || med.isEmpty
-                        ? Text('Não há especialista para termo ou dia buscado')
-                        : SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            //  physics: BouncingScrollPhysics(),
-                            child: Column(
-                              children: List.generate(
-                                med.length,
-                                (index) => DoctorInfor(
-                                  doctor: med[index],
-                                  press: () async {
-                                    setState(() {
-                                      filtros.LimparMedicos();
-                                      filtros.addMedicos(med[index]);
-                                      widget.press.call();
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
                   ],
                 ),
-
-                // const SizedBox(height: 8.0),
-                // Expanded(
-                //   child: ValueListenableBuilder<List<Event>>(
-                //     valueListenable: _selectedEvents,
-                //     builder: (context, value, _) {
-                //       return ListView.builder(
-                //         itemCount: value.length,
-                //         itemBuilder: (context, index) {
-                //           return Container(
-                //             margin: const EdgeInsets.symmetric(
-                //               horizontal: 12.0,
-                //               vertical: 4.0,
-                //             ),
-                //             decoration: BoxDecoration(
-                //               border: Border.all(),
-                //               borderRadius: BorderRadius.circular(12.0),
-                //             ),
-                //             child: ListTile(
-                //               onTap: () => print('${value[index]}'),
-                //               title: Text('${value[index]}'),
-                //             ),
-                //           );
-                //         },
-                //       );
-                //     },
-                //   ),
-                // ),
-
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.3,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+              );
   }
 
   varificadata(DateTime d1, DateTime d2) {

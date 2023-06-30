@@ -31,7 +31,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:qr_flutter/qr_flutter.dart' as dr;
 
 class NovaIndicacao extends StatefulWidget {
   String IdIndicacao;
@@ -48,7 +48,7 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
   Set<String> Id_indicacao_Inclusas = Set();
   Set<String> MedicosInclusos = Set();
   List<Indicacao> itens = [];
-  Medicos especialista = Medicos();
+  late Medicos especialista;
   bool isError = false;
 
   @override
@@ -66,8 +66,7 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
       setState(() {
         itens = value;
       });
-      especialista.BuscarMedicoPorId(indicacoes.items.first.cod_especialista)
-          .then((value) {
+      Medicos.toId(indicacoes.items.first.cod_especialista).then((value) {
         setState(() {
           especialista = value;
           _isLoading = false;
@@ -303,21 +302,12 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
                                             ),
                                           ),
                                         ),
-                                        QrImage(
+                                        dr.QrImageView(
                                           data:
                                               'http://bioma.app.br?id_indicacao=' +
                                                   widget.IdIndicacao,
-                                          version: QrVersions.auto,
-                                          size: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.5,
-                                          gapless: false,
-                                          //embeddedImage: AssetImage('assets/imagens/biomaLogo.png'),
-                                          embeddedImageStyle:
-                                              QrEmbeddedImageStyle(
-                                            size: Size(80, 80),
-                                          ),
+                                          version: dr.QrVersions.auto,
+                                          size: 200.0,
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
@@ -368,7 +358,7 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
     IndicacoesList dt = Provider.of(context, listen: false);
     Auth auth = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
-    Medicos medico = Medicos();
+
     Procedimento procedimentos = Procedimento();
 
     return Card(
@@ -378,7 +368,7 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
         title: Text(i.des_procedimento),
         trailing: IconButton(
             onPressed: () async {
-              medico = await medico.BuscarMedicoPorId(i.cod_especialista);
+              Medicos medico = await Medicos.toId(i.cod_especialista);
               procedimentos.loadProcedimentosID(i.cod_especialista, '0', '0',
                   i.cod_unidade, i.cod_procedimento, i.cod_convenio);
 

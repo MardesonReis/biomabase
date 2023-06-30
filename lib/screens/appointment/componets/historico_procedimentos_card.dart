@@ -124,8 +124,8 @@ class _EmptyContentsState extends State<_EmptyContents> {
       isThreeLine: true,
       trailing: IconButton(
           onPressed: () async {
-            Medicos medico = await Medicos()
-                .BuscarMedicoPorId(widget.agendamento.cod_profissional);
+            Medicos medico =
+                await Medicos.toId(widget.agendamento.cod_profissional);
             Procedimento procedimento = await Procedimento();
             procedimento
                 .loadProcedimentosID(

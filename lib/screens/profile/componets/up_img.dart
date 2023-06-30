@@ -1,12 +1,7 @@
-import 'dart:typed_data';
-
-import 'package:badges/badges.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
-import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/fidelimax.dart';
-import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/app_drawer.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
@@ -30,12 +32,15 @@ import 'package:biomaapp/screens/especialidades/components/popMenuUnidades.dart'
 import 'package:biomaapp/screens/home/components/card_especialidades.dart';
 import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
 import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
+import 'package:biomaapp/screens/servicos/componets/searchScreen.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:incrementally_loading_listview/incrementally_loading_listview.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 class EspecialistasScreenn extends StatefulWidget {
@@ -53,250 +58,101 @@ class EspecialistasScreenn extends StatefulWidget {
 class _EspecialistasScreenState extends State<EspecialistasScreenn> {
   bool _isLoading = true;
   final textEditingController = TextEditingController();
-  TextEditingController txtQuery = new TextEditingController();
   final ScrollController controller = ScrollController();
+  final StreamController _stream = StreamController.broadcast();
+  late ScrollController scroll_controller = ScrollController();
+  late ScrollNotification _notification;
+  Future? _initialLoad;
 
   @override
   void initState() {
-    if (!mounted) return;
-    Auth auth = Provider.of<Auth>(
+    var dt = Provider.of<RegrasList>(
       context,
       listen: false,
     );
-
-    auth.atualizaAcesso(context, () {
-      setState(() {
-        _isLoading = false;
-      });
-    }).then((value) {
-      setState(() {
-        //  _isLoading = false;
-      });
+    _initialLoad = dt.loadMore(context).then((value) {
+      setState(() {});
     });
+    super.initState();
+  }
+
+  void dispose() {
+    _stream.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    RegrasList dt = Provider.of(context, listen: false);
-    AgendamentosList historico = Provider.of(context);
+    RegrasList dt = Provider.of(context);
 
     Auth auth = Provider.of(context);
-    Paginas pages = auth.paginas;
 
     filtrosAtivos filtros = auth.filtrosativos;
-    Set<String> MedicosInclusos = Set();
-    Set<String> UltimosMedicosInclusos = Set();
-    Set<String> EspecialidadesInclusas = Set();
 
-    mockResults = auth.filtrosativos.medicos;
-    List<Data> m = [];
-    List<Medicos> medicos = [];
-    List<Especialidade> especialidades = [];
-    var filtrarUnidade = filtros.unidades.isNotEmpty;
-    var filtrarConvenio = filtros.convenios.isNotEmpty;
-    var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
-    var filtrarGrupos = filtros.grupos.isNotEmpty;
-    var filtrarSubEspecialidade = filtros.subespecialidades.isNotEmpty;
-    var filtrarMedicos = filtros.medicos.isNotEmpty;
-    var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
+    List<Medicos> medicos = dt.returnMedicos('');
 
-    final dados = dt.dados;
-    if (filtrarProcedimento) {
-      dados.retainWhere((element) {
-        return filtros.procedimentos
-            .where((m) => m.cod_procedimentos == element.cod_procedimentos)
-            .isNotEmpty;
-      });
-    }
-    if (filtrarMedicos) {
-      dados.retainWhere((element) {
-        return filtros.medicos
-            .where((m) => m.cod_profissional == element.cod_profissional)
-            .isNotEmpty;
-      });
-    }
-    dados.retainWhere((element) {
-      return filtrarUnidade
-          ? filtros.unidades.contains(Unidade(
-              cod_unidade: element.cod_unidade,
-              des_unidade: element.des_unidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarConvenio
-          ? filtros.convenios.contains(Convenios(
-              cod_convenio: element.cod_convenio,
-              desc_convenio: element.desc_convenio))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarEspecialidade
-          ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
-              ativo: 'S'))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return filtrarSubEspecialidade
-          ? filtros.subespecialidades
-              .contains(SubEspecialidade(descricao: element.sub_especialidade))
-          : true;
-    });
-    dados.retainWhere((element) {
-      return element.des_profissional
-          .toLowerCase()
-          .contains(txtQuery.text.toLowerCase());
-    });
-    dados.retainWhere((element) {
-      return filtrarGrupos
-          ? filtros.grupos.contains(Grupo(descricao: element.grupo))
-          : true;
-    });
+    // medicos.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
 
-    dados.map((e) {
-      Medicos med = Medicos();
-      med.cod_profissional = e.cod_profissional;
-      med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_especialidade;
-      med.crm = e.crm;
-      med.cpf = e.cpf;
-      med.idademin = e.idade_mim;
-      med.idademax = e.idade_max;
-      med.ativo = '1';
-      med.subespecialidade = e.sub_especialidade;
-      med.especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
-          ativo: 'S');
+    var busca = dt.seemore == false && dt.like.isNotEmpty && dt.dados.isEmpty;
 
-      if (!MedicosInclusos.contains(e.cod_profissional)) {
-        MedicosInclusos.add(e.cod_profissional);
-        medicos.add(med);
-      }
+    var a;
 
-      if (!EspecialidadesInclusas.contains(e.cod_especialidade)) {
-        EspecialidadesInclusas.add(e.cod_especialidade);
-        especialidades.add(Especialidade(
-            codespecialidade: e.cod_especialidade,
-            descricao: e.des_especialidade,
-            ativo: 'S'));
-      }
-    }).toList();
-    medicos.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
-    especialidades.sort((a, b) => a.descricao.compareTo(b.descricao));
+    a = dt.like.trim().isEmpty
+        ? a = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(child: Text('Informe termos para busca')),
+          )
+        : a = Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text('Nada encontrado para o termo de busca informado')),
+          );
 
-    return _isLoading
-        ? Center(child: ProgressIndicatorBioma())
-        : Padding(
-            padding:
-                const EdgeInsets.only(top: 100, bottom: 1, left: 1, right: 1),
-            child: Container(
-              //  height: MediaQuery.of(context).size.height - 200,
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  var regraList = Provider.of<RegrasList>(
-                    context,
-                    listen: false,
+    return busca
+        ? a
+        : FutureBuilder(
+            future: _initialLoad,
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                // return Center(child: ProgressIndicatorBioma());
+
+                case ConnectionState.done:
+                  return IncrementallyLoadingListView(
+                    //  controller: scroll_controller,
+                    hasMore: () => !dt.limit,
+                    loadMore: () async {
+                      await dt.loadMore(context);
+                    },
+                    itemBuilder: (context, index) {
+                      return DoctorInfor(
+                        doctor: medicos[index],
+                        press: () async {
+                          setState(() {
+                            widget.press.call();
+                          });
+                        },
+                      );
+                    },
+                    itemCount: () => medicos.length,
+                    onLoadMore: () {
+                      setState(() {
+                        dt.seemore = true;
+                      });
+                    },
+                    onLoadMoreFinished: () {
+                      setState(() {
+                        dt.seemore = false;
+                      });
+                    },
+                    separatorBuilder: (_, __) => Divider(),
+                    loadMoreOffsetFromBottom: 2,
                   );
-                  //13978829304
-
-                  await regraList.carrgardados(context, all: true, Onpress: () {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AuthOrHomePage(),
-                      ),
-                    ).then((value) {
-                      setState(() {});
-                    });
-                  });
-                },
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      filtrosScreen(press: () {
-                        setState(() {});
-                      }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          keyboardType: TextInputType.text,
-                          controller: txtQuery,
-                          onChanged: (String) {
-                            setState(() {});
-                          },
-                          decoration: InputDecoration(
-                            hintText: "Buscar Especialistas",
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4.0)),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.black)),
-                            prefixIcon: Icon(Icons.search),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.clear),
-                              onPressed: () {
-                                txtQuery.text = '';
-                                setState(() {
-                                  mockResults.clear();
-                                  //buscarQuery(txtQuery.text);
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      FiltroAtivosScren(press: () {
-                        setState(() {
-                          widget.refreshPage.call();
-                        });
-                      }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SectionTitle(
-                          title: "Todos os Especialistas",
-                          pressOnSeeAll: () {
-                            setState(() {
-                              pages.selecionarPaginaHome('Especialistas');
-                            });
-                          },
-                          OnSeeAll: false,
-                        ),
-                      ),
-                      if (medicos.isNotEmpty)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          physics: BouncingScrollPhysics(),
-                          child: Column(
-                            children: List.generate(
-                              medicos.length,
-                              (i) => DoctorInfor(
-                                doctor: medicos[i],
-                                press: () async {
-                                  setState(() {
-                                    filtros.LimparMedicos();
-                                    filtros.addMedicos(medicos[i]);
-                                    widget.press.call();
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                  break;
+                default:
+                  return Text('Tem algo errado, verifique sua internet');
+              }
+            },
           );
   }
 }

@@ -1,10 +1,15 @@
+import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/infor_unidade.dart';
 import 'package:biomaapp/constants.dart';
 import 'package:biomaapp/models/auth.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
+import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/models/unidades_list.dart';
+import 'package:biomaapp/screens/servicos/componets/FiltrosScreen.dart';
+import 'package:biomaapp/screens/servicos/componets/filtroAtivosScren.dart';
 import 'package:biomaapp/screens/servicos/componets/localizacao.dart';
+import 'package:biomaapp/screens/servicos/componets/searchScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -48,8 +53,77 @@ class _BuildLocalizacaoState extends State<BuildLocalizacao> {
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of(context);
+    RegrasList dt = Provider.of(context);
     filtrosAtivos filtros = auth.filtrosativos;
     UnidadesList BaseUnidades = Provider.of(context);
+    iniciarBusca() {
+      if (dt.limit) {
+        return false;
+      }
+      setState(() {
+        dt.isLoading = true;
+        dt.seemore = true;
+
+        dt.buscar(context).then((value) {
+          setState(() {
+            dt.seemore = false;
+
+            dt.isLoading = false;
+          });
+        });
+      });
+    }
+
+    BuscarLocalizacao() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Scaffold(
+                  //  drawer: AppDrawer(),
+                  extendBodyBehindAppBar: true,
+                  appBar: PreferredSize(
+                      preferredSize:
+                          Size.fromHeight(tela(context).height * (0.35)),
+                      child: Container(
+                        child: Column(
+                          children: [
+                            CustomAppBar('Buscar\n', 'Localizacao', () {}, []),
+                            filtrosScreen(press: () {
+                              // filtros.medicos.clear();
+                              // dt.limparDados();
+                              iniciarBusca();
+                            }),
+                            FiltroAtivosScren(press: () {
+                              setState(() {
+                                //  dt.limparDados();
+
+                                iniciarBusca();
+                              });
+                            }),
+                            searchScreen(press: () {
+                              setState(() {
+                                setState(() {});
+                              });
+                            }),
+                          ],
+                        ),
+                      )),
+                  body: Localizacao(
+                    press: () {
+                      Navigator.pop(context);
+                      widget.press.call();
+                    },
+                    refreshPage: () {
+                      widget.press.call();
+                    },
+                  ),
+                )),
+      ).then((value) => {
+            setState(() {
+              widget.refreshPage.call();
+            }),
+          });
+    }
 
     return _isLoadUnidades
         ? CircularProgressIndicator()
@@ -60,27 +134,20 @@ class _BuildLocalizacaoState extends State<BuildLocalizacao> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Visibility(
+                      visible: (dt.seemore == true || dt.isLoading == true),
+                      child: Wrap(
+                        children: [
+                          Padding(
+                              padding: EdgeInsets.all(10),
+                              child:
+                                  Container(child: ProgressIndicatorBioma())),
+                        ],
+                      )),
+                  Visibility(
                     visible: filtros.unidades.isEmpty,
                     child: FloatingActionButton.extended(
                       onPressed: () {
-                        setState(() {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Localizacao(
-                                press: () {
-                                  setState(() {
-                                    Navigator.pop(context);
-                                  });
-                                },
-                              ),
-                            ),
-                          ).then((value) => {
-                                setState(() {
-                                  widget.refreshPage.call();
-                                }),
-                              });
-                        });
+                        BuscarLocalizacao();
                       },
                       label: Text('Clique para informar'),
                       backgroundColor: primaryColor,
@@ -128,22 +195,7 @@ class _BuildLocalizacaoState extends State<BuildLocalizacao> {
                                     : BaseUnidades.items.first,
                                 () {
                                   setState(() {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Localizacao(
-                                          press: () {
-                                            setState(() {
-                                              Navigator.pop(context);
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ).then((value) => {
-                                          setState(() {
-                                            widget.refreshPage.call();
-                                          }),
-                                        });
+                                    BuscarLocalizacao();
                                   });
                                 },
                               ),

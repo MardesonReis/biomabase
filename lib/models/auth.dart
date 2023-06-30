@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:biomaapp/constants.dart';
-import 'package:biomaapp/models/data_list.dart';
+import 'package:biomaapp/models/BottonMenuMinhaSaudePages.dart';
 import 'package:biomaapp/models/filtrosAtivos.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/regras_list.dart';
+import 'package:biomaapp/models/unidades_list.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:biomaapp/data/store.dart';
@@ -23,6 +24,7 @@ class Auth with ChangeNotifier {
   Fidelimax fidelimax = new Fidelimax();
   filtrosAtivos? _filtros = new filtrosAtivos();
   Paginas? _pgs = new Paginas();
+  BottonMenuMinhaSaudePages? BottonMinhaSaude = new BottonMenuMinhaSaudePages();
   DateTime? _expiryDate;
   Timer? _logoutTimer;
 
@@ -60,23 +62,34 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> atualizaAcesso(BuildContext context, VoidCallback press) async {
-    getico('assets/icons/bioma_maps.png', () {}, this.filtrosativos)
-        .then((value) {
-      this.filtrosativos.markerIcon = value;
-      //  press.call();
-    });
     var regraList = Provider.of<RegrasList>(
       context,
       listen: false,
     );
-    this.tryAutoLogin().then((value) async {
-      if (this.isAuth && this.fidelimax.cpf == '') {
+
+    UnidadesList ListUnidade = Provider.of<UnidadesList>(
+      context,
+      listen: false,
+    );
+
+    if (ListUnidade.items.isEmpty) {
+      await ListUnidade.loadUnidades('0').then((value) {});
+    }
+
+    await this.tryAutoLogin().then((value) async {
+      if (this.isAuth &&
+          (this.fidelimax.cpf.trim().isEmpty || this.fidelimax.nome.isEmpty)) {
+        await getico('assets/icons/bioma_maps.png', () {}, this.filtrosativos)
+            .then((value) {
+          this.filtrosativos.markerIcon = value;
+          //  press.call();
+        });
         this
             .fidelimax
             .ListCpfFidelimax(this.userId ?? '', this.token ?? '')
             .then((value) async {
           this.fidelimax.cpf = value;
-          //   press.call();
+          //  press.call();
 
           await this.fidelimax.ConsultaConsumidor(value).then((value2) async {
             this.fidelimax.cpf = value;
@@ -86,20 +99,12 @@ class Auth with ChangeNotifier {
                 .RetornaDadosCliente(this.fidelimax.cpf)
                 .then((value) async {
               this.fidelimax = value;
-              // press.call();
-
-              //   auth.fidelimax = value;
-
-              await regraList.carrgardados(context, Onpress: () {
-                press.call();
-              }, all: true);
+              press.call();
             });
           });
         });
       } else {
-        await regraList.carrgardados(context, Onpress: () {
-          press.call();
-        });
+        press.call();
       }
     });
   }

@@ -299,7 +299,7 @@ class _AgendarState extends State<Agendar> {
                   ProcedimentosInfor(
                       procedimento: widget.procedimentos, press: () {}),
 
-                  widget.doctor.cod_especialidade == '1'
+                  widget.doctor.especialidade.codespecialidade == '1'
                       ? monoBino(widget.procedimentos, () {
                           setState(() {});
                         })

@@ -99,7 +99,7 @@ class _CalendarioViewState extends State<CalendarioView> {
     filtrosAtivos filtros = auth.filtrosativos;
 
     final dados = dt.dados;
-
+    agenda = agenda + filtros.hora_extra;
     meses.clear();
     dias.clear();
     horarios.clear();

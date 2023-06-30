@@ -53,7 +53,7 @@ class _FiltrosAtivosAgendamentoState extends State<FiltrosAtivosAgendamento> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: widget.doctor.cod_especialidade == '1'
+                  child: widget.doctor.especialidade.codespecialidade == '1'
                       ? Text(
                           olhoDescritivo[widget.procedimentos.olho] as String)
                       : SizedBox(),

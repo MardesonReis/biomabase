@@ -55,9 +55,7 @@ class _InforUnidadeState extends State<InforUnidade> {
         .first;
 
     getDistance(unidade.latitude, unidade.longitude).then((value) {
-      setState(() {
-        unidade.distancia = value;
-      });
+      unidade.distancia = value;
     });
 
     //var unidade = widget.unidade;

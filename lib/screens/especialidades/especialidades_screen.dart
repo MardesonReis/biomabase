@@ -97,10 +97,15 @@ class _EspecialidadesScreenState extends State<EspecialidadesScreen> {
     });
 
     dados.map((e) {
-      Medicos med = Medicos();
+      var esp = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
+
+      Medicos med = Medicos(especialidade: esp);
       med.cod_profissional = e.cod_profissional;
       med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_especialidade;
+
       med.crm = e.crm;
       med.cpf = e.cpf;
       med.idademin = e.idade_mim;

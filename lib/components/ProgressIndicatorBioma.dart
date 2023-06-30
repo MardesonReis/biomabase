@@ -10,11 +10,14 @@ class ProgressIndicatorBioma extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset(
-            'assets/imagens/carregando.gif', // Put your gif into the assets folder
-            width: MediaQuery.of(context).size.width * 0.1,
+        child: Card(
+          elevation: 8,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              'assets/imagens/carregando.gif', // Put your gif into the assets folder
+              width: MediaQuery.of(context).size.width * 0.1,
+            ),
           ),
         ),
       ),

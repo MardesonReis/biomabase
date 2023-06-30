@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as bdg;
 import 'package:biomaapp/components/custom_app_bar.dart';
 import 'package:biomaapp/components/section_title.dart';
 import 'package:biomaapp/constants.dart';
@@ -17,7 +17,6 @@ import 'package:biomaapp/screens/doctors/components/doctor_details_screen.dart';
 import 'package:biomaapp/screens/pedidos/components/agendar_list.dart';
 import 'package:biomaapp/screens/pedidos/components/indicacar_list.dart';
 import 'package:biomaapp/screens/user/components/user_card.dart';
-import 'package:biomaapp/screens/user/components/user_screen.dart';
 import 'package:biomaapp/utils/app_routes.dart';
 import 'package:biomaapp/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +187,7 @@ class _OrdersPageState extends State<OrdersPage> {
                   menu.length,
                   (index) => Padding(
                     padding: const EdgeInsets.all(15),
-                    child: Badge(
+                    child: bdg.Badge(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -225,11 +224,11 @@ class _OrdersPageState extends State<OrdersPage> {
                           .toList()
                           .isNotEmpty,
                       toAnimate: true,
-                      shape: BadgeShape.square,
+                      shape: bdg.BadgeShape.square,
                       //   ignorePointer: true,
                       badgeColor: redColor,
                       borderRadius: BorderRadius.circular(100),
-                      position: BadgePosition.topEnd(top: -10, end: -20),
+                      position: bdg.BadgePosition.topEnd(top: -10, end: -20),
                       badgeContent: Padding(
                         padding: const EdgeInsets.all(1),
                         child: Text(filtros.fila

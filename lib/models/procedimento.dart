@@ -103,4 +103,41 @@ class Procedimento with ChangeNotifier {
 
     return pr;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'convenio': convenio.toJson(),
+      'cod_procedimentos': cod_procedimentos.toString(),
+      'des_procedimentos': des_procedimentos.toString(),
+      'orientacoes': orientacoes.toString(),
+      'valor': valor.toString(),
+      'valor_sugerido': valor_sugerido.toString(),
+      'des_tratamento': des_tratamento.toString(),
+      'cod_tratamento': cod_tratamento.toString(),
+      'especialidade': especialidade.toJson(),
+      'grupo': grupo.toString(),
+      'frequencia': frequencia.toString(),
+      'quantidade': quantidade.toString(),
+      'olho': olho.toString(),
+    };
+  }
+
+  factory Procedimento.fromJson(Map<String, dynamic> json) {
+    return Procedimento()
+      ..convenio = Convenios.fromJson(json['convenio'])
+      ..cod_procedimentos = json['cod_procedimentos']
+      ..des_procedimentos = json['des_procedimentos']
+      ..orientacoes = json['orientacoes']
+      ..valor = json['valor']
+      ..valor_sugerido = json['valor_sugerido']
+      ..des_tratamento = json['des_tratamento']
+      ..cod_tratamento = json['cod_tratamento']
+      ..especialidade = Especialidade.fromJson(json['especialidade'])
+      ..grupo = json['grupo']
+      ..frequencia = json['frequencia']
+      ..quantidade = json['quantidade']
+      ..olho = json['olho'];
+  }
+
+  // Restante da implementação da classe Procedimento...
 }

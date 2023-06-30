@@ -27,8 +27,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedPage = 0;
   bool _expanded = false;
   bool _isLoading = true;
-  bool _isLoadingAgendamento = true;
-  bool _isLoadingIcon = true;
+
   List<Regra> regras = [];
   @override
   void initState() {
@@ -43,24 +42,13 @@ class _MainScreenState extends State<MainScreen> {
       context,
       listen: false,
     );
-    UnidadesList ListUnidade = Provider.of<UnidadesList>(
-      context,
-      listen: false,
-    );
+
     filtrosAtivos filtros = auth.filtrosativos;
-    auth.atualizaAcesso(context, () {
-      if (ListUnidade.items.isEmpty) {
-        ListUnidade.loadUnidades('0').then((value) {
-          setState(() {
-            _isLoading = false;
-          });
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }).then((value) {});
+    auth.atualizaAcesso(context, () {}).then((value) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override

@@ -1,6 +1,5 @@
 import 'package:biomaapp/components/ProgressIndicatorBioma.dart';
 import 'package:biomaapp/constants.dart';
-import 'package:biomaapp/models/data_list.dart';
 import 'package:biomaapp/models/paginas.dart';
 import 'package:biomaapp/models/regras_list.dart';
 import 'package:biomaapp/screens/appointment/appointment_screen.dart';
@@ -11,16 +10,14 @@ import 'package:biomaapp/screens/auth/auth_or_home_page.dart';
 import 'package:biomaapp/screens/auth/auth_page.dart';
 import 'package:biomaapp/screens/auth/logar.dart';
 import 'package:biomaapp/screens/pedidos/indicacoes_screen.dart';
-import 'package:biomaapp/screens/pedidos/navaIndicacao.dart';
 import 'package:biomaapp/screens/profile/profile_screen.dart';
-import 'package:biomaapp/screens/servicos/ServicosScreen.dart';
-import 'package:biomaapp/screens/servicos/componets/localizacaoScreen.dart';
-import 'package:biomaapp/screens/user/components/user_screen.dart';
+import 'package:biomaapp/screens/saude/minhasaudePage.dart';
+import 'package:biomaapp/screens/user/components/user_card.dart';
 import 'package:biomaapp/screens/user/user_page.dart';
+import 'package:biomaapp/screens/vouches/VoucherViwer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:biomaapp/models/auth.dart';
-import 'package:biomaapp/utils/app_routes.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -88,226 +85,260 @@ class _AppDrawerState extends State<AppDrawer> {
 
     return _isLoading
         ? Center(child: ProgressIndicatorBioma())
-        : Drawer(
-            // backgroundColor: primaryColor,
-            child: Column(
-              children: [
-                AppBar(
-                  title: Column(
-                    children: [
-                      if (!auth.isAuth)
-                        Logar(
-                            fun: () {
-                              setState(() {});
-                            },
-                            widAtual: AuthOrHomePage()),
-                      if (auth.isAuth)
-                        Text(
-                            'Olá, ${auth.fidelimax.nome.toString().split(' ')[0]}'),
-                    ],
-                  ),
-                  automaticallyImplyLeading: false,
-                ),
-                ListTile(
-                  leading: Icon(Icons.search),
-                  title: Text('Buscar'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AuthOrHomePage(),
-                      ),
-                    ).whenComplete(() {
-                      setState(() {});
-                    });
-                    ;
-                  },
-                ),
-                if (false)
+        : SafeArea(
+            child: Drawer(
+              // backgroundColor: primaryColor,
+              child: Column(
+                children: [
+                  if (!auth.isAuth)
+                    Logar(
+                        fun: () {
+                          setState(() {});
+                        },
+                        widAtual: AuthOrHomePage()),
+                  if (auth.isAuth)
+                    UserCard(user: auth.fidelimax.usuario, press: () {}),
                   ListTile(
-                    leading: Icon(Icons.search),
-                    title: Text('Atendimento'),
+                    leading: Icon(
+                      Icons.home,
+                      color: primaryColor,
+                    ),
+                    title: Text('Home'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AuthOrHomePage(),
+                        ),
+                      ).whenComplete(() {
+                        setState(() {});
+                      });
+                      ;
+                    },
+                  ),
+                  if (auth.isAuth)
+                    ListTile(
+                      leading: Icon(
+                        Icons.home,
+                        color: redColor,
+                      ),
+                      title: Text('Gerar Voucher'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VoucherViwer(),
+                          ),
+                        ).whenComplete(() {
+                          setState(() {});
+                        });
+                        ;
+                      },
+                    ),
+
+                  if (true)
+                    ListTile(
+                      leading: Icon(Icons.search, color: primaryColor),
+                      title: Text('Atendimento'),
+                      onTap: () {
+                        auth.isAuth
+                            ? Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AgendaMedicoScreen(
+                                      press: () {}, refreshPage: () {}),
+                                ),
+                              ).whenComplete(() {
+                                setState(() {});
+                              })
+                            : logar(AgendaMedicoScreen(
+                                press: () {}, refreshPage: () {}));
+                        ;
+                      },
+                    ),
+
+                  // Divider(),
+
+                  ListTile(
+                    leading:
+                        Icon(Icons.monitor_heart_outlined, color: primaryColor),
+                    title: Text('Minha Saúde'),
                     onTap: () {
                       auth.isAuth
                           ? Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AgendaMedicoScreen(
-                                    press: () {}, refreshPage: () {}),
+                                builder: (context) => MinhaSaudePage(),
                               ),
                             ).whenComplete(() {
                               setState(() {});
                             })
-                          : logar(AgendaMedicoScreen(
-                              press: () {}, refreshPage: () {}));
-                      ;
+                          : logar(MinhaSaudePage());
                     },
                   ),
-
-                // Divider(),
-
-                ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text('Meus Amigos'),
-                  onTap: () {
-                    auth.isAuth
-                        ? Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => UsersPage(press: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AppointmentScreen(
-                                      press: () {},
-                                    ),
-                                  ),
-                                ).whenComplete(() {
-                                  setState(() {});
-                                });
-                              }),
-                            ),
-                          ).whenComplete(() {
-                            setState(() {});
-                          })
-                        : logar(UsersPage(press: () {
-                            Navigator.push(
+                  ListTile(
+                    leading: Icon(Icons.person, color: primaryColor),
+                    title: Text('Meus Amigos'),
+                    onTap: () {
+                      auth.isAuth
+                          ? Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AppointmentScreen(
-                                  press: () {},
-                                ),
+                                builder: (context) => UsersPage(press: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => AppointmentScreen(
+                                        press: () {},
+                                      ),
+                                    ),
+                                  ).whenComplete(() {
+                                    setState(() {});
+                                  });
+                                }),
                               ),
                             ).whenComplete(() {
                               setState(() {});
-                            });
-                          }));
-                  },
-                ),
-
-                ListTile(
-                  leading: Icon(Icons.share),
-                  title: Text('Links de Indicações'),
-                  onTap: () {
-                    auth.isAuth
-                        ? Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => IndicacoesScreen(),
-                            ),
-                          ).whenComplete(() {
-                            setState(() {});
-                          })
-                        : logar(IndicacoesScreen());
-                  },
-                ),
-                // Divider(),
-                // ListTile(
-                //   leading: Icon(Icons.search),
-                //   title: Text('Buaca Rápida'),
-                //   onTap: () {
-                //     Navigator.of(context).pushReplacementNamed(
-                //       AppRoutes.BuscaRapida,
-                //     );
-                //   },
-                // ),
-                // Divider(),
-                // ListTile(
-                //   leading: Icon(Icons.search),
-                //   title: Text('Especialistas'),
-                //   onTap: () {
-                //     Navigator.of(context).pushReplacementNamed(
-                //       AppRoutes.DoctorsScreen,
-                //     );
-                //   },
-                // ),
-                ListTile(
-                  leading: Icon(Icons.calendar_month),
-                  title: Text('Meus Agendamentos'),
-                  onTap: () {
-                    auth.isAuth
-                        ? Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MeusAgendamentos(),
-                            ),
-                          ).whenComplete(() {
-                            setState(() {});
-                          })
-                        : logar(MeusAgendamentos());
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.calendar_month),
-                  title: Text('Minhas Indicações'),
-                  onTap: () {
-                    auth.isAuth
-                        ? Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MinhasIndicacoes(),
-                            ),
-                          ).whenComplete(() {
-                            setState(() {});
-                          })
-                        : logar(MinhasIndicacoes());
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text('Meu Perfil'),
-                  onTap: () {
-                    auth.isAuth
-                        ? Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfileScreen(),
-                            ),
-                          ).whenComplete(() {
-                            setState(() {});
-                          })
-                        : logar(ProfileScreen());
-                  },
-                ),
-
-                // Divider(),
-                // ListTile(
-                //   leading: Icon(Icons.edit),
-                //   title: Text('Gerenciar Produtos'),
-                //   onTap: () {
-                //     Navigator.of(context).pushReplacementNamed(
-                //       AppRoutes.PRODUCTS,
-                //     );
-                //   },
-                // ),
-                if (auth.isAuth)
-                  ListTile(
-                    leading: Icon(Icons.exit_to_app),
-                    title: Text('Sair'),
-                    onTap: () async {
-                      var au = Provider.of<Auth>(
-                        context,
-                        listen: false,
-                      );
-                      au.logout().then((value) async {
-                        await auth.filtrosativos.LimparTodosFiltros();
-
-                        var regraList = await Provider.of<RegrasList>(
-                          context,
-                          listen: false,
-                        ).limparDados();
-                        var dados = await Provider.of<RegrasList>(
-                          context,
-                          listen: false,
-                        ).limparDados();
-
-                        await isLogin(context, () {
-                          setState(() {});
-                        });
-                      });
+                            })
+                          : logar(UsersPage(press: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AppointmentScreen(
+                                    press: () {},
+                                  ),
+                                ),
+                              ).whenComplete(() {
+                                setState(() {});
+                              });
+                            }));
                     },
                   ),
-              ],
+
+                  ListTile(
+                    leading: Icon(Icons.share, color: primaryColor),
+                    title: Text('Links de Indicações'),
+                    onTap: () {
+                      auth.isAuth
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => IndicacoesScreen(),
+                              ),
+                            ).whenComplete(() {
+                              setState(() {});
+                            })
+                          : logar(IndicacoesScreen());
+                    },
+                  ),
+                  // Divider(),
+                  // ListTile(
+                  //   leading: Icon(Icons.search),
+                  //   title: Text('Buaca Rápida'),
+                  //   onTap: () {
+                  //     Navigator.of(context).pushReplacementNamed(
+                  //       AppRoutes.BuscaRapida,
+                  //     );
+                  //   },
+                  // ),
+                  // Divider(),
+                  // ListTile(
+                  //   leading: Icon(Icons.search),
+                  //   title: Text('Especialistas'),
+                  //   onTap: () {
+                  //     Navigator.of(context).pushReplacementNamed(
+                  //       AppRoutes.DoctorsScreen,
+                  //     );
+                  //   },
+                  // ),
+                  ListTile(
+                    leading: Icon(Icons.calendar_month, color: primaryColor),
+                    title: Text('Meus Agendamentos'),
+                    onTap: () {
+                      auth.isAuth
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MeusAgendamentos(),
+                              ),
+                            ).whenComplete(() {
+                              setState(() {});
+                            })
+                          : logar(MeusAgendamentos());
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.calendar_month, color: primaryColor),
+                    title: Text('Minhas Indicações'),
+                    onTap: () {
+                      auth.isAuth
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MinhasIndicacoes(),
+                              ),
+                            ).whenComplete(() {
+                              setState(() {});
+                            })
+                          : logar(MinhasIndicacoes());
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.person, color: primaryColor),
+                    title: Text('Meu Perfil'),
+                    onTap: () {
+                      auth.isAuth
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfileScreen(),
+                              ),
+                            ).whenComplete(() {
+                              setState(() {});
+                            })
+                          : logar(ProfileScreen());
+                    },
+                  ),
+
+                  // Divider(),
+                  // ListTile(
+                  //   leading: Icon(Icons.edit),
+                  //   title: Text('Gerenciar Produtos'),
+                  //   onTap: () {
+                  //     Navigator.of(context).pushReplacementNamed(
+                  //       AppRoutes.PRODUCTS,
+                  //     );
+                  //   },
+                  // ),
+                  if (auth.isAuth)
+                    ListTile(
+                      leading: Icon(Icons.exit_to_app, color: primaryColor),
+                      title: Text('Sair'),
+                      onTap: () async {
+                        var au = Provider.of<Auth>(
+                          context,
+                          listen: false,
+                        );
+                        au.logout().then((value) async {
+                          await auth.filtrosativos.LimparTodosFiltros();
+
+                          var regraList = await Provider.of<RegrasList>(
+                            context,
+                            listen: false,
+                          ).limparDados();
+                          var dados = await Provider.of<RegrasList>(
+                            context,
+                            listen: false,
+                          ).limparDados();
+
+                          await isLogin(context, () {
+                            setState(() {});
+                          });
+                        });
+                      },
+                    ),
+                ],
+              ),
             ),
           );
   }

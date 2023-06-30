@@ -83,10 +83,13 @@ class _AvailableDoctorsState extends State<AvailableDoctors> {
     });
 
     dados.map((e) {
-      Medicos med = Medicos();
+      var especialidade = Especialidade(
+          codespecialidade: e.cod_especialidade,
+          descricao: e.des_especialidade,
+          ativo: 'S');
+      Medicos med = Medicos(especialidade: especialidade);
       med.cod_profissional = e.cod_profissional;
       med.des_profissional = e.des_profissional;
-      med.cod_especialidade = e.cod_convenio;
       med.crm = e.crm;
       med.cpf = e.cpf;
       med.idademin = e.idade_mim;

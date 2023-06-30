@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:biomaapp/utils/constants.dart';
 
 class Agendamentos with ChangeNotifier {
   String data_movimento = '';

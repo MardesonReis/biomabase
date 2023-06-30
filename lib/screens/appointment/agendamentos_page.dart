@@ -56,10 +56,6 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
       cod_unidade: widget.agendamento.cod_unidade,
       des_unidade: widget.agendamento.des_unidade,
     );
-    Medicos medico = Medicos();
-    medico.des_profissional = widget.agendamento.des_profissional;
-    medico.cpf = widget.agendamento.cpf_profissional;
-    medico.cod_profissional = widget.agendamento.cod_profissional;
 
     Procedimento procedimento = Procedimento();
     procedimento.cod_procedimentos = widget.agendamento.cod_procedimento;
@@ -70,6 +66,10 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
         codespecialidade: widget.agendamento.cod_especialidade,
         descricao: widget.agendamento.des_especialidade,
         ativo: 'S');
+    Medicos medico = Medicos(especialidade: procedimento.especialidade);
+    medico.des_profissional = widget.agendamento.des_profissional;
+    medico.cpf = widget.agendamento.cpf_profissional;
+    medico.cod_profissional = widget.agendamento.cod_profissional;
     procedimento.EscolherOlho(widget.agendamento.olho);
     Usuario user = Usuario();
     user.pacientes_nomepaciente = widget.agendamento.des_paciente;
