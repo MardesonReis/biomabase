@@ -44,9 +44,8 @@ class _UserCardState extends State<UserCard> {
       listen: false,
     );
 
-    if (widget.user.pacientes_nomepaciente.isEmpty &&
-        widget.user.pacientes_cpf.isNotEmpty) {
-      UserList.loadPacientes(widget.user.pacientes_cpf).then((value) {
+    if (widget.user.nome.isEmpty && widget.user.cpf.isNotEmpty) {
+      UserList.loadPacientes(widget.user.cpf).then((value) {
         setState(() {
           widget.user = UserList.items.first;
           isLoading = false;
@@ -75,12 +74,12 @@ class _UserCardState extends State<UserCard> {
           },
           child: isError == true ? Text(' -') : SizedBox(),
           backgroundImage: NetworkImage(
-            Constants.IMG_USUARIO + widget.user.pacientes_cpf + '.jpg',
+            Constants.IMG_USUARIO + widget.user.cpf + '.jpg',
           ),
         ),
-        title: textResp(widget.user.pacientes_nomepaciente),
-        subtitle: UtilBrasilFields.isCPFValido(widget.user.pacientes_cpf)
-            ? Text(UtilBrasilFields.obterCpf(widget.user.pacientes_cpf))
+        title: textResp(widget.user.nome),
+        subtitle: UtilBrasilFields.isCPFValido(widget.user.cpf)
+            ? Text(UtilBrasilFields.obterCpf(widget.user.cpf))
             : Text('Cpf Não localizado'),
         onTap: () {
           setState(() {

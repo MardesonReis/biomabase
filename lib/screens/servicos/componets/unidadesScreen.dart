@@ -270,6 +270,9 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
                                 ),
                               );
                             },
+                            update: () {
+                              setState(() {});
+                            },
                           ),
                         ),
                       ),

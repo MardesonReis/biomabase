@@ -46,8 +46,8 @@ class EspecialidadesList with ChangeNotifier {
       (item) {
         //    debugPrint('Carregando especialidade: ${item['especialidade']}');
         _items.add(Especialidade(
-          codespecialidade: item['cod_especialidade'].toString(),
-          descricao: item['descricao'].toString(),
+          cod_especialidade: item['cod_especialidade'].toString(),
+          des_especialidade: item['des_especialidade'].toString(),
           ativo: '1',
         ));
       },

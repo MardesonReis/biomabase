@@ -140,12 +140,14 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                         return ChoiceChip(
                           selectedColor: destColor,
                           label: textResp(
-                            e.descricao.capitalize(),
+                            e.des_especialidade.capitalize(),
                           ),
                           selected: filtros.especialidades.contains(e),
                           onSelected: (selected) async {
-                            var conf = await AlertShowDialog('Remover Filtro: ',
-                                Text('Especialidade: ' + e.descricao), context);
+                            var conf = await AlertShowDialog(
+                                'Remover Filtro: ',
+                                Text('Especialidade: ' + e.des_especialidade),
+                                context);
                             if (conf == true) {
                               // ignore: curly_braces_in_flow_control_structures
                               setState(() async {
@@ -219,13 +221,13 @@ class _FiltroAtivosScrenState extends State<FiltroAtivosScren> {
                         return ChoiceChip(
                           selectedColor: destColor,
                           label: textResp(
-                            e.des_procedimentos.capitalize(),
+                            e.des_procedimento.capitalize(),
                           ),
                           selected: filtros.procedimentos.contains(e),
                           onSelected: (selected) async {
                             var conf = await AlertShowDialog(
                                 'Remover Filtro: ',
-                                Text('Procedimento: ' + e.des_procedimentos),
+                                Text('Procedimento: ' + e.des_procedimento),
                                 context);
                             if (conf == true) {
                               // ignore: curly_braces_in_flow_control_structures

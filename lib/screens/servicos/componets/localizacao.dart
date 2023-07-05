@@ -53,9 +53,7 @@ class Localizacao extends StatefulWidget {
 class LocalizacaoState extends State<Localizacao> {
   Completer<GoogleMapController> _controller = Completer();
   //late Position _currentPosition;
-  var _currentPosition;
-  late LatLng _position = LatLng(-3.613425981453625, -38.53529385675654);
-  Set<Marker> _marker = Set<Marker>();
+
   final textEditingController = TextEditingController();
   TextEditingController txtQuery = new TextEditingController();
   final ScrollController controller = ScrollController();
@@ -132,8 +130,6 @@ class LocalizacaoState extends State<Localizacao> {
     super.dispose();
   }
 
-  double zoomVal = 8;
-
   @override
   Widget build(BuildContext context) {
     RegrasList dt = Provider.of(context, listen: false);
@@ -159,25 +155,6 @@ class LocalizacaoState extends State<Localizacao> {
     List<Procedimento> HistoricoProcedimentos = [];
     List<Procedimento> procedimentos = [];
     late bool _hasMoreItems;
-    unidades.map((e) async {
-      Marker m = await Marker(
-          onTap: () async {
-            setState(() {
-              filtros.LimparUnidade();
-              filtros.addunidades(e);
-            });
-            //   widget.press.call();
-          },
-          markerId: MarkerId(e.cod_unidade),
-          position: LatLng(e.latitude, e.longitude),
-          icon: filtros.markerIcon,
-          infoWindow: InfoWindow(
-              title: e.des_unidade,
-              snippet: e.bairro + '/' + e.municipio + '-' + e.uf));
-      setState(() {
-        _marker.add(m);
-      });
-    }).toList();
 
     unidades.sort((a, b) => a.distancia.compareTo(b.distancia));
 
@@ -247,86 +224,6 @@ class LocalizacaoState extends State<Localizacao> {
           );
   }
 
-  Widget _zoomminusfunction() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Card(
-        elevation: 8,
-        color: Colors.white,
-        child: IconButton(
-            icon: Icon(Icons.zoom_out, color: primaryColor),
-            onPressed: () async {
-              final GoogleMapController controller = await _controller.future;
-              zoomVal = await controller.getZoomLevel();
-              zoomVal--;
-              _minus(zoomVal);
-            }),
-      ),
-    );
-  }
-
-  Widget _mylocalbutton() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        child: Align(
-          alignment: Alignment.topRight,
-          child: Card(
-              elevation: 8,
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: InkWell(
-                  child: Icon(Icons.location_on, size: 12),
-                  onTap: () async {
-                    await determinePosition().then((value) async {
-                      final GoogleMapController controller =
-                          await _controller.future;
-                      controller.animateCamera(
-                          CameraUpdate.newCameraPosition(CameraPosition(
-                        target: LatLng(_currentPosition.latitude,
-                            _currentPosition.longitude),
-                        zoom: 10,
-                        tilt: 50.0,
-                        bearing: 45.0,
-                      )));
-                    });
-                  },
-                ),
-              )),
-        ),
-      ),
-    );
-  }
-
-  Widget _zoomplusfunction() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Card(
-        elevation: 8,
-        color: Colors.white,
-        child: IconButton(
-            icon: Icon(Icons.zoom_in, color: primaryColor),
-            onPressed: () async {
-              final GoogleMapController controller = await _controller.future;
-              zoomVal = await controller.getZoomLevel();
-              zoomVal++;
-              _plus(zoomVal);
-            }),
-      ),
-    );
-  }
-
-  Future<void> _minus(double zoomVal) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.zoomTo(zoomVal));
-  }
-
-  Future<void> _plus(double zoomVal) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.zoomTo(zoomVal));
-  }
-
   Widget _buildFiltros() {
     return StreamBuilder(
         stream: _stream.stream,
@@ -337,86 +234,5 @@ class LocalizacaoState extends State<Localizacao> {
                 press: () => setState(() {}),
               ));
         });
-  }
-
-  Widget _buildGoogleMap(List<Unidade> unidades) {
-    Auth auth = Provider.of(context);
-    Paginas pages = auth.paginas;
-
-    filtrosAtivos filtros = auth.filtrosativos;
-    return Container(
-      color: primaryColor,
-      height: MediaQuery.of(context).size.height * 0.3,
-      width: MediaQuery.of(context).size.width,
-      child: GoogleMap(
-        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-          new Factory<OneSequenceGestureRecognizer>(
-            () => new EagerGestureRecognizer(),
-          ),
-        ].toSet(),
-        myLocationEnabled: true,
-        zoomControlsEnabled: true,
-        zoomGesturesEnabled: true,
-        scrollGesturesEnabled: true,
-        tiltGesturesEnabled: true,
-        trafficEnabled: false,
-        indoorViewEnabled: true,
-        compassEnabled: true,
-        rotateGesturesEnabled: true,
-        mapType: MapType.normal,
-        myLocationButtonEnabled: true,
-        initialCameraPosition: CameraPosition(target: _position, zoom: 8),
-        onMapCreated: OnMapCreated,
-        markers: retornarMakers(unidades, filtros),
-      ),
-    );
-  }
-
-  Set<Marker> retornarMakers(List<Unidade> unidades, filtrosAtivos filtros) {
-    unidades.map((e) async {
-      Marker m = await Marker(
-          onTap: () async {
-            setState(() {
-              filtros.LimparUnidade();
-              filtros.addunidades(e);
-            });
-            //   widget.press.call();
-          },
-          markerId: MarkerId(e.cod_unidade),
-          position: LatLng(e.latitude, e.longitude),
-          icon: await getico('assets/icons/bioma_maps.png', () {
-            setState(() {});
-          }, filtros),
-          //  icon: kIsWeb ? BitmapDescriptor.defaultMarker : _markerIcon,
-          infoWindow: InfoWindow(
-              title: e.des_unidade,
-              snippet: e.bairro + '/' + e.municipio + '-' + e.uf));
-      setState(() {
-        _marker.add(m);
-      });
-    }).toList();
-    return _marker;
-  }
-
-  void OnMapCreated(GoogleMapController controller) async {
-    if (!mounted) return;
-    if (!_marker.isEmpty) return;
-
-    _controller.complete(controller);
-    try {
-      var position = await determinePosition();
-
-      await controller.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(target: _position, zoom: 10)));
-      setState(() {
-        _position = position;
-      });
-      return;
-    } on FormatException catch (err) {
-      if (!mounted) return;
-      print(err);
-      setState(() {});
-      //setState(() => _err = err);
-    }
   }
 }

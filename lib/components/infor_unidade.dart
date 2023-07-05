@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/servicos/componets/MapaBuild.dart';
+
 class InforUnidade extends StatefulWidget {
   final Unidade unidade;
   final VoidCallback press;
@@ -41,6 +43,15 @@ class _InforUnidadeState extends State<InforUnidade> {
         : setState(() {
             _isLoading = false;
           });
+  }
+
+  verVouches(Unidade unidade) {
+    Navigator.of(context).push(new MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          bool isloading = false;
+          return Mapa(unidades: [unidade]);
+        },
+        fullscreenDialog: true));
   }
 
   @override
@@ -109,8 +120,7 @@ class _InforUnidadeState extends State<InforUnidade> {
                   ),
                   trailing: IconButton(
                       onPressed: () {
-                        gotoLocation(unidade.latitude, unidade.longitude,
-                            filtros.googleMapController);
+                        verVouches(unidade);
                       },
                       icon: distanciaValida(unidade.distancia)
                           ? Icon(

@@ -69,7 +69,8 @@ class _MenuBarEspecialidadesState extends State<MenuBarEspecialidades> {
                     Padding(
                       padding: const EdgeInsets.all(3),
                       child: Text(
-                          widget.especialidades[i].descricao.capitalize(),
+                          widget.especialidades[i].des_especialidade
+                              .capitalize(),
                           style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,

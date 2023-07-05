@@ -58,7 +58,7 @@ class _DoctorInforCicleState extends State<DoctorInforCicle> {
                     color: Colors.black),
               ),
               Text(
-                widget.doctor.especialidade.descricao.capitalize(),
+                widget.doctor.especialidade.des_especialidade.capitalize(),
                 style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.normal,

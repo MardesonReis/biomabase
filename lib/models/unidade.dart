@@ -86,8 +86,8 @@ class Unidade with ChangeNotifier {
 
   factory Unidade.fromJson(Map<String, dynamic> json) {
     return Unidade(
-      cod_unidade: json['cod_unidade'],
-      des_unidade: json['des_unidade'],
+      cod_unidade: json['cod_unidade'].toString(),
+      des_unidade: json['des_unidade'].toString(),
     );
   }
 

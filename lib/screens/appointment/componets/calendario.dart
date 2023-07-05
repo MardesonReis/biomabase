@@ -217,7 +217,7 @@ class _CalendarioViewState extends State<CalendarioView> {
         Clips(titulo: '2 Olhos', subtitulo: '', keyId: 'A'),
       ];
     }
-    var qtd = auth.filtrosativos.procedimentos.first.des_procedimentos
+    var qtd = auth.filtrosativos.procedimentos.first.des_procedimento
         .capitalize()
         .length;
     qtd > 30 ? qtd = 30 : qtd = qtd;

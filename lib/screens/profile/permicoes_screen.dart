@@ -170,8 +170,8 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
         EspecialidadesInclusoIncluso.add(e.cod_especialidade);
 
         especialidadeslist.add(Especialidade(
-            codespecialidade: e.cod_especialidade,
-            descricao: e.des_especialidade,
+            cod_especialidade: e.cod_especialidade,
+            des_especialidade: e.des_especialidade,
             ativo: 'S'));
       }
       if (!SubEspecialidadesInclusoIncluso.contains(e.sub_especialidade)) {
@@ -183,8 +183,8 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
     }).toList();
     perfilDeAtendimento.items.map((e) {
       var especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
+          cod_especialidade: e.cod_especialidade,
+          des_especialidade: e.des_especialidade,
           ativo: 'S');
       Medicos med = Medicos(especialidade: especialidade);
       med.cod_profissional = e.cod_profissional;
@@ -202,7 +202,8 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
       }
     }).toList();
     medicos.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
-    especialidadeslist.sort((a, b) => a.descricao.compareTo(b.descricao));
+    especialidadeslist
+        .sort((a, b) => a.des_especialidade.compareTo(b.des_especialidade));
 
     //convenioslist.sort((a, b) => a.desc_convenio.compareTo(b.desc_convenio));
     gruposlist.sort((a, b) => a.descricao.compareTo(b.descricao));
@@ -600,9 +601,9 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                                               Procedimento p =
                                                                   Procedimento();
 
-                                                              p.cod_procedimentos =
+                                                              p.cod_procedimento =
                                                                   e.cod_procedimentos;
-                                                              p.des_procedimentos =
+                                                              p.des_procedimento =
                                                                   e.des_procedimentos;
                                                               p.orientacoes =
                                                                   e.orientacoes;
@@ -618,10 +619,10 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                                               p.quantidade = e
                                                                   .tabop_quantidade;
                                                               p.especialidade
-                                                                      .codespecialidade =
+                                                                      .cod_especialidade =
                                                                   e.cod_especialidade;
                                                               p.especialidade
-                                                                      .descricao =
+                                                                      .des_especialidade =
                                                                   e.des_especialidade;
                                                               p.cod_tratamento =
                                                                   e.cod_tratamento;
@@ -715,7 +716,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                                                         dense:
                                                                             true,
                                                                         key: Key(procedimento
-                                                                            .cod_procedimentos),
+                                                                            .cod_procedimento),
                                                                         tileColor:
                                                                             primaryColor[int.parse(unidade.cod_unidade) *
                                                                                 50],
@@ -724,7 +725,7 @@ class _PermicoesScreenState extends State<PermicoesScreen> {
                                                                           crossAxisAlignment:
                                                                               WrapCrossAlignment.center,
                                                                           children: [
-                                                                            Text(ProcedimentosFiltrado[index].cod_procedimentos.capitalize() + " - " + ProcedimentosFiltrado[index].des_procedimentos.capitalize() + " - R\$ " + ProcedimentosFiltrado[index].valor.toString(),
+                                                                            Text(ProcedimentosFiltrado[index].cod_procedimento.capitalize() + " - " + ProcedimentosFiltrado[index].des_procedimento.capitalize() + " - R\$ " + ProcedimentosFiltrado[index].valor.toString(),
                                                                                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                                                                           ],
                                                                         ),

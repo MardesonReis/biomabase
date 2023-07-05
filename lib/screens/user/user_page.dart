@@ -53,9 +53,9 @@ class _UsersPageState extends State<UsersPage> {
             //return profile.cpf.contains(query) || profile.cpf.contains(query);
           })
           .toList(growable: false)
-          .sort((a, b) => a.pacientes_nomepaciente
+          .sort((a, b) => a.nome
               .indexOf(lowercaseQuery)
-              .compareTo(b.pacientes_nomepaciente.indexOf(lowercaseQuery)));
+              .compareTo(b.nome.indexOf(lowercaseQuery)));
     }
 
     ;
@@ -112,10 +112,10 @@ class _UsersPageState extends State<UsersPage> {
 
     filtros.usuarios.isNotEmpty
         ? () {
-            UtilBrasilFields.isCPFValido(filtros.usuarios.first.pacientes_cpf)
-                ? txtQuery.text = UtilBrasilFields.obterCpf(
-                    filtros.usuarios.first.pacientes_cpf)
-                : txtQuery.text = filtros.usuarios.first.pacientes_nomepaciente;
+            UtilBrasilFields.isCPFValido(filtros.usuarios.first.cpf)
+                ? txtQuery.text =
+                    UtilBrasilFields.obterCpf(filtros.usuarios.first.cpf)
+                : txtQuery.text = filtros.usuarios.first.nome;
             //   buscarQuery.call(filtros.usuarios.first.cpf);
             mockResults.clear();
             mockResults.add(filtros.usuarios.first);

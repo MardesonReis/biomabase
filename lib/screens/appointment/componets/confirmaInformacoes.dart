@@ -198,7 +198,12 @@ class _ConfirmaInforState extends State<ConfirmaInfor> {
                       height: defaultPadding,
                     ),
                     ProcedimentosInfor(
-                        procedimento: widget.fila.procedimento, press: () {}),
+                      procedimento: widget.fila.procedimento,
+                      press: () {},
+                      update: () {
+                        setState(() {});
+                      },
+                    ),
                   ],
                 ),
               ),

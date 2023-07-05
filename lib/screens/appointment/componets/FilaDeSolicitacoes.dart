@@ -81,12 +81,11 @@ class _FilaSolicitacaoesState extends State<FilaSolicitacaoes> {
                           });
                         },
                         child: isError == true
-                            ? Text(
-                                widget.fila.indicado.pacientes_nomepaciente[0])
+                            ? Text(widget.fila.indicado.nome[0])
                             : SizedBox(),
                         backgroundImage: NetworkImage(
                           Constants.IMG_USUARIO +
-                              widget.fila.indicado.pacientes_cpf +
+                              widget.fila.indicado.cpf +
                               '.jpg',
                         ),
                       ),
@@ -95,7 +94,7 @@ class _FilaSolicitacaoesState extends State<FilaSolicitacaoes> {
                 ),
               ),
               title: Text(
-                  widget.fila.procedimento.des_procedimentos.capitalize(),
+                  widget.fila.procedimento.des_procedimento.capitalize(),
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

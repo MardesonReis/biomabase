@@ -114,11 +114,11 @@ class _OpcoesProcedimentosGrupos extends State<OpcoesProcedimentosGrupos> {
                         (index) => InputChip(
                           key: ObjectKey(filtros.procedimentos[index]),
                           label: Text(filtros
-                              .procedimentos[index].des_procedimentos
+                              .procedimentos[index].des_procedimento
                               .capitalize()),
                           avatar: CircleAvatar(
                             child: Text(
-                              filtros.procedimentos[index].des_procedimentos,
+                              filtros.procedimentos[index].des_procedimento,
                               style: Theme.of(context)
                                   .textTheme
                                   .caption!
@@ -165,7 +165,7 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
       choices.add(Container(
         padding: const EdgeInsets.all(2.0),
         child: ChoiceChip(
-          label: Text(item.des_procedimentos.capitalize()),
+          label: Text(item.des_procedimento.capitalize()),
           selected: filtros.procedimentos.contains(item),
           onSelected: (selected) {
             setState(() {

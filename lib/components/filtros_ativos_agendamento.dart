@@ -39,7 +39,7 @@ class _FiltrosAtivosAgendamentoState extends State<FiltrosAtivosAgendamento> {
               children: [
                 ListTile(
                   title: Text(
-                      widget.procedimentos.des_procedimentos.capitalize(),
+                      widget.procedimentos.des_procedimento.capitalize(),
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -53,7 +53,7 @@ class _FiltrosAtivosAgendamentoState extends State<FiltrosAtivosAgendamento> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: widget.doctor.especialidade.codespecialidade == '1'
+                  child: widget.doctor.especialidade.cod_especialidade == '1'
                       ? Text(
                           olhoDescritivo[widget.procedimentos.olho] as String)
                       : SizedBox(),

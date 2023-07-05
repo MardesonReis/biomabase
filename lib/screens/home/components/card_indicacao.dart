@@ -44,9 +44,9 @@ class _cardIndicacaoState extends State<cardIndicacao> {
             //return profile.cpf.contains(query) || profile.cpf.contains(query);
           })
           .toList(growable: false)
-          .sort((a, b) => a.pacientes_nomepaciente
+          .sort((a, b) => a.nome
               .indexOf(lowercaseQuery)
-              .compareTo(b.pacientes_nomepaciente.indexOf(lowercaseQuery)));
+              .compareTo(b.nome.indexOf(lowercaseQuery)));
     }
 
     ;
@@ -105,7 +105,7 @@ class _cardIndicacaoState extends State<cardIndicacao> {
     filtros.usuarios.isNotEmpty
         ? () {
             txtQuery.text =
-                UtilBrasilFields.obterCpf(filtros.usuarios.first.pacientes_cpf);
+                UtilBrasilFields.obterCpf(filtros.usuarios.first.cpf);
             //    buscarQuery.call(filtros.usuarios.first.cpf);
             mockResults.add(filtros.usuarios.first);
             //  _isLoading = false;
@@ -246,7 +246,7 @@ Widget _listView(List<Usuario> mockResults, BuildContext context) {
               itemBuilder: (context, index) {
                 var person = mockResults[index];
 
-                if (person.pacientes_cpf == '1') {
+                if (person.cpf == '1') {
                   return Row(
                     children: [
                       Column(
@@ -271,8 +271,7 @@ Widget _listView(List<Usuario> mockResults, BuildContext context) {
                                         .selecionarPaginaHome('Especialistas');
                                     await filtros.LimparUsuarios();
                                     Usuario user = Usuario();
-                                    user.pacientes_cpf =
-                                        auth.fidelimax.cpf.toString();
+                                    user.cpf = auth.fidelimax.cpf.toString();
                                     await filtros.addUsuarios(user);
                                     Navigator.of(context).pushReplacementNamed(
                                       AppRoutes.AUTH_OR_HOME,
@@ -312,10 +311,10 @@ Widget _listView(List<Usuario> mockResults, BuildContext context) {
                 } else {
                   return ListTile(
                     leading: CircleAvatar(
-                      child: Text(person.pacientes_nomepaciente[0]),
+                      child: Text(person.nome[0]),
                     ),
-                    title: Text(person.pacientes_nomepaciente),
-                    subtitle: Text("" + person.pacientes_cpf),
+                    title: Text(person.nome),
+                    subtitle: Text("" + person.cpf),
                     onTap: () async {
                       await pages.selecionarPaginaHome('Especialistas');
                       await filtros.LimparUsuarios();

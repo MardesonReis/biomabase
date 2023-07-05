@@ -13,6 +13,7 @@ import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:geolocator/geolocator.dart';
 //import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -71,7 +72,19 @@ callbacogin(BuildContext context, VoidCallback fun, Widget Nextpage) {
 }
 
 textResp(String text,
-    {Color? color = Colors.black, double fontSize = 11, int maxLines = 1}) {
+    {Color? color = Colors.black, double fontSize = 10, int maxLines = 1}) {
+  return Text(
+    text.capitalize(),
+    softWrap: true,
+    overflow: TextOverflow.clip,
+    maxLines: null,
+    textScaleFactor: 1.2,
+    style: TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: FontWeight.bold,
+    ),
+  );
   return RichText(
     overflow: TextOverflow.ellipsis,
     maxLines: maxLines,
@@ -181,8 +194,14 @@ const InputDecoration dropdownInputDecoration = InputDecoration(
 
 extension StringExtension on String {
   String capitalize() {
-    return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
+    var words = this.split(' ');
+    var capitalizedWords = words.map((word) => capitalizeFirstLetter(word));
+    return capitalizedWords.join(' ');
   }
+}
+
+String capitalizeFirstLetter(String word) {
+  return word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '';
 }
 
 Future<Uint8List> getBytesFromAsset(String path, int width) async {
@@ -214,7 +233,7 @@ Future<double> getDistance(double lat1, double log1) async {
 }
 
 especialidadeDetalhe(Procedimento p) {
-  if (p.especialidade.codespecialidade == '1' && p.olho == '') {
+  if (p.especialidade.cod_especialidade == '1' && p.olho == '') {
     return false;
   } else {
     return true;
@@ -224,43 +243,44 @@ especialidadeDetalhe(Procedimento p) {
 Future<LatLng> determinePosition() async {
   bool serviceEnabled;
   LatLng latLng = LatLng(-3.613425981453625, -38.53529385675654);
-  // LocationPermission permission;
+  LocationPermission permission;
 
-  // // Test if location services are enabled.
-  // serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  // if (!serviceEnabled) {
-  //   // Location services are not enabled don't continue
-  //   // accessing the position and request users of the
-  //   // App to enable the location services.
+// Test if location services are enabled.
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    // Location services are not enabled don't continue
+    // accessing the position and request users of the
+    // App to enable the location services.
 
-  //   //return Future.error('Os serviços de localização estão desativados.');
-  //   return latLng;
-  // }
+    //return Future.error('Os serviços de localização estão desativados.');
+    return latLng;
+  }
 
-  // permission = await Geolocator.checkPermission();
-  // if (permission == LocationPermission.denied) {
-  //   permission = await Geolocator.requestPermission();
-  //   if (permission == LocationPermission.denied) {
-  //     // Permissions are denied, next time you could try
-  //     // requesting permissions again (this is also where
-  //     // Android's shouldShowRequestPermissionRationale
-  //     // returned true. According to Android guidelines
-  //     // your App should show an explanatory UI now.
-  //     // return Future.error('As permissões de localização foram negadas');
-  //     return latLng;
-  //   }
-  // }
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      // Permissions are denied, next time you could try
+      // requesting permissions again (this is also where
+      // Android's shouldShowRequestPermissionRationale
+      // returned true. According to Android guidelines
+      // your App should show an explanatory UI now.
+      // return Future.error('As permissões de localização foram negadas');
+      return latLng;
+    }
+  }
 
-  // if (permission == LocationPermission.deniedForever) {
-  //   // Permissions are denied forever, handle appropriately.
-  //   // return Future.error(        'As permissões de localização são negadas permanentemente, não podemos solicitar permissões.');
-  //   return latLng;
-  // }
+  if (permission == LocationPermission.deniedForever) {
+    // Permissions are denied forever, handle appropriately.
+    // return Future.error(        'As permissões de localização são negadas permanentemente, não podemos solicitar permissões.');
+    return latLng;
+  }
 
-  // // When we reach here, permissions are granted and we can
-  // // continue accessing the position of the device.
-  // var local = await Geolocator.getCurrentPosition();
-  // latLng = LatLng(local.latitude, local.longitude);
+// When we reach here, permissions are granted and we can
+// continue accessing the position of the device.
+  var local = await Geolocator.getCurrentPosition();
+  latLng = LatLng(local.latitude, local.longitude);
+
   return latLng;
 }
 

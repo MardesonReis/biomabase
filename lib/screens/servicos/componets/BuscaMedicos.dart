@@ -58,8 +58,8 @@ class _BuscaMedicosState extends State<BuscaMedicos> {
     List<Medicos> medicos = [];
     dados.map((e) {
       var especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
+          cod_especialidade: e.cod_especialidade,
+          des_especialidade: e.des_especialidade,
           ativo: 'S');
 
       Medicos med = Medicos(especialidade: especialidade);

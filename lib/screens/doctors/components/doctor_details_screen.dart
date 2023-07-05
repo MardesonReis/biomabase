@@ -101,7 +101,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
     var busca = !dt.isLoading && dt.dados.isEmpty;
     List<Procedimento> procedimentos = dt
         .returnProcedimentos(widget.doctor.cod_profissional)
-        .where((element) => element.des_procedimentos
+        .where((element) => element.des_procedimento
             .toUpperCase()
             .contains(txtQuery.text.toUpperCase()))
         .toList();
@@ -215,6 +215,9 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                                 filtros.procedimentos.add(procedimentos[index]);
                                 widget.press.call();
                               });
+                            },
+                            update: () {
+                              setState(() {});
                             },
                           );
                         },

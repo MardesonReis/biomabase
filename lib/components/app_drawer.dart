@@ -14,7 +14,8 @@ import 'package:biomaapp/screens/profile/profile_screen.dart';
 import 'package:biomaapp/screens/saude/minhasaudePage.dart';
 import 'package:biomaapp/screens/user/components/user_card.dart';
 import 'package:biomaapp/screens/user/user_page.dart';
-import 'package:biomaapp/screens/vouches/VoucherViwer.dart';
+import 'package:biomaapp/screens/vouches/VoucherCriador.dart';
+import 'package:biomaapp/screens/vouches/VoucherPage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:biomaapp/models/auth.dart';
@@ -119,7 +120,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   if (auth.isAuth)
                     ListTile(
                       leading: Icon(
-                        Icons.home,
+                        Icons.local_offer,
                         color: redColor,
                       ),
                       title: Text('Gerar Voucher'),
@@ -127,7 +128,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => VoucherViwer(),
+                            builder: (context) => VouchersPage(),
                           ),
                         ).whenComplete(() {
                           setState(() {});

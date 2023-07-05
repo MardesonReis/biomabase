@@ -141,8 +141,8 @@ class _AddRegraState extends State<AddRegra> {
         EspecialidadesInclusoIncluso.add(e.cod_especialidade);
 
         especialidadeslist.add(Especialidade(
-            codespecialidade: e.cod_especialidade,
-            descricao: e.des_especialidade,
+            cod_especialidade: e.cod_especialidade,
+            des_especialidade: e.des_especialidade,
             ativo: 'S'));
       }
       if (!SubEspecialidadesInclusoIncluso.contains(e.sub_especialidade)) {
@@ -153,7 +153,8 @@ class _AddRegraState extends State<AddRegra> {
       }
     }).toList();
 
-    especialidadeslist.sort((a, b) => a.descricao.compareTo(b.descricao));
+    especialidadeslist
+        .sort((a, b) => a.des_especialidade.compareTo(b.des_especialidade));
     unidadeslist.sort((a, b) => a.des_unidade.compareTo(b.des_unidade));
     convenioslist.sort((a, b) => a.desc_convenio.compareTo(b.desc_convenio));
     gruposlist.sort((a, b) => a.descricao.compareTo(b.descricao));

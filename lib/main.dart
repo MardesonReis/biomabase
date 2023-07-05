@@ -43,11 +43,17 @@ import 'package:biomaapp/models/order_list.dart';
 import 'package:biomaapp/models/product_list.dart';
 import 'package:biomaapp/models/procedimento_list.dart';
 import 'package:biomaapp/utils/app_routes.dart';
+import 'package:route_observer_mixin/route_observer_mixin.dart';
 
 //void main() {  runApp(MyApp());}
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  //runApp(MyApp());
+  runApp(
+    RouteObserverProvider(
+      child: MyApp(),
+    ),
+  );
 }
 
 // ignore: use_key_in_widget_constructors
@@ -57,13 +63,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     LocalJsonLocalization.delegate.directories = ['lib/i18n'];
 
     return MultiProvider(
       providers: [
+        RouteObserverProvider(
+          create: (context) => GlobalRouteObserver()..navigation.listen(print),
+        ),
         ChangeNotifierProvider(
           create: (_) => Auth(),
         ),
@@ -274,6 +282,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         ),
       ],
       child: MaterialApp(
+        navigatorObservers: [RouteObserverProvider.of(context)],
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,

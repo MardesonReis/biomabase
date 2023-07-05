@@ -110,7 +110,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
     List<Procedimento> procedimentos = dt.returnProcedimentos('');
 
     procedimentos
-        .sort((a, b) => a.des_procedimentos.compareTo(b.des_procedimentos));
+        .sort((a, b) => a.des_procedimento.compareTo(b.des_procedimento));
     var busca = dt.seemore == false && procedimentos.isEmpty;
     var a;
     a = dt.like.trim().isEmpty
@@ -131,7 +131,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                // return Center(child: ProgressIndicatorBioma());
+                  return Center(child: ProgressIndicatorBioma());
 
                 case ConnectionState.done:
                   return IncrementallyLoadingListView(
@@ -141,18 +141,33 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                       await dt.loadMore(context);
                     },
                     itemBuilder: (context, index) {
-                      return ProcedimentosInfor(
-                        procedimento: procedimentos[index],
-                        press: () {
-                          setState(() {
-                            filtros.procedimentos.clear();
-                            filtros.procedimentos.add(procedimentos[index]);
-                            widget.press.call();
-                          });
-                        },
-                      );
+                      if (index < procedimentos.length) {
+                        return ProcedimentosInfor(
+                          procedimento: procedimentos[index],
+                          press: () {
+                            setState(() {
+                              filtros.procedimentos.clear();
+                              filtros.procedimentos.add(procedimentos[index]);
+                              widget.press.call();
+                            });
+                          },
+                          update: () {
+                            setState(() {
+                              filtros.procedimentos.clear();
+                              filtros.procedimentos.add(procedimentos[index]);
+                              widget.press.call();
+                            });
+                          },
+                        );
+                      } else {
+                        if (dt.seemore == true || dt.isLoading == true) {
+                          return ProgressIndicatorBioma();
+                        } else {
+                          return SizedBox();
+                        }
+                      }
                     },
-                    itemCount: () => procedimentos.length,
+                    itemCount: () => procedimentos.length + 1,
                     onLoadMore: () {
                       setState(() {
                         dt.seemore = true;
@@ -187,6 +202,9 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
               filtros.procedimentos.add(procedimentos[index]);
               widget.press.call();
             });
+          },
+          update: () {
+            setState(() {});
           },
         );
       },

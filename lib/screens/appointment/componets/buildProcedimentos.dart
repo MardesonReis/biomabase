@@ -125,7 +125,7 @@ class _BuildProcedimentosState extends State<BuildProcedimentos> {
             Visibility(
               visible: filtros.procedimentos.isNotEmpty &&
                   filtros.procedimentos.first.olho.isNotEmpty &&
-                  filtros.procedimentos.first.especialidade.codespecialidade ==
+                  filtros.procedimentos.first.especialidade.cod_especialidade ==
                       '1',
               child: FloatingActionButton.extended(
                 onPressed: () {
@@ -141,7 +141,7 @@ class _BuildProcedimentosState extends State<BuildProcedimentos> {
             ),
             Visibility(
               visible: filtros.procedimentos.isNotEmpty &&
-                  filtros.procedimentos.first.especialidade.codespecialidade !=
+                  filtros.procedimentos.first.especialidade.cod_especialidade !=
                       '1',
               child: FloatingActionButton.extended(
                 onPressed: () {
@@ -192,16 +192,10 @@ class _BuildProcedimentosState extends State<BuildProcedimentos> {
                             setState(() {});
                             BuscarProcedimento();
                           },
+                          update: () {
+                            setState(() {});
+                          },
                         ),
-                        filtros.procedimentos.first.especialidade
-                                    .codespecialidade ==
-                                '1'
-                            ? monoBino(filtros.procedimentos.first, () {
-                                setState(() {
-                                  widget.refreshPage.call();
-                                });
-                              })
-                            : SizedBox(),
                       ],
                     ),
                   ],

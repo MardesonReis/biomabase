@@ -35,7 +35,7 @@ class _OrderWidgetState extends State<OrderWidget> {
       child: Column(
         children: [
           ListTile(
-            title: Text(widget.fila.procedimento.des_procedimentos.capitalize(),
+            title: Text(widget.fila.procedimento.des_procedimento.capitalize(),
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,

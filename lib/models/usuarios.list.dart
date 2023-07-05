@@ -61,28 +61,27 @@ class UsuariosList with ChangeNotifier {
       (item) {
         // debugPrint('Carregando nomepaciente: ${item['nomepaciente']}');
         Usuario user = Usuario();
-        user.pacientes_id = item['pacientes_id'].toString();
-        user.pacientes_cpf = item['pacientes_cpf'].toString();
-        user.pacientes_nomepaciente = item['pacientes_nomepaciente'].toString();
-        user.pacientes_datanascimento =
-            item['pacientes_datanascimento'].toString();
-        user.pacientes_sexo = item['pacientes_sexo'].toString();
-        user.pacientes_codendereco = item['pacientes_codendereco'].toString();
-        user.pacientes_nr = item['pacientes_nr'].toString();
-        user.pacientes_tel_whatsapp = item['pacientes_tel_whatsapp'].toString();
-        user.pacientes_celular = item['pacientes_celular'].toString();
-        user.pacientes_telefone = item['pacientes_telefone'].toString();
-        user.pacientes_email = item['pacientes_email'].toString();
-        user.pacientes_ocupacao = item['pacientes_ocupacao'].toString();
-        user.tabcep_logradouro = item['tabcep_logradouro'].toString();
-        user.tabcep_municipio = item['tabcep_municipio'].toString();
-        user.tabcep_bairro = item['tabcep_bairro'].toString();
-        user.tabcep_cep = item['tabcep_cep'].toString();
-        user.tabcep_uf = item['tabcep_uf'].toString();
-        user.tabcep_tplogradouro = item['tabcep_tplogradouro'].toString();
-        user.tabcep_regional = item['tabcep_regional'].toString();
-        user.tabcep_numerocep = item['tabcep_numerocep'].toString();
-        user.tabcep_codlogradouro = item['tabcep_codlogradouro'].toString();
+        user.id = item['id'].toString();
+        user.cpf = item['cpf'].toString();
+        user.nome = item['nome'].toString();
+        user.datanascimento = item['datanascimento'].toString();
+        user.sexo = item['sexo'].toString();
+        user.codendereco = item['codendereco'].toString();
+        user.nr = item['nr'].toString();
+        user.tel_whatsapp = item['tel_whatsapp'].toString();
+        user.celular = item['celular'].toString();
+        user.telefone = item['telefone'].toString();
+        user.email = item['email'].toString();
+        user.ocupacao = item['ocupacao'].toString();
+        user.logradouro = item['logradouro'].toString();
+        user.municipio = item['municipio'].toString();
+        user.bairro = item['bairro'].toString();
+        user.cep = item['cep'].toString();
+        user.uf = item['uf'].toString();
+        user.tplogradouro = item['tplogradouro'].toString();
+        user.regional = item['regional'].toString();
+        user.numerocep = item['numerocep'].toString();
+        user.codlogradouro = item['codlogradouro'].toString();
         //   user.primeiroatendimento = item['primeiroatendimento'].toString();
         //   user.ultimoatendimento = item['ultimoatendimento'].toString();
         //  user.ultimoatendimentoemanos =
@@ -107,11 +106,11 @@ class UsuariosList with ChangeNotifier {
 
     Map<String, String> param = {
       'cpf': fidelimax.cpf,
-      'cpf_amigo': user.pacientes_cpf,
-      'nome_amigo': user.pacientes_nomepaciente,
-      'telefone_amigo': user.pacientes_tel_whatsapp,
-      'email_amigo': user.pacientes_email,
-      'nova_indicacao': user.pacientes_id,
+      'cpf_amigo': user.cpf,
+      'nome_amigo': user.nome,
+      'telefone_amigo': user.tel_whatsapp,
+      'email_amigo': user.email,
+      'nova_indicacao': user.id,
     };
 
     var link = Constants.INDICAR_AMIGO_BIOMA + '' + Constants.AUT_BASE;
@@ -149,16 +148,16 @@ class UsuariosList with ChangeNotifier {
   Future<Usuario> VerificaOuCriaPaciente(
       Usuario user, Fidelimax fidelimax) async {
     //debugPrint(cpf);
-    var pacientes_id = '';
+    var id = '';
 
     //  _items.clear();
 
     Map<String, String> param = {
       'cpf': fidelimax.cpf,
-      'cpf_amigo': user.pacientes_cpf,
-      'nome_amigo': user.pacientes_nomepaciente,
-      'telefone_amigo': user.pacientes_tel_whatsapp,
-      'email_amigo': user.pacientes_email,
+      'cpf_amigo': user.cpf,
+      'nome_amigo': user.nome,
+      'telefone_amigo': user.tel_whatsapp,
+      'email_amigo': user.email,
     };
 
     var link = Constants.VerificaOuCriaPaciente + '' + Constants.AUT_BASE;
@@ -177,31 +176,27 @@ class UsuariosList with ChangeNotifier {
     Usuario NewUser = Usuario();
     await agendamentolist.map(
       (item) {
-        NewUser.pacientes_id = item['pacientes_id'].toString();
-        NewUser.pacientes_cpf = item['pacientes_cpf'].toString();
-        NewUser.pacientes_nomepaciente =
-            item['pacientes_nomepaciente'].toString();
-        NewUser.pacientes_datanascimento =
-            item['pacientes_datanascimento'].toString();
-        NewUser.pacientes_sexo = item['pacientes_sexo'].toString();
-        NewUser.pacientes_codendereco =
-            item['pacientes_codendereco'].toString();
-        NewUser.pacientes_nr = item['pacientes_nr'].toString();
-        NewUser.pacientes_tel_whatsapp =
-            item['pacientes_tel_whatsapp'].toString();
-        NewUser.pacientes_celular = item['pacientes_celular'].toString();
-        NewUser.pacientes_telefone = item['pacientes_telefone'].toString();
-        NewUser.pacientes_email = item['pacientes_email'].toString();
-        NewUser.pacientes_ocupacao = item['pacientes_ocupacao'].toString();
-        NewUser.tabcep_logradouro = item['tabcep_logradouro'].toString();
-        NewUser.tabcep_municipio = item['tabcep_municipio'].toString();
-        NewUser.tabcep_bairro = item['tabcep_bairro'].toString();
-        NewUser.tabcep_cep = item['tabcep_cep'].toString();
-        NewUser.tabcep_uf = item['tabcep_uf'].toString();
-        NewUser.tabcep_tplogradouro = item['tabcep_tplogradouro'].toString();
-        NewUser.tabcep_regional = item['tabcep_regional'].toString();
-        NewUser.tabcep_numerocep = item['tabcep_numerocep'].toString();
-        NewUser.tabcep_codlogradouro = item['tabcep_codlogradouro'].toString();
+        NewUser.id = item['id'].toString();
+        NewUser.cpf = item['cpf'].toString();
+        NewUser.nome = item['nomepaciente'].toString();
+        NewUser.datanascimento = item['datanascimento'].toString();
+        NewUser.sexo = item['sexo'].toString();
+        NewUser.codendereco = item['codendereco'].toString();
+        NewUser.nr = item['nr'].toString();
+        NewUser.tel_whatsapp = item['tel_whatsapp'].toString();
+        NewUser.celular = item['celular'].toString();
+        NewUser.telefone = item['telefone'].toString();
+        NewUser.email = item['email'].toString();
+        NewUser.ocupacao = item['ocupacao'].toString();
+        NewUser.logradouro = item['logradouro'].toString();
+        NewUser.municipio = item['municipio'].toString();
+        NewUser.bairro = item['bairro'].toString();
+        NewUser.cep = item['cep'].toString();
+        NewUser.uf = item['uf'].toString();
+        NewUser.tplogradouro = item['tplogradouro'].toString();
+        NewUser.regional = item['regional'].toString();
+        NewUser.numerocep = item['numerocep'].toString();
+        NewUser.codlogradouro = item['codlogradouro'].toString();
         //   user.primeiroatendimento = item['primeiroatendimento'].toString();
         //   user.ultimoatendimento = item['ultimoatendimento'].toString();
         //  user.ultimoatendimentoemanos =

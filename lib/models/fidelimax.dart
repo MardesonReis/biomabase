@@ -145,7 +145,6 @@ class Fidelimax with ChangeNotifier {
         print("Cadastro Fidelimax Encontrado");
         //this._cpf = await this.ConsultaConsumidor();
         //  await this.ExtratoConsumidor();
-
       } else {
         this._cpf = '';
         // print("Cadastro Fidelimax não Encontrado");
@@ -164,10 +163,10 @@ class Fidelimax with ChangeNotifier {
   Future<String> IndicarAmigoFidelimax(Usuario usuario) async {
     Map parans = {
       "cpf": this._cpf,
-      "amigo_nome": usuario.pacientes_nomepaciente,
-      "amigo_email": usuario.pacientes_email,
-      "amigo_celular": usuario.pacientes_telefone,
-      "cartao": usuario.pacientes_id
+      "amigo_nome": usuario.nome,
+      "amigo_email": usuario.email,
+      "amigo_celular": usuario.telefone,
+      "cartao": usuario.id
     };
     print(parans.toString());
     var link =
@@ -228,7 +227,6 @@ class Fidelimax with ChangeNotifier {
       this._cpf = '';
       print("Cadastro Fidelimax não Encontrado");
       //     throw AuthException(body['CodigoResposta'].toString());
-
     }
 
     //    _autoLogout();
@@ -262,10 +260,10 @@ class Fidelimax with ChangeNotifier {
     final body = jsonDecode(response.body)['dados'];
 
     if (body['CodigoResposta'] == 100) {
-      this.usuario.pacientes_nomepaciente = body['nome'].toString();
-      this.usuario.pacientes_celular = body['telefone'].toString();
-      this.usuario.pacientes_cpf = this._cpf;
-      this.usuario.pacientes_email = body['email'].toString();
+      this.usuario.nome = body['nome'].toString();
+      this.usuario.celular = body['telefone'].toString();
+      this.usuario.cpf = this._cpf;
+      this.usuario.email = body['email'].toString();
 
       this.nome = body['nome'].toString();
       this.sexo = body['sexo'].toString();
@@ -331,7 +329,6 @@ class Fidelimax with ChangeNotifier {
       }).toList();
 
       //this.extrato = body;
-
     } else {
       this._cpf = '';
       throw AuthException(body['CodigoResposta'].toString());

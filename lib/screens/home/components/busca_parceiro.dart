@@ -75,9 +75,9 @@ class BuscaParceiroState extends State<BuscaParceiro> {
         return true;
         //return profile.cpf.contains(query) || profile.cpf.contains(query);
       }).toList(growable: false)
-        ..sort((a, b) => a.pacientes_nomepaciente
+        ..sort((a, b) => a.nome
             .indexOf(lowercaseQuery)
-            .compareTo(b.pacientes_nomepaciente.indexOf(lowercaseQuery)));
+            .compareTo(b.nome.indexOf(lowercaseQuery)));
     }
 
     ;
@@ -172,12 +172,12 @@ Widget _listView(List<Usuario> mockResults) {
           var person = mockResults[index];
           return ListTile(
             leading: CircleAvatar(
-              child: Text(person.pacientes_nomepaciente[0]),
+              child: Text(person.nome[0]),
             ),
-            title: Text(person.pacientes_nomepaciente),
-            subtitle: Text("CPF: " + person.pacientes_cpf),
+            title: Text(person.nome),
+            subtitle: Text("CPF: " + person.cpf),
             onTap: () {
-              print(mockResults[index].pacientes_cpf);
+              print(mockResults[index].cpf);
             },
           );
         }),

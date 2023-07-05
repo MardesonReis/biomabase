@@ -16,6 +16,7 @@ class PdfPageBuilder {
   static pdf.Page buildPage(
       Voucher voucher, pdf.Image bioma, pdf.Image parceiro) {
     final pdfPage = pdf.Page(
+      // orientation: pdf.PageOrientation.portrait,
       pageFormat: PdfPageFormat(
           PdfPageFormat.a4.width, PdfPageFormat.a4.height / 4,
           marginAll: 10),
@@ -26,6 +27,7 @@ class PdfPageBuilder {
                 mainAxisAlignment: pdf.MainAxisAlignment.center,
                 children: [
               pdf.Container(
+                height: (PdfPageFormat.a4.height * 0.9) / 4,
                 child: pdf.Row(children: [
                   pdf.Row(
                     children: [
@@ -51,9 +53,12 @@ class PdfPageBuilder {
                               ),
                             ),
                             pdf.Column(
-                                children: voucher.product
+                                children: voucher.servicos
                                     .map((e) => pdf.Text(
-                                          e.des_procedimentos,
+                                          e.des_procedimento +
+                                              ' - ' +
+                                              e.desconto.toStringAsFixed(2) +
+                                              '%',
                                           softWrap: true,
                                           overflow: pdf.TextOverflow.span,
                                           maxLines: null,

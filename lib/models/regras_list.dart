@@ -83,7 +83,7 @@ class RegrasList with ChangeNotifier {
         ? auth.filtrosativos.convenios.first.cod_convenio
         : '40';
     var especialidade = auth.filtrosativos.especialidades.isNotEmpty
-        ? auth.filtrosativos.especialidades.first.codespecialidade
+        ? auth.filtrosativos.especialidades.first.cod_especialidade
         : '0';
     var unidade = auth.filtrosativos.unidades.isNotEmpty
         ? auth.filtrosativos.unidades.first.cod_unidade
@@ -364,8 +364,8 @@ class RegrasList with ChangeNotifier {
     dlista.map((e) {
       Medicos med = Medicos(
           especialidade: Especialidade(
-              codespecialidade: e.cod_especialidade,
-              descricao: e.des_especialidade,
+              cod_especialidade: e.cod_especialidade,
+              des_especialidade: e.des_especialidade,
               ativo: 'S'));
       med.cod_profissional = e.cod_profissional;
       med.des_profissional = e.des_profissional;
@@ -401,16 +401,16 @@ class RegrasList with ChangeNotifier {
       p.convenio = Convenios(
           cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
-      p.cod_procedimentos = e.cod_procedimentos;
+      p.cod_procedimento = e.cod_procedimentos;
       p.valor_sugerido = double.parse(e.valor_sugerido);
       p.orientacoes = e.orientacoes;
-      p.des_procedimentos = e.des_procedimentos;
+      p.des_procedimento = e.des_procedimentos;
       p.valor = double.parse(e.valor);
       p.grupo = e.grupo;
       p.frequencia = e.frequencia;
       p.quantidade = e.tabop_quantidade;
-      p.especialidade.codespecialidade = e.cod_especialidade;
-      p.especialidade.descricao = e.des_especialidade;
+      p.especialidade.cod_especialidade = e.cod_especialidade;
+      p.especialidade.des_especialidade = e.des_especialidade;
       p.cod_tratamento = e.cod_tratamento;
       p.des_tratamento = e.tipo_tratamento;
 

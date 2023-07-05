@@ -73,8 +73,8 @@ class _EspecialidadesScreenState extends State<EspecialidadesScreen> {
     dados.retainWhere((element) {
       return filtrarEspecialidade
           ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
+              cod_especialidade: element.cod_especialidade,
+              des_especialidade: element.des_especialidade,
               ativo: 'S'))
           : true;
     });
@@ -98,8 +98,8 @@ class _EspecialidadesScreenState extends State<EspecialidadesScreen> {
 
     dados.map((e) {
       var esp = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
+          cod_especialidade: e.cod_especialidade,
+          des_especialidade: e.des_especialidade,
           ativo: 'S');
 
       Medicos med = Medicos(especialidade: esp);
@@ -121,13 +121,14 @@ class _EspecialidadesScreenState extends State<EspecialidadesScreen> {
       if (!EspecialidadesInclusas.contains(e.cod_especialidade)) {
         EspecialidadesInclusas.add(e.cod_especialidade);
         especialidades.add(Especialidade(
-            codespecialidade: e.cod_especialidade,
-            descricao: e.des_especialidade,
+            cod_especialidade: e.cod_especialidade,
+            des_especialidade: e.des_especialidade,
             ativo: 'S'));
       }
     }).toList();
     medicos.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
-    especialidades.sort((a, b) => a.descricao.compareTo(b.descricao));
+    especialidades
+        .sort((a, b) => a.des_especialidade.compareTo(b.des_especialidade));
 
     return Scaffold(
       appBar: PreferredSize(

@@ -48,8 +48,8 @@ class _PopMenuSubEspecialidadesState extends State<PopMenuSubEspecialidades> {
     dados.retainWhere((element) {
       return filtrarEspecialidade
           ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
+              cod_especialidade: element.cod_especialidade,
+              des_especialidade: element.des_especialidade,
               ativo: 'S'))
           : true;
     });

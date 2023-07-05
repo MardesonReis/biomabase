@@ -21,6 +21,16 @@ class VoucheBuild extends StatefulWidget {
 class _VoucheBuildState extends State<VoucheBuild> {
   @override
   Widget build(BuildContext context) {
+    var data = '';
+    if (widget.vouche.dataValidade.toString() != 'null') {
+      var dataInf = DateTime.parse(widget.vouche.dataValidade);
+
+      data = dataInf.day.toString() +
+          '/' +
+          dataInf.month.toString() +
+          '/' +
+          dataInf.year.toString();
+    }
     return Card(
       elevation: 8,
       shadowColor: primaryColor,
@@ -60,7 +70,7 @@ class _VoucheBuildState extends State<VoucheBuild> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: widget.vouche.product
+                      children: widget.vouche.servicos
                           .map((e) => Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -76,9 +86,13 @@ class _VoucheBuildState extends State<VoucheBuild> {
                                         SizedBox(
                                           width: 8,
                                         ),
-                                        textResp(e.des_procedimentos,
+                                        textResp(
+                                            e.des_procedimento +
+                                                ' - ' +
+                                                e.desconto.toStringAsFixed(2) +
+                                                '%',
                                             color: Colors.white,
-                                            fontSize: 16,
+                                            fontSize: 12,
                                             maxLines: 2),
                                         Container(
                                             color: destColor,
@@ -93,37 +107,38 @@ class _VoucheBuildState extends State<VoucheBuild> {
                               ))
                           .toList(),
                     ),
-                    ListTile(
-                      title: Text(
-                        widget.vouche.observacao,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
+                    if (data.toString().isNotEmpty)
+                      ListTile(
+                        title: Text(
+                          widget.vouche.observacao,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      subtitle: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Data de Validade:',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Data de Validade:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text(
-                            widget.vouche.dataValidade,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
+                            Text(
+                              data,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                     SizedBox(height: 40),
 
                     SizedBox(height: 20),
@@ -136,7 +151,7 @@ class _VoucheBuildState extends State<VoucheBuild> {
                       ),
                     ),
                     Text(
-                      widget.vouche.code,
+                      widget.vouche.id + '-' + widget.vouche.code,
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
@@ -183,7 +198,7 @@ class _VoucheBuildState extends State<VoucheBuild> {
                     ),
                     Card(
                       child: dr.QrImageView(
-                        data: widget.vouche.code,
+                        data: widget.vouche.id + '-' + widget.vouche.code,
                         version: dr.QrVersions.auto,
                         size: tela(context).height * 0.08,
                       ),

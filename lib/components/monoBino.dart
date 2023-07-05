@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 class monoBino extends StatefulWidget {
   Procedimento procedimentos;
   VoidCallback press;
+
   monoBino(this.procedimentos, this.press);
   @override
   State<monoBino> createState() => _monoBinoState();
@@ -45,21 +46,15 @@ class _monoBinoState extends State<monoBino> {
       ];
     }
     return PopupMenuButton<Clips>(
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.all(1.0),
-          child: Card(
-            child: Container(
-              color: widget.procedimentos.olho.isNotEmpty
-                  ? primaryColor
-                  : redColor,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(widget.procedimentos.olho.isNotEmpty
-                    ? olhoDescritivo[widget.procedimentos.olho] as String
-                    : 'Informe o Olho'),
-              ),
-            ),
+      child: Card(
+        elevation: 8,
+        child: Container(
+          color: widget.procedimentos.olho.isNotEmpty ? primaryColor : redColor,
+          child: Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Text(widget.procedimentos.olho.isNotEmpty
+                ? olhoDescritivo[widget.procedimentos.olho] as String
+                : 'Informe o Olho'),
           ),
         ),
       ),

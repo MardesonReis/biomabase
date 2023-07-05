@@ -329,9 +329,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   getPasso(VoidCallback ProxiPasso, Auth auth) {
     filtrosAtivos filtros = auth.filtrosativos;
     var StatusProcedimentos = filtros.procedimentos.isNotEmpty
-        ? filtros.procedimentos.first.especialidade.codespecialidade != '1'
+        ? filtros.procedimentos.first.especialidade.cod_especialidade != '1'
             ? filtros.procedimentos.isNotEmpty
-            : filtros.procedimentos.first.especialidade.codespecialidade ==
+            : filtros.procedimentos.first.especialidade.cod_especialidade ==
                         '1' &&
                     filtros.procedimentos.first.olho != ''
                 ? true

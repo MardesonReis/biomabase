@@ -169,16 +169,16 @@ class _BuscarScreeState extends State<BuscarScree> {
       p.convenio = Convenios(
           cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
-      p.cod_procedimentos = e.cod_procedimentos;
-      p.des_procedimentos = e.des_procedimentos;
+      p.cod_procedimento = e.cod_procedimentos;
+      p.des_procedimento = e.des_procedimentos;
       p.valor = double.parse(e.valor);
       p.valor_sugerido = double.parse(e.valor_sugerido);
       p.orientacoes = e.orientacoes;
       p.grupo = e.grupo;
       p.frequencia = e.frequencia;
       p.quantidade = e.tabop_quantidade;
-      p.especialidade.codespecialidade = e.cod_especialidade;
-      p.especialidade.descricao = e.des_especialidade;
+      p.especialidade.cod_especialidade = e.cod_especialidade;
+      p.especialidade.des_especialidade = e.des_especialidade;
       p.cod_tratamento = e.cod_tratamento;
       p.des_tratamento = e.tipo_tratamento;
 
@@ -297,20 +297,24 @@ class _BuscarScreeState extends State<BuscarScree> {
                                 children: List.generate(
                                     procedimentos.length,
                                     (index) => ProcedimentosInfor(
-                                        procedimento: procedimentos[index],
-                                        press: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProcedimentosScrennViwer(
-                                                procedimentos:
-                                                    procedimentos[index],
-                                                press: () {},
+                                          procedimento: procedimentos[index],
+                                          press: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProcedimentosScrennViwer(
+                                                  procedimentos:
+                                                      procedimentos[index],
+                                                  press: () {},
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        })),
+                                            );
+                                          },
+                                          update: () {
+                                            setState(() {});
+                                          },
+                                        )),
                               ),
                               if (dt.limit == false)
                                 Column(

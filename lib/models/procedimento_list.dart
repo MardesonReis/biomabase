@@ -59,8 +59,8 @@ class ProcedimentoList with ChangeNotifier {
         // debugPrint(double.parse(item['frequencia']).toString());
 
         Procedimento p = Procedimento();
-        p.cod_procedimentos = item['cod_procedimento'].toString();
-        p.des_procedimentos = item['descricaounificada'].toString().isEmpty
+        p.cod_procedimento = item['cod_procedimento'].toString();
+        p.des_procedimento = item['descricaounificada'].toString().isEmpty
             ? item['descricao']
             : item['descricaounificada'].toString();
 

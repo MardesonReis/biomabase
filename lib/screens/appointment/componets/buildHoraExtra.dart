@@ -128,7 +128,7 @@ class _HoraEstraState extends State<HoraEstra> with RestorationMixin {
                 usuario: 'usuario',
                 unidade: filtros.unidades.first.cod_unidade,
                 especialidade:
-                    filtros.medicos.first.especialidade.codespecialidade,
+                    filtros.medicos.first.especialidade.cod_especialidade,
                 motivodesmarcar: 'motivodesmarcar',
                 tipodeplantao: 'tipodeplantao',
                 consultorio: 'consultorio',

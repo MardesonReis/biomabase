@@ -50,7 +50,7 @@ class _BuildUsuarioState extends State<BuildUsuario> {
             Visibility(
               visible: filtros.procedimentos.isNotEmpty
                   ? filtros.procedimentos.first.especialidade
-                                  .codespecialidade !=
+                                  .cod_especialidade !=
                               '1' &&
                           filtros.usuarios.isNotEmpty == ''
                       ? filtros.usuarios.isNotEmpty

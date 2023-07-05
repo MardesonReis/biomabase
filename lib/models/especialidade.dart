@@ -5,13 +5,13 @@ import 'package:http/http.dart' as http;
 import 'package:biomaapp/utils/constants.dart';
 
 class Especialidade with ChangeNotifier {
-  String codespecialidade;
-  String descricao;
+  String cod_especialidade;
+  String des_especialidade;
   String ativo;
 
   Especialidade(
-      {required this.codespecialidade,
-      required this.descricao,
+      {required this.cod_especialidade,
+      required this.des_especialidade,
       required this.ativo});
 
   @override
@@ -19,29 +19,29 @@ class Especialidade with ChangeNotifier {
       identical(this, other) ||
       other is Especialidade &&
           runtimeType == other.runtimeType &&
-          descricao == other.descricao;
+          des_especialidade == other.des_especialidade;
 
   @override
-  int get hashCode => descricao.hashCode;
+  int get hashCode => des_especialidade.hashCode;
 
   @override
   String toString() {
-    return descricao;
+    return des_especialidade;
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'codespecialidade': codespecialidade,
-      'descricao': descricao,
+      'cod_especialidade': cod_especialidade,
+      'des_especialidade': des_especialidade,
       'ativo': ativo,
     };
   }
 
   factory Especialidade.fromJson(Map<String, dynamic> json) {
     return Especialidade(
-      codespecialidade: json['codespecialidade'],
-      descricao: json['descricao'],
-      ativo: json['ativo'],
+      cod_especialidade: json['cod_especialidade'].toString(),
+      des_especialidade: json['des_especialidade'].toString(),
+      ativo: json['ativo'].toString(),
     );
   }
   static Future<Especialidade> fromId(String id) async {

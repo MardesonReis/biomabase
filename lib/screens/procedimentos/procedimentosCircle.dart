@@ -20,7 +20,7 @@ class _ProcedimentosCircleState extends State<ProcedimentosCircle> {
   String detalhe = '';
   @override
   Widget build(BuildContext context) {
-    if (widget.procedimento.especialidade.codespecialidade == '1') {
+    if (widget.procedimento.especialidade.cod_especialidade == '1') {
       detalhe = ' ' + ManoBino[widget.procedimento.quantidade].toString();
       ;
     } else {
@@ -42,7 +42,7 @@ class _ProcedimentosCircleState extends State<ProcedimentosCircle> {
               backgroundImage: NetworkImage(
                 Constants.IMG_BASE_URL +
                     'medicos/' +
-                    widget.procedimento.cod_procedimentos +
+                    widget.procedimento.cod_procedimento +
                     '.png',
               ),
               radius: 25.0,
@@ -52,11 +52,11 @@ class _ProcedimentosCircleState extends State<ProcedimentosCircle> {
                 });
               },
               child: isError == true
-                  ? Text(widget.procedimento.des_procedimentos[0])
+                  ? Text(widget.procedimento.des_procedimento[0])
                   : SizedBox(),
             ),
-            textResp(widget.procedimento.des_procedimentos),
-            textResp(widget.procedimento.especialidade.descricao),
+            textResp(widget.procedimento.des_procedimento),
+            textResp(widget.procedimento.especialidade.des_especialidade),
             textResp(widget.procedimento.orientacoes),
             Text(
               detalhe,

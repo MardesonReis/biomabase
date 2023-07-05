@@ -71,22 +71,22 @@ class _FormIndicaUserState extends State<FormIndicaUser> {
         .replaceAll(')', '')
         .replaceAll('-', '');
     Usuario user = Usuario();
-    user.pacientes_cpf = cpf;
-    user.pacientes_nomepaciente = _authData['nome'].toString();
-    user.pacientes_email = _authData['email'].toString();
-    user.pacientes_telefone = telefone;
-    user.pacientes_tel_whatsapp = telefone;
+    user.cpf = cpf;
+    user.nome = _authData['nome'].toString();
+    user.email = _authData['email'].toString();
+    user.telefone = telefone;
+    user.tel_whatsapp = telefone;
 
     user.primeiroatendimento = '';
 
-    if (UtilBrasilFields.isCPFValido(user.pacientes_cpf) ||
-        UtilBrasilFields.isCNPJValido(user.pacientes_cpf)) {
+    if (UtilBrasilFields.isCPFValido(user.cpf) ||
+        UtilBrasilFields.isCNPJValido(user.cpf)) {
       try {
         await userlist.VerificaOuCriaPaciente(user, auth.fidelimax)
             .then((NewUser) async {
           filtros.LimparUsuarios();
-          if (NewUser.pacientes_email.isEmpty) {
-            NewUser.pacientes_email = user.pacientes_email;
+          if (NewUser.email.isEmpty) {
+            NewUser.email = user.email;
           }
           filtros.addUsuarios(NewUser);
           resposta = await auth.fidelimax.IndicarAmigoFidelimax(NewUser);

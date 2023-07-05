@@ -59,10 +59,11 @@ class _EspecialidadesCardState extends State<EspecialidadesCard> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset('assets/icons/' + widget.esp.descricao + '.svg'),
+              SvgPicture.asset(
+                  'assets/icons/' + widget.esp.des_especialidade + '.svg'),
               SizedBox(height: defaultPadding / 2),
               Text(
-                widget.esp.descricao.capitalize(),
+                widget.esp.des_especialidade.capitalize(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

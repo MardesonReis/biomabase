@@ -35,8 +35,8 @@ class Convenios with ChangeNotifier {
 
   factory Convenios.fromJson(Map<String, dynamic> json) {
     return Convenios(
-      cod_convenio: json['cod_convenio'],
-      desc_convenio: json['desc_convenio'],
+      cod_convenio: json['cod_convenio'].toString(),
+      desc_convenio: json['desc_convenio'].toString(),
     );
   }
 }

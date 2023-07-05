@@ -137,8 +137,8 @@ class _EmptyContentsState extends State<_EmptyContents> {
                     widget.agendamento.cod_convenio)
                 .then((procedimento) {
               procedimento.especialidade = Especialidade(
-                  codespecialidade: widget.agendamento.cod_especialidade,
-                  descricao: widget.agendamento.des_especialidade,
+                  cod_especialidade: widget.agendamento.cod_especialidade,
+                  des_especialidade: widget.agendamento.des_especialidade,
                   ativo: 'S');
               procedimento.EscolherOlho(widget.agendamento.olho);
 

@@ -283,7 +283,7 @@ class Auth with ChangeNotifier {
 
     listmedicos.map(
       (item) {
-        this.fidelimax.parceiro.pacientes_id = item['id_parceiro'].toString();
+        this.fidelimax.parceiro.id = item['id_parceiro'].toString();
         // _items.add(Fila());
         //     item['crm'].toString(),
       },
@@ -292,6 +292,6 @@ class Auth with ChangeNotifier {
     //  items.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
     notifyListeners();
 
-    return this.fidelimax.parceiro.pacientes_id;
+    return this.fidelimax.parceiro.id;
   }
 }

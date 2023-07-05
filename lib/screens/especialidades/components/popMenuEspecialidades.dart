@@ -39,7 +39,7 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
         ? conveniosList.loadEspecialidade('').then((value) {
             setState(() {
               especialidadeSelecionado = conveniosList.items
-                  .where((element) => element.codespecialidade == '1')
+                  .where((element) => element.cod_especialidade == '1')
                   .toList()
                   .first;
 
@@ -71,7 +71,9 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
     var filtrarEspecialidade = filtros.especialidades.isNotEmpty;
 
     Especialidade allEsp = Especialidade(
-        codespecialidade: '00', descricao: 'Especialidades', ativo: '');
+        cod_especialidade: '00',
+        des_especialidade: 'Especialidades',
+        ativo: '');
     especialidades.contains(allEsp)
         ? false
         : setState(() {
@@ -92,8 +94,8 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
                 child: Row(
                   children: [
                     Text(filtros.especialidades.isNotEmpty
-                        ? filtros.especialidades.first.descricao
-                        : especialidadeSelecionado.descricao),
+                        ? filtros.especialidades.first.des_especialidade
+                        : especialidadeSelecionado.des_especialidade),
                     Icon(
                       Icons.expand_more_outlined,
                       color: primaryColor,
@@ -107,7 +109,7 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
                 await filtros.LimparEspecialidades();
                 await filtros.LimparSubEspecialidades();
                 await filtros.LimparGrupos();
-                if (value.codespecialidade != '00') {
+                if (value.cod_especialidade != '00') {
                   await filtros.addEspacialidades(value);
                 }
                 especialidadeSelecionado = value;
@@ -120,7 +122,7 @@ class _PopMenuEspecialidadeState extends State<PopMenuEspecialidade> {
                   value: choice,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(choice.descricao),
+                    child: Text(choice.des_especialidade),
                   ),
                 );
               }).toList();

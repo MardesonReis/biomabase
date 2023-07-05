@@ -1,11 +1,14 @@
 import 'dart:io';
+import 'package:biomaapp/components/infor_unidade.dart';
 import 'package:biomaapp/components/monoBino.dart';
 import 'package:biomaapp/models/Voucher.dart';
 import 'package:biomaapp/models/pacientes.dart';
 import 'package:biomaapp/models/procedimento.dart';
+import 'package:biomaapp/models/unidade.dart';
 import 'package:biomaapp/models/voucher_list.dart';
 import 'package:biomaapp/screens/user/components/user_card.dart';
 import 'package:biomaapp/screens/vouches/ListaVoucherViwer.dart';
+import 'package:biomaapp/utils/SelectLocais.dart';
 import 'package:biomaapp/utils/SelectUser.dart';
 import 'package:biomaapp/utils/SelectProcedimentos.dart';
 import 'package:biomaapp/constants.dart';
@@ -25,20 +28,22 @@ import 'package:path_provider/path_provider.dart';
 import 'VoucherBuild.dart';
 import 'package:biomaapp/screens/appointment/componets/buildProcedimentos.dart';
 
-class VoucherViwer extends StatefulWidget {
+class VocuherCriador extends StatefulWidget {
   @override
-  _VoucherViwerState createState() => _VoucherViwerState();
+  _VocuherCriadorState createState() => _VocuherCriadorState();
 }
 
-class _VoucherViwerState extends State<VoucherViwer> with RestorationMixin {
+class _VocuherCriadorState extends State<VocuherCriador> with RestorationMixin {
   int quantity = 0;
-  List<Procedimento> selectedProduct = [];
+  List<Procedimento> servicos = [];
 
   final _orientacao_controller = TextEditingController();
   bool data_validade = false;
   bool revendedor = false;
+  double _porcentagem = 100;
   var isError;
   List<Usuario> revendedores = [];
+  List<Unidade> locais = [];
   String _time =
       DateTime.now().hour.toString() + ':' + DateTime.now().minute.toString();
   List<Voucher> vouchers = [];
@@ -110,20 +115,29 @@ class _VoucherViwerState extends State<VoucherViwer> with RestorationMixin {
   }
 
   void generateVouchers(VoucherList GestorDeVoucher, Auth auth) async {
-    if (quantity > 0 && selectedProduct.isNotEmpty) {
+    String validade;
+    if (data_validade) {
+      validade = _selectedDate.value.day.toString() +
+          '/' +
+          _selectedDate.value.month.toString() +
+          '/' +
+          _selectedDate.value.year.toString();
+    } else {
+      validade = '';
+    }
+
+    if (quantity > 0 && servicos.isNotEmpty) {
       vouchers = GestorDeVoucher.generateAutomaticVouchers(
-          quantity: quantity,
-          product: selectedProduct,
-          logistaCPF: auth.fidelimax.usuario,
-          representante: revendedores,
-          clientes: [],
-          dataValidade: _selectedDate.value.day.toString() +
-              '/' +
-              _selectedDate.value.month.toString() +
-              '/' +
-              _selectedDate.value.year.toString(),
-          observacao: _orientacao_controller.text,
-          status: 'A');
+        quantity: quantity,
+        locais: locais,
+        servicos: servicos,
+        logista: [auth.fidelimax.usuario],
+        representantes: revendedores,
+        clientes: [],
+        dataValidade: validade,
+        observacao: _orientacao_controller.text,
+        status: 'A',
+      );
 
       Voucher voucherToShare = vouchers.first;
       GestorDeVoucher.shareVoucherWithSalesRepresentative(
@@ -158,8 +172,32 @@ class _VoucherViwerState extends State<VoucherViwer> with RestorationMixin {
                 )),
       ).then((value) => {
             setState(() {
-              if (!selectedProduct.contains(filtros.procedimentos.first)) {
-                selectedProduct.add(filtros.procedimentos.first);
+              Procedimento procedimento = filtros.procedimentos.first;
+              if (!servicos.contains(procedimento)) {
+                procedimento.desconto = _porcentagem;
+                servicos.add(procedimento);
+              }
+            }),
+          });
+    }
+
+    SLocais() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Scaffold(
+                  body: SelectLocais(press: () {
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  }),
+                )),
+      ).then((value) => {
+            setState(() {
+              Unidade unidade = filtros.unidades.first;
+
+              if (!locais.contains(unidade)) {
+                locais.add(unidade);
               }
             }),
           });
@@ -187,14 +225,29 @@ class _VoucherViwerState extends State<VoucherViwer> with RestorationMixin {
       Navigator.of(context).push(new MaterialPageRoute<Null>(
           builder: (BuildContext context) {
             bool isloading = false;
-            return ListVoucheViwer(vouchers: vouchers);
+            return ListVoucheViwer(
+              vouchers: vouchers,
+              salvar: true,
+            );
           },
           fullscreenDialog: true));
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gerenciador de vouchers'),
+        iconTheme: IconThemeData(
+            size: 32, //change size on your need
+            color: destColor,
+
+            //change color on your need
+            shadows: [
+              Shadow(blurRadius: 3.0, color: Colors.grey, offset: Offset.zero)
+            ]),
+        title: Text('Gerenciador de vouchers',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge!
+                .copyWith(fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -202,87 +255,173 @@ class _VoucherViwerState extends State<VoucherViwer> with RestorationMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Digite a quantidade de vouchers e selecione o serviço:',
-                style: TextStyle(fontSize: 18),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                decoration:
-                    InputDecoration(labelText: 'Quantidade de Vouchers'),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  setState(() {
-                    quantity = int.tryParse(value) ?? 0;
-                  });
-                },
+              ListTile(
+                title: Text(
+                  'Digite a quantidade de vouchers e selecione o serviço:',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+                subtitle: TextField(
+                  decoration:
+                      InputDecoration(labelText: 'Quantidade de Vouchers'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      quantity = int.tryParse(value) ?? 0;
+                    });
+                  },
+                ),
               ),
               SizedBox(height: 16),
               ListTile(
-                onTap: () => SProcedimentos(),
-                tileColor: primaryColor,
                 title: Text(
-                  'Selecione um procedimento',
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      fontWeight: FontWeight.bold, color: Colors.white),
+                  'Selecione locais de atendimento',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge!
+                      .copyWith(fontWeight: FontWeight.bold),
                 ),
-              ),
-              Column(
-                children: selectedProduct
-                    .map((e) => InkWell(
-                          onDoubleTap: () {
-                            setState(() {
-                              selectedProduct.remove(e);
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Column(
-                              children: [
-                                ProcedimentosInfor(
-                                  procedimento: e,
-                                  press: () => () {},
-                                ),
-                                e.especialidade.codespecialidade == '1'
-                                    ? monoBino(e, () {
-                                        setState(() {
-                                          // widget.refreshPage.call();
-                                        });
-                                      })
-                                    : SizedBox(),
-                              ],
-                            ),
-                          ),
-                        ))
-                    .toList(),
-              ),
-              GestureDetector(
-                onTap: () {
-                  SProcedimentos();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Container(
-                    // Largura desejada para o botão "Adicionar Mais"
+                trailing: GestureDetector(
+                  onTap: () {
+                    SLocais();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Container(
+                      // Largura desejada para o botão "Adicionar Mais"
 
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: primaryColor,
-                          radius: 25,
-                          child: Center(
-                            child: Icon(
-                              Icons.add,
-                              size: 25,
-                              color: Colors.white,
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: primaryColor,
+                            radius: 20,
+                            child: Center(
+                              child: Icon(
+                                Icons.add,
+                                size: 25,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                        //  textResp('Adicionar Mais')
-                      ],
+                          //  textResp('Adicionar Mais')
+                        ],
+                      ),
                     ),
                   ),
                 ),
+              ),
+              Column(
+                children: [
+                  Column(
+                    children: locais
+                        .map((e) => InkWell(
+                              onDoubleTap: () {
+                                setState(() {
+                                  locais.remove(e);
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Column(
+                                  children: [InforUnidade(e, () {})],
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              ListTile(
+                title: Text(
+                  'Selecione um Serviço',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+                trailing: GestureDetector(
+                  onTap: () {
+                    SProcedimentos();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Container(
+                      // Largura desejada para o botão "Adicionar Mais"
+
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: primaryColor,
+                            radius: 20,
+                            child: Center(
+                              child: Icon(
+                                Icons.add,
+                                size: 25,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          //  textResp('Adicionar Mais')
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Column(
+                children: [
+                  Column(
+                    children: servicos
+                        .map((e) => InkWell(
+                              onDoubleTap: () {
+                                setState(() {
+                                  servicos.remove(e);
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Column(
+                                  children: [
+                                    ProcedimentosInfor(
+                                      procedimento: e,
+                                      press: () => () {},
+                                      widget: ListTile(
+                                        title: Column(
+                                          children: [
+                                            textResp('Regulador de desconto',
+                                                fontSize: 12),
+                                            Slider(
+                                              value: e.desconto,
+                                              min: 0,
+                                              max: 100,
+                                              divisions: 10,
+                                              onChanged: (double value) {
+                                                setState(() {
+                                                  e.desconto = value;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        trailing: Text(
+                                          ' ${e.desconto.toStringAsFixed(1)}%',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      update: () {
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ],
               ),
               SizedBox(height: 16),
               Column(
@@ -368,21 +507,17 @@ class _VoucherViwerState extends State<VoucherViwer> with RestorationMixin {
                                               : SizedBox(),
                                           backgroundImage: NetworkImage(
                                             Constants.IMG_USUARIO +
-                                                e.pacientes_cpf +
+                                                e.cpf +
                                                 '.jpg',
                                           ),
                                         ),
                                         Row(
                                           children: [
-                                            textResp(e.pacientes_nomepaciente
-                                                .split(' ')
-                                                .first),
+                                            textResp(e.nome.split(' ').first),
                                             SizedBox(
                                               width: 3,
                                             ),
-                                            textResp(e.pacientes_nomepaciente
-                                                .split(' ')
-                                                .last)
+                                            textResp(e.nome.split(' ').last)
                                           ],
                                         )
                                       ],
@@ -512,7 +647,7 @@ class _VoucherViwerState extends State<VoucherViwer> with RestorationMixin {
                 ),
               ),
               SizedBox(height: 16),
-              if (quantity > 0 && selectedProduct.isNotEmpty)
+              if (quantity > 0 && servicos.isNotEmpty)
                 ElevatedButton(
                   onPressed: () {
                     generateVouchers(GestorDeVoucher, auth);

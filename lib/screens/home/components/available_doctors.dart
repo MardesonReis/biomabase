@@ -65,8 +65,8 @@ class _AvailableDoctorsState extends State<AvailableDoctors> {
     dados.retainWhere((element) {
       return filtrarEspecialidade
           ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
+              cod_especialidade: element.cod_especialidade,
+              des_especialidade: element.des_especialidade,
               ativo: 'S'))
           : true;
     });
@@ -84,8 +84,8 @@ class _AvailableDoctorsState extends State<AvailableDoctors> {
 
     dados.map((e) {
       var especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
+          cod_especialidade: e.cod_especialidade,
+          des_especialidade: e.des_especialidade,
           ativo: 'S');
       Medicos med = Medicos(especialidade: especialidade);
       med.cod_profissional = e.cod_profissional;

@@ -58,13 +58,13 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
     );
 
     Procedimento procedimento = Procedimento();
-    procedimento.cod_procedimentos = widget.agendamento.cod_procedimento;
-    procedimento.des_procedimentos = widget.agendamento.des_procedimento;
+    procedimento.cod_procedimento = widget.agendamento.cod_procedimento;
+    procedimento.des_procedimento = widget.agendamento.des_procedimento;
     procedimento.valor_sugerido = double.parse(widget.agendamento.valor);
 
     procedimento.especialidade = Especialidade(
-        codespecialidade: widget.agendamento.cod_especialidade,
-        descricao: widget.agendamento.des_especialidade,
+        cod_especialidade: widget.agendamento.cod_especialidade,
+        des_especialidade: widget.agendamento.des_especialidade,
         ativo: 'S');
     Medicos medico = Medicos(especialidade: procedimento.especialidade);
     medico.des_profissional = widget.agendamento.des_profissional;
@@ -72,9 +72,9 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
     medico.cod_profissional = widget.agendamento.cod_profissional;
     procedimento.EscolherOlho(widget.agendamento.olho);
     Usuario user = Usuario();
-    user.pacientes_nomepaciente = widget.agendamento.des_paciente;
-    user.pacientes_cpf = widget.agendamento.cpf_paciente;
-    user.pacientes_id = widget.agendamento.cod_paciente;
+    user.nome = widget.agendamento.des_paciente;
+    user.cpf = widget.agendamento.cpf_paciente;
+    user.id = widget.agendamento.cod_paciente;
     return Scaffold(
       appBar: AppBar(
         title: Text('Procedimento ' +
@@ -132,6 +132,9 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
                               ProcedimentosInfor(
                                 procedimento: procedimento,
                                 press: () {},
+                                update: () {
+                                  setState(() {});
+                                },
                               ),
                             ],
                           ),
@@ -201,7 +204,7 @@ class _AgendamentosPageState extends State<AgendamentosPage> {
                       widget.agendamento.des_status_agenda == 'A')
                     ElevatedButton(
                         onPressed: () {
-                          if (procedimento.cod_procedimentos.isEmpty) {
+                          if (procedimento.cod_procedimento.isEmpty) {
                             showSnackBar(
                                 Text('Agendamento indisponível'), context);
                             return;

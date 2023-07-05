@@ -25,7 +25,7 @@ class PopMenuConvenios extends StatefulWidget {
 class _PopMenuConveniosState extends State<PopMenuConvenios> {
   var _isLoading = true;
   Convenios ConvenioSelecionado =
-      Convenios(cod_convenio: '40', desc_convenio: 'REDE BIOCLINICA');
+      Convenios(cod_convenio: '40', desc_convenio: 'PARTICULAR');
   @override
   void initState() {
     Auth auth = Provider.of<Auth>(
@@ -43,8 +43,10 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
                   .where((element) => element.cod_convenio == '40')
                   .toList()
                   .first;
+              if (!auth.filtrosativos.convenios.contains(ConvenioSelecionado)) {
+                auth.filtrosativos.convenios.add(ConvenioSelecionado);
+              }
 
-              auth.filtrosativos.convenios.add(ConvenioSelecionado);
               _isLoading = false;
             });
           })
@@ -67,7 +69,9 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
     auth.filtrosativos.convenios.isEmpty
         ? () {
             setState(() {
-              auth.filtrosativos.convenios.add(ConvenioSelecionado);
+              if (!auth.filtrosativos.convenios.contains(ConvenioSelecionado)) {
+                auth.filtrosativos.convenios.add(ConvenioSelecionado);
+              }
             });
           }.call()
         : true;
@@ -84,9 +88,7 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    ConvenioSelecionado.desc_convenio == 'REDE BIOCLINICA'
-                        ? Text('PARTICULAR')
-                        : Text(ConvenioSelecionado.desc_convenio),
+                    Text(ConvenioSelecionado.desc_convenio),
                     Icon(
                       Icons.expand_more_outlined,
                       color: primaryColor,
@@ -113,9 +115,7 @@ class _PopMenuConveniosState extends State<PopMenuConvenios> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        choice.desc_convenio == 'REDE BIOCLINICA'
-                            ? Text('PARTICULAR')
-                            : Text(choice.desc_convenio),
+                        Text(choice.desc_convenio),
                       ],
                     ),
                   ),

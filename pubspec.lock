@@ -177,6 +177,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.5"
+  disposable_provider:
+    dependency: transitive
+    description:
+      name: disposable_provider
+      sha256: "8f17003f97f1b5a83e96bb4af955aa21d00c1e57881efdc3bbea53653198b544"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   disposables:
     dependency: transitive
     description:
@@ -837,6 +845,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.5"
+  riverpod:
+    dependency: transitive
+    description:
+      name: riverpod
+      sha256: "80e48bebc83010d5e67a11c9514af6b44bbac1ec77b4333c8ea65dbc79e2d8ef"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.6"
+  route_observer_mixin:
+    dependency: "direct main"
+    description:
+      name: route_observer_mixin
+      sha256: "2082e1e0d3a9155684009b7385369a9b90ec5460673f9130f4de850f0d9230c3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.7.0"
   rxdart:
     dependency: transitive
     description:
@@ -978,6 +1002,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
+  state_notifier:
+    dependency: transitive
+    description:
+      name: state_notifier
+      sha256: "8fe42610f179b843b12371e40db58c9444f8757f8b69d181c97e50787caed289"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.2+1"
   stream_channel:
     dependency: transitive
     description:

@@ -4,6 +4,8 @@
         android:label="bioma"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icons">
+              <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyBAi1plCLTk70RFlCkp6jcdA6CJreS2wHA"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -48,9 +48,9 @@ class _UserScreenState extends State<UserScreen> {
             //return profile.cpf.contains(query) || profile.cpf.contains(query);
           })
           .toList(growable: false)
-          .sort((a, b) => a.pacientes_nomepaciente
+          .sort((a, b) => a.nome
               .indexOf(lowercaseQuery)
-              .compareTo(b.pacientes_nomepaciente.indexOf(lowercaseQuery)));
+              .compareTo(b.nome.indexOf(lowercaseQuery)));
     }
 
     ;
@@ -106,10 +106,10 @@ class _UserScreenState extends State<UserScreen> {
 
     filtros.usuarios.isNotEmpty
         ? () {
-            UtilBrasilFields.isCPFValido(filtros.usuarios.first.pacientes_cpf)
-                ? txtQuery.text = UtilBrasilFields.obterCpf(
-                    filtros.usuarios.first.pacientes_cpf)
-                : txtQuery.text = filtros.usuarios.first.pacientes_nomepaciente;
+            UtilBrasilFields.isCPFValido(filtros.usuarios.first.cpf)
+                ? txtQuery.text =
+                    UtilBrasilFields.obterCpf(filtros.usuarios.first.cpf)
+                : txtQuery.text = filtros.usuarios.first.nome;
             //   buscarQuery.call(filtros.usuarios.first.cpf);
             mockResults.clear();
             mockResults.add(filtros.usuarios.first);
@@ -123,7 +123,7 @@ class _UserScreenState extends State<UserScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Visibility(
-              visible: true,
+              visible: false,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FloatingActionButton.extended(
@@ -184,9 +184,28 @@ class _UserScreenState extends State<UserScreen> {
             ),
           ],
         ),
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(40),
-            child: CustomAppBar('Busque\n', 'Amigos', () {}, [])),
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: destColor),
+          backgroundColor: Colors.white,
+          title: Text(
+            'Usuários',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge!
+                .copyWith(fontWeight: FontWeight.bold),
+          ),
+          actions: [
+            IconButton(onPressed: () => ParaMim(), icon: Icon(Icons.person)),
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacementNamed(
+                    AppRoutes.AddUser,
+                  );
+                },
+                icon: Icon(Icons.add)),
+          ],
+        ),
+
         // drawer: AppDrawer(),
         body: Container(
           height: MediaQuery.of(context).size.height,
@@ -198,17 +217,23 @@ class _UserScreenState extends State<UserScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(defaultPadding),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Text(
+                        //   'Para quem você quer indicar um serviço ? ',
+                        //   style: Theme.of(context)
+                        //       .textTheme
+                        //       .titleLarge!
+                        //       .copyWith(fontWeight: FontWeight.bold),
+                        // ),
                         Text(
-                          'Para quem você quer indicar um serviço ? ',
+                          'Busque um contato por CPF ou cadastre um novo usuário ',
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge!
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                            'Busque um contato por CPF ou Cadastre um novo usuário ',
-                            style: Theme.of(context).textTheme.caption),
                         SizedBox(
                           height: defaultPadding,
                         ),
@@ -293,22 +318,17 @@ class _UserScreenState extends State<UserScreen> {
                     ? Center(
                         child: CircularProgressIndicator(),
                       )
-                    : mockResults.isNotEmpty
-                        ? Column(
-                            children: List.generate(
-                                mockResults.length,
-                                (index) => UserCard(
-                                    user: mockResults[index],
-                                    press: () {
-                                      filtros.LimparUsuarios();
-                                      filtros.addUsuarios(mockResults[index]);
-                                      Navigator.of(context).pop();
-                                    })),
-                          )
-                        : buildInfoPage(
-                            'Busque uma pessoa',
-                            'Informe o termos de busca e clique na lupa',
-                            Icon(Icons.search)),
+                    : Column(
+                        children: List.generate(
+                            mockResults.length,
+                            (index) => UserCard(
+                                user: mockResults[index],
+                                press: () {
+                                  filtros.LimparUsuarios();
+                                  filtros.addUsuarios(mockResults[index]);
+                                  Navigator.of(context).pop();
+                                })),
+                      ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.1,
                 )

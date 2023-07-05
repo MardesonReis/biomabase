@@ -159,11 +159,12 @@ class _opcoesEspecialidades extends State<opcoesEspecialidades> {
                       filtros.especialidades.length,
                       (index) => InputChip(
                         key: ObjectKey(filtros.especialidades[index]),
-                        label: Text(filtros.especialidades[index].descricao
+                        label: Text(filtros
+                            .especialidades[index].des_especialidade
                             .capitalize()),
                         avatar: CircleAvatar(
                           child: Text(
-                            filtros.especialidades[index].descricao[0],
+                            filtros.especialidades[index].des_especialidade[0],
                             style: Theme.of(context)
                                 .textTheme
                                 .caption!

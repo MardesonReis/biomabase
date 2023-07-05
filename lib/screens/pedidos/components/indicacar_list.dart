@@ -51,7 +51,7 @@ class _IndicarListState extends State<IndicarList> {
     );
     //e.indicado = filtros.usuarios.first;
     var user = Usuario();
-    user.pacientes_cpf = auth.fidelimax.cpf;
+    user.cpf = auth.fidelimax.cpf;
     e.indicando = user;
 
     listfila.GerarFilaIndicacao(e).then((value) {
@@ -81,7 +81,7 @@ class _IndicarListState extends State<IndicarList> {
     );
     //e.indicado = filtros.usuarios.first;
     var user = Usuario();
-    user.pacientes_cpf = auth.fidelimax.cpf;
+    user.cpf = auth.fidelimax.cpf;
     e.indicando = user;
 
     listfila.SalvaIndicacao(e, filaId).then((value) {
@@ -129,7 +129,7 @@ class _IndicarListState extends State<IndicarList> {
                   var erro = widget.erro;
                   return ListTile(
                     title:
-                        Text(widget.fila[index].procedimento.des_procedimentos),
+                        Text(widget.fila[index].procedimento.des_procedimento),
                     trailing: Wrap(children: [
                       if (!widget.erro.contains(widget.fila[index]) &&
                           !widget.sucesso.contains(widget.fila[index]))

@@ -73,7 +73,7 @@ class _ProcedimentoGridItemState extends State<ProcedimentoGridItem> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     direction: Axis.vertical,
                     children: [
-                      textResp(widget.procedimentos.des_procedimentos),
+                      textResp(widget.procedimentos.des_procedimento),
                       SizedBox(
                         height: 20,
                       ),

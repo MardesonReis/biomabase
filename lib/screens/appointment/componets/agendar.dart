@@ -267,7 +267,7 @@ class _AgendarState extends State<Agendar> {
         Clips(titulo: '2 Olhos', subtitulo: '', keyId: 'A'),
       ];
     }
-    var qtd = widget.procedimentos.des_procedimentos.capitalize().length;
+    var qtd = widget.procedimentos.des_procedimento.capitalize().length;
     qtd > 30 ? qtd = 30 : qtd = qtd;
 
     return _isLoadingAgenda && _isLoadUnidades
@@ -283,7 +283,7 @@ class _AgendarState extends State<Agendar> {
                 children: [
                   ListTile(
                     title: Text(
-                        widget.procedimentos.des_procedimentos.capitalize(),
+                        widget.procedimentos.des_procedimento.capitalize(),
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -297,9 +297,14 @@ class _AgendarState extends State<Agendar> {
                     onTap: () async {},
                   ),
                   ProcedimentosInfor(
-                      procedimento: widget.procedimentos, press: () {}),
+                    procedimento: widget.procedimentos,
+                    press: () {},
+                    update: () {
+                      setState(() {});
+                    },
+                  ),
 
-                  widget.doctor.especialidade.codespecialidade == '1'
+                  widget.doctor.especialidade.cod_especialidade == '1'
                       ? monoBino(widget.procedimentos, () {
                           setState(() {});
                         })

@@ -209,19 +209,19 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
       p.convenio = Convenios(
           cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
-      p.cod_procedimentos = e.cod_procedimentos;
-      p.des_procedimentos = e.des_procedimentos;
+      p.cod_procedimento = e.cod_procedimentos;
+      p.des_procedimento = e.des_procedimentos;
       p.valor = double.parse(e.valor);
       p.grupo = e.grupo;
       p.frequencia = e.frequencia;
       p.quantidade = e.tabop_quantidade;
-      p.especialidade.codespecialidade = e.cod_especialidade;
-      p.especialidade.descricao = e.des_especialidade;
+      p.especialidade.cod_especialidade = e.cod_especialidade;
+      p.especialidade.des_especialidade = e.des_especialidade;
       p.cod_tratamento = e.cod_tratamento;
       p.des_tratamento = e.tipo_tratamento;
       var especialidade = Especialidade(
-          codespecialidade: e.cod_especialidade,
-          descricao: e.des_especialidade,
+          cod_especialidade: e.cod_especialidade,
+          des_especialidade: e.des_especialidade,
           ativo: 'S');
       Medicos med = Medicos(especialidade: especialidade);
       med.cod_profissional = e.cod_profissional;
@@ -422,19 +422,24 @@ class _LocalizacaoScreenState extends State<LocalizacaoScreen> {
                             children: List.generate(
                                 procedimentos.length,
                                 (index) => ProcedimentosInfor(
-                                    procedimento: procedimentos[index],
-                                    press: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ProcedimentosScrennViwer(
-                                            procedimentos: procedimentos[index],
-                                            press: () {},
+                                      procedimento: procedimentos[index],
+                                      press: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProcedimentosScrennViwer(
+                                              procedimentos:
+                                                  procedimentos[index],
+                                              press: () {},
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    })),
+                                        );
+                                      },
+                                      update: () {
+                                        setState(() {});
+                                      },
+                                    )),
                           ),
                         ],
                       ),

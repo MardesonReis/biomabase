@@ -47,8 +47,8 @@ class _AgendarListState extends State<AgendarList> {
       context,
       listen: false,
     );
-    if (auth.fidelimax.parceiro.pacientes_id.isEmpty ||
-        auth.fidelimax.parceiro.pacientes_id == "") {
+    if (auth.fidelimax.parceiro.id.isEmpty ||
+        auth.fidelimax.parceiro.id == "") {
       await auth.ParceiroExisteOuCria();
     }
     e.indicando = auth.fidelimax.parceiro;
@@ -100,7 +100,7 @@ class _AgendarListState extends State<AgendarList> {
                   var erro = widget.erro;
                   return ListTile(
                     title:
-                        Text(widget.fila[index].procedimento.des_procedimentos),
+                        Text(widget.fila[index].procedimento.des_procedimento),
                     trailing: Wrap(children: [
                       if (!widget.erro.contains(widget.fila[index]) &&
                           !widget.sucesso.contains(widget.fila[index]))

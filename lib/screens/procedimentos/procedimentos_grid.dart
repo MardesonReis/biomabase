@@ -47,7 +47,7 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
     List<Grupo> gruposlist = [];
     List<Convenios> convenioslist = [];
     List<Procedimento> ProcedimentosFiltrado = [];
-    
+
     Set<String> convenios = Set();
     filtrosAtivos filtros = auth.filtrosativos;
     var filtrarUnidade = filtros.unidades.isNotEmpty;
@@ -80,8 +80,8 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
     dados.retainWhere((element) {
       return filtrarEspecialidade
           ? filtros.especialidades.contains(Especialidade(
-              codespecialidade: element.cod_especialidade,
-              descricao: element.des_especialidade,
+              cod_especialidade: element.cod_especialidade,
+              des_especialidade: element.des_especialidade,
               ativo: 'S'))
           : true;
     });
@@ -111,16 +111,16 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
         p.convenio = Convenios(
             cod_convenio: e.cod_convenio, desc_convenio: e.desc_convenio);
 
-        p.cod_procedimentos = e.cod_procedimentos;
+        p.cod_procedimento = e.cod_procedimentos;
         p.valor_sugerido = double.parse(e.valor_sugerido);
         p.orientacoes = e.orientacoes;
-        p.des_procedimentos = e.des_procedimentos;
+        p.des_procedimento = e.des_procedimentos;
         p.valor = double.parse(e.valor);
         p.grupo = e.grupo;
         p.frequencia = e.frequencia;
         p.quantidade = e.tabop_quantidade;
-        p.especialidade.codespecialidade = e.cod_especialidade;
-        p.especialidade.descricao = e.des_especialidade;
+        p.especialidade.cod_especialidade = e.cod_especialidade;
+        p.especialidade.des_especialidade = e.des_especialidade;
         p.cod_tratamento = e.cod_tratamento;
         p.des_tratamento = e.tipo_tratamento;
 
@@ -147,8 +147,8 @@ class _ProcedimentoGridState extends State<ProcedimentoGrid> {
         EspecialidadesInclusoIncluso.add(e.cod_especialidade);
 
         especialidadeslist.add(Especialidade(
-            codespecialidade: e.cod_especialidade,
-            descricao: e.des_especialidade,
+            cod_especialidade: e.cod_especialidade,
+            des_especialidade: e.des_especialidade,
             ativo: 'S'));
       }
       if (!SubEspecialidadesInclusoIncluso.contains(e.sub_especialidade)) {

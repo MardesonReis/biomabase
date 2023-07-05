@@ -43,7 +43,8 @@ class VoucherList with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> enviarVoucher(Voucher voucher) async {
+  Future<Voucher> enviarVoucher(Voucher voucher) async {
+    Voucher voucher_salvo;
     final url = Constants.BIOMA_API +
         'vouches/salvar/' +
         Constants.AUT_BASE; // Substitua pela URL da sua API
@@ -54,16 +55,48 @@ class VoucherList with ChangeNotifier {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(voucher.toJson()),
       );
-
+      print(response.body);
       if (response.statusCode == 200) {
         // Sucesso na requisição
-        Map<String, dynamic> responseBody = jsonDecode(response.body)['dados'];
-        Voucher v = new Voucher.fromJson(responseBody);
-        print(v.toString());
 
-        print(v.product.first.des_procedimentos);
-        print(v.product.first.valor);
-        print('Voucher enviado com sucesso!');
+        //voucher_salvo = List<Voucher>.from(jsonDecode(response.body)['dados'].map((item) => Voucher.fromJson(item))).toList();
+
+        Map<String, dynamic> responseBody =
+            jsonDecode(response.body)['dados'][0];
+
+        voucher_salvo = new Voucher.fromJson(responseBody);
+      } else {
+        // Erro na requisição
+        voucher_salvo = Voucher.erro();
+        print(
+            'Erro ao enviar o voucher. Código de status: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Erro ao fazer a requisição
+      voucher_salvo = Voucher.erro();
+      print('Erro ao enviar o voucher: $error');
+    }
+    return voucher_salvo;
+  }
+
+  Future<void> loadDados(Usuario user) async {
+    this._items.clear();
+    final url = Constants.BIOMA_API +
+        'vouches/listar/' +
+        Constants.AUT_BASE; // Substitua pela URL da sua API
+    print(url);
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(user.toJson()),
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        // Sucesso na requisição
+
+        this._items = List<Voucher>.from(jsonDecode(response.body)['dados']
+            .map((item) => Voucher.fromJson(item))).toList();
       } else {
         // Erro na requisição
         print(
@@ -73,68 +106,6 @@ class VoucherList with ChangeNotifier {
       // Erro ao fazer a requisição
       print('Erro ao enviar o voucher: $error');
     }
-  }
-
-  Future<void> loadDados(String codprofissional, String medicoLike,
-      String cpf_profissional, String cod_unidade, String procedimento) async {
-    //debugPrint(cpf);
-
-    //_items.clear();
-    var link = '${Constants.DATA_BASE_URL}' +
-        codprofissional +
-        '/' +
-        medicoLike +
-        '/' +
-        cpf_profissional +
-        '/' +
-        cod_unidade +
-        '/' +
-        procedimento +
-        Constants.AUT_BASE;
-    debugPrint(link);
-
-    final response = await http.get(
-      Uri.parse(link),
-    );
-    if (response.body == 'null') return;
-    List listmedicos = jsonDecode(response.body)['dados'];
-    //Set<String> medicosInclusoIncluso = Set();
-
-    await listmedicos.map(
-      (item) {
-        var data = Data(
-          id_regra: '',
-          orientacoes: '',
-          valor_sugerido: '',
-          crm: item['crm'].toString(),
-          cpf: item['cpf'].toString(),
-          cod_profissional: item['cod_profissional'].toString(),
-          des_profissional: item['des_profissional'].toString(),
-          cod_especialidade: item['cod_especialidade'].toString(),
-          des_especialidade: item['des_especialidade'].toString(),
-          grupo: item['grupo'].toString(),
-          idade_mim: item['idade_mim'].toString(),
-          idade_max: item['idade_max'].toString(),
-          sub_especialidade: item['sub_especialidade'].toString(),
-          cod_unidade: item['cod_unidade'].toString(),
-          des_unidade: item['des_unidade'].toString(),
-          cod_convenio: item['cod_convenio'].toString(),
-          desc_convenio: item['desc_convenio'].toString(),
-          cod_procedimentos: item['cod_procedimentos'].toString(),
-          des_procedimentos: item['des_procedimentos'].toString(),
-          cod_tratamento: item['cod_tratamento'].toString(),
-          tipo_tratamento: item['tipo_tratamento'].toString(),
-          tabop_quantidade: item['tabop_quantidade'].toString(),
-          valor: item['valor'].toString(),
-          frequencia: item['frequencia'].toString(),
-          textBusca: '',
-        );
-        if (!_items.contains(data)) {
-          //_items.add(data);
-        }
-      },
-    ).toList();
-
     // items.sort((a, b) => a.des_profissional.compareTo(b.des_profissional));
 
     notifyListeners();
@@ -142,9 +113,10 @@ class VoucherList with ChangeNotifier {
 
   List<Voucher> generateAutomaticVouchers({
     required int quantity,
-    required List<Procedimento> product,
-    required Usuario logistaCPF,
-    required List<Usuario> representante,
+    required List<Unidade> locais,
+    required List<Procedimento> servicos,
+    required List<Usuario> logista,
+    required List<Usuario> representantes,
     required List<Usuario> clientes,
     required String dataValidade,
     required String observacao,
@@ -152,9 +124,10 @@ class VoucherList with ChangeNotifier {
   }) {
     return generateVouchers(
         quantity: quantity,
-        product: product,
-        logistaCPF: logistaCPF,
-        representante: representante,
+        locais: locais,
+        servicos: servicos,
+        logista: logista,
+        representantes: representantes,
         clientes: clientes,
         dataValidade: dataValidade,
         observacao: observacao,
@@ -163,11 +136,11 @@ class VoucherList with ChangeNotifier {
 
   void shareVoucherWithSalesRepresentative(
       Voucher voucher, String salesRepresentative) {
-    print('Voucher ${voucher.code} compartilhado com $salesRepresentative');
+    print('Voucher ${voucher.id} compartilhado com $salesRepresentative');
   }
 
   void distributeVoucherToBuyer(Voucher voucher, String buyer) {
-    print('Voucher ${voucher.code} distribuído para $buyer');
+    print('Voucher ${voucher.id} distribuído para $buyer');
   }
 
   Future<pdf.Document> generateVouchersPdf(List<Voucher> vouchers) async {
@@ -192,25 +165,26 @@ class VoucherList with ChangeNotifier {
 
   List<Voucher> generateVouchers({
     required int quantity,
-    required List<Procedimento> product,
-    required Usuario logistaCPF,
-    required List<Usuario> representante,
+    required List<Procedimento> servicos,
+    required List<Unidade> locais,
+    required List<Usuario> logista,
+    required List<Usuario> representantes,
     required List<Usuario> clientes,
     required String dataValidade,
     required String observacao,
     required String status,
   }) {
     List<Voucher> vouchers = [];
-
+    String voucherCode = generateUniqueCode();
     for (int i = 0; i < quantity; i++) {
       String voucherId = UniqueKey().toString();
-      String voucherCode = generateUniqueCode();
       Voucher voucher = Voucher(
           id: voucherId,
           code: voucherCode,
-          product: product,
-          logistaCPF: logistaCPF,
-          representante: representante,
+          servicos: servicos,
+          locais: locais,
+          logista: logista,
+          representantes: representantes,
           clientes: clientes,
           dataValidade: dataValidade,
           observacao: observacao,
@@ -224,6 +198,6 @@ class VoucherList with ChangeNotifier {
   String generateUniqueCode() {
     // Implemente uma lógica para gerar um código único
     // Pode ser um código aleatório, baseado em algum algoritmo específico, etc.
-    return UniqueKey().toString();
+    return UniqueKey().toString().replaceAll('[', '').replaceAll(']', '');
   }
 }

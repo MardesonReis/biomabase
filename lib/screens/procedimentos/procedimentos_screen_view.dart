@@ -108,7 +108,7 @@ class _ProcedimentosScrennViwerState extends State<ProcedimentosScrennViwer> {
     mockResults = auth.filtrosativos.medicos;
     List<Data> m = [];
     List<Medicos> medicos =
-        dt.returnMedicos(widget.procedimentos.cod_procedimentos);
+        dt.returnMedicos(widget.procedimentos.cod_procedimento);
 
     var filtrarProcedimento = filtros.procedimentos.isNotEmpty;
 
@@ -141,7 +141,7 @@ class _ProcedimentosScrennViwerState extends State<ProcedimentosScrennViwer> {
               child: Column(
                 children: [
                   CustomAppBar('Procedimento:\n',
-                      widget.procedimentos.des_procedimentos, () {}, [
+                      widget.procedimentos.des_procedimento, () {}, [
                     IconButton(
                         onPressed: () {
                           setState(() {

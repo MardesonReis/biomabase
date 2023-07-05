@@ -134,7 +134,7 @@ class _ConfirmaRegraState extends State<ConfirmaRegra> with RestorationMixin {
 
     return Scaffold(
       appBar: AppBar(
-        title: textResp(widget.procedimento.des_procedimentos.capitalize()),
+        title: textResp(widget.procedimento.des_procedimento.capitalize()),
       ),
       body: SingleChildScrollView(
         child: Wrap(
@@ -169,7 +169,8 @@ class _ConfirmaRegraState extends State<ConfirmaRegra> with RestorationMixin {
                     'Valor de tabela ',
                     style: TextStyle(fontSize: 11),
                   ),
-                  if (widget.procedimento.especialidade.codespecialidade == '1')
+                  if (widget.procedimento.especialidade.cod_especialidade ==
+                      '1')
                     Text(
                       ManoBino[widget.procedimento.quantidade]!,
                       style: TextStyle(fontSize: 11),
@@ -373,7 +374,8 @@ class _ConfirmaRegraState extends State<ConfirmaRegra> with RestorationMixin {
                     'Valor sugerido ',
                     style: TextStyle(fontSize: 11),
                   ),
-                  if (widget.procedimento.especialidade.codespecialidade == '1')
+                  if (widget.procedimento.especialidade.cod_especialidade ==
+                      '1')
                     Text(
                       ManoBino[widget.procedimento.quantidade]!,
                       style: TextStyle(fontSize: 11),
@@ -673,8 +675,8 @@ class _ConfirmaRegraState extends State<ConfirmaRegra> with RestorationMixin {
                         }
 
                         if (_tipo_regra_parceiro) {
-                          parceiro.pacientes_cpf = '*';
-                          parceiro.pacientes_nomepaciente = 'Todos';
+                          parceiro.cpf = '*';
+                          parceiro.nome = 'Todos';
                         } else {
                           parceiro = filtros.usuarios.first;
                         }
@@ -686,20 +688,20 @@ class _ConfirmaRegraState extends State<ConfirmaRegra> with RestorationMixin {
                         final String horaatual = formatterHora.format(now);
                         Regra regra = Regra(
                             r_id: '',
-                            r_cpf_parceiro: parceiro.pacientes_cpf,
-                            r_des_parceiro: parceiro.pacientes_nomepaciente,
+                            r_cpf_parceiro: parceiro.cpf,
+                            r_des_parceiro: parceiro.nome,
                             r_cod_profissional: widget.medico.cod_profissional,
                             r_cpf_profissional: widget.medico.cpf,
                             r_des_profissional: widget.medico.des_profissional,
                             r_crm_profissional: widget.medico.crm,
-                            r_sub_especialidade:
-                                widget.medico.subespecialidade.isNotEmpty
-                                    ? widget.medico.subespecialidade
-                                    : widget.medico.especialidade.descricao,
+                            r_sub_especialidade: widget
+                                    .medico.subespecialidade.isNotEmpty
+                                ? widget.medico.subespecialidade
+                                : widget.medico.especialidade.des_especialidade,
                             r_cod_especialidade:
-                                widget.medico.especialidade.codespecialidade,
+                                widget.medico.especialidade.cod_especialidade,
                             r_des_especialidade:
-                                widget.medico.especialidade.descricao,
+                                widget.medico.especialidade.des_especialidade,
                             r_grupo: widget.procedimento.grupo,
                             r_cod_unidade: widget.unidade.cod_unidade,
                             r_des_unidade: widget.unidade.des_unidade +
@@ -707,9 +709,9 @@ class _ConfirmaRegraState extends State<ConfirmaRegra> with RestorationMixin {
                             r_cod_convenio: widget.conveio.cod_convenio,
                             r_desc_convenio: widget.conveio.desc_convenio,
                             r_cod_procedimentos:
-                                widget.procedimento.cod_procedimentos,
+                                widget.procedimento.cod_procedimento,
                             r_des_procedimentos:
-                                widget.procedimento.des_procedimentos,
+                                widget.procedimento.des_procedimento,
                             r_cod_tratamento:
                                 widget.procedimento.cod_tratamento,
                             r_tipo_tratamento:

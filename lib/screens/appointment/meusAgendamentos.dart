@@ -425,9 +425,10 @@ class _EmptyContentsState extends State<_EmptyContents> {
                           return null;
                         });
                         procedimento.especialidade = Especialidade(
-                            codespecialidade:
+                            cod_especialidade:
                                 widget.agendamento.cod_especialidade,
-                            descricao: widget.agendamento.des_especialidade,
+                            des_especialidade:
+                                widget.agendamento.des_especialidade,
                             ativo: 'S');
                         procedimento.EscolherOlho(widget.agendamento.olho);
 

@@ -86,7 +86,7 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
     mockResults = auth.filtrosativos.medicos;
     var user = Usuario();
     if (itens.isNotEmpty) {
-      user.pacientes_cpf = itens.first.autor;
+      user.cpf = itens.first.autor;
     }
 
     return Scaffold(
@@ -127,7 +127,7 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        user.pacientes_cpf.isNotEmpty
+                        user.cpf.isNotEmpty
                             ? UserCard(user: user, press: () {})
                             : SizedBox(),
                         Padding(
@@ -375,8 +375,8 @@ class _NovaIndicacaoState extends State<NovaIndicacao> {
               Convenios convenio = Convenios(
                   cod_convenio: i.cod_convenio, desc_convenio: i.des_convenio);
               Especialidade especialidade = Especialidade(
-                  codespecialidade: i.cod_especialidade,
-                  descricao: i.des_especialidade,
+                  cod_especialidade: i.cod_especialidade,
+                  des_especialidade: i.des_especialidade,
                   ativo: 'S');
 
               procedimentos.especialidade = especialidade;
